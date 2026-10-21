@@ -4,9 +4,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import org.json.JSONArray
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
-class TamilDatabaseHelper(context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 1) {
+class TamilDatabaseHelper(private val context: Context) : 
+    SQLiteOpenHelper(context, "tamil_calendar.db", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("""
@@ -23,24 +26,45 @@ class TamilDatabaseHelper(context: Context) :
             )
         """.trimIndent())
         
-        insertSampleData(db)
+        loadFromAssets(db)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {}
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db.execSQL("DROP TABLE IF EXISTS tamil_panchangam")
+        onCreate(db)
+    }
 
-    private fun insertSampleData(db: SQLiteDatabase) {
-        val cv = ContentValues().apply {
-            put("gregorian_date", "2026-10-21")
-            put("day_name_ta", "புதன்")
-            put("tamil_month", "ஐப்பசி")
-            put("tamil_day", 4)
-            put("tithi", "ஏகாதசி")
-            put("nakshatra", "ரோகிணி")
-            put("nalla_neram", "09:15 AM - 10:15 AM")
-            put("rahu_kalam", "12:00 PM - 01:30 PM")
-            put("yama_gandam", "07:30 AM - 09:00 AM")
+    private fun loadFromAssets(db: SQLiteDatabase) {
+        try {
+            val inputStream = context.assets.open("calendar_data.json")
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val jsonString = reader.use { it.readText() }
+            val jsonArray = JSONArray(jsonString)
+
+            db.beginTransaction()
+            try {
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val cv = ContentValues().apply {
+                        put("gregorian_date", obj.optString("gregorian_date"))
+                        put("day_name_ta", obj.optString("day_name_ta"))
+                        put("tamil_month", obj.optString("tamil_month"))
+                        put("tamil_day", obj.optInt("tamil_day"))
+                        put("tithi", obj.optString("tithi"))
+                        put("nakshatra", obj.optString("nakshatra"))
+                        put("nalla_neram", obj.optString("nalla_neram"))
+                        put("rahu_kalam", obj.optString("rahu_kalam"))
+                        put("yama_gandam", obj.optString("yama_gandam"))
+                    }
+                    db.insertWithOnConflict("tamil_panchangam", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+                }
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        db.insertWithOnConflict("tamil_panchangam", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
     fun getDayDetails(dateString: String): TamilDateInfo? {
