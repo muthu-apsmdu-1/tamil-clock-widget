@@ -37,9 +37,88 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Widget Background Transparency"
-            android:textSize="16sp"
+            android:text="Widget Appearance"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textColor="#FFFFFF" />
+
+        <!-- Live Preview Box -->
+        <LinearLayout
+            android:id="@+id/preview_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/widget_background">
+
+            <TextView
+                android:id="@+id/preview_clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10 : 30 AM"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#FFEB3B" />
+
+            <TextView
+                android:id="@+id/preview_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="புதன் - ஐப்பசி 4"
+                android:textSize="16sp"
+                android:textColor="#FFEB3B" />
+        </LinearLayout>
+
+        <!-- Text Color Choices -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Text Color"
+            android:textSize="15sp"
+            android:textColor="#CCCCCC" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_color_yellow"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Yellow" />
+
+            <Button
+                android:id="@+id/btn_color_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="White" />
+
+            <Button
+                android:id="@+id/btn_color_cyan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cyan" />
+        </LinearLayout>
+
+        <!-- Transparency Slider -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Background Transparency"
+            android:textSize="15sp"
+            android:textColor="#CCCCCC" />
 
         <SeekBar
             android:id="@+id/seek_alpha"
