@@ -1,0 +1,57 @@
+[
+  {
+    "gregorian_date": "2026-10-21",
+    "day_name_ta": "புதன்",
+    "tamil_month": "ஐப்பசி",
+    "tamil_day": 4,
+    "tithi": "ஏகாதசி",
+    "nakshatra": "ரோகிணி",
+    "nalla_neram": "09:15 AM - 10:15 AM",
+    "rahu_kalam": "12:00 PM - 01:30 PM",
+    "yama_gandam": "07:30 AM - 09:00 AM"
+  },
+  {
+    "gregorian_date": "2026-10-22",
+    "day_name_ta": "வியாழன்",
+    "tamil_month": "ஐப்பசி",
+    "tamil_day": 5,
+    "tithi": "துவாதசி",
+    "nakshatra": "மிருகசீரிஷம்",
+    "nalla_neram": "10:45 AM - 11:45 AM",
+    "rahu_kalam": "01:30 PM - 03:00 PM",
+    "yama_gandam": "06:00 AM - 07:30 AM"
+  },
+  {
+    "gregorian_date": "2026-10-23",
+    "day_name_ta": "வெள்ளி",
+    "tamil_month": "ஐப்பசி",
+    "tamil_day": 6,
+    "tithi": "திரயோதசி",
+    "nakshatra": "திருவாதிரை",
+    "nalla_neram": "09:15 AM - 10:15 AM",
+    "rahu_kalam": "10:30 AM - 12:00 PM",
+    "yama_gandam": "03:00 PM - 04:30 PM"
+  },
+  {
+    "gregorian_date": "2026-10-24",
+    "day_name_ta": "சனி",
+    "tamil_month": "ஐப்பசி",
+    "tamil_day": 7,
+    "tithi": "சதுர்த்தசி",
+    "nakshatra": "புனர்பூசம்",
+    "nalla_neram": "07:15 AM - 08:15 AM",
+    "rahu_kalam": "09:00 AM - 10:30 AM",
+    "yama_gandam": "01:30 PM - 03:00 PM"
+  },
+  {
+    "gregorian_date": "2026-10-25",
+    "day_name_ta": "ஞாயிறு",
+    "tamil_month": "ஐப்பசி",
+    "tamil_day": 8,
+    "tithi": "அமாவாசை",
+    "nakshatra": "பூசம்",
+    "nalla_neram": "07:30 AM - 08:30 AM",
+    "rahu_kalam": "04:30 PM - 06:00 PM",
+    "yama_gandam": "12:00 PM - 01:30 PM"
+  }
+]
