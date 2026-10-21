@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp"
+    android:padding="@dimen/widget_padding"
     android:background="@drawable/widget_background">
 
     <TextClock
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:format12Hour="hh : mm a"
         android:format24Hour="HH : mm"
-        android:textSize="32sp"
+        android:textSize="@dimen/clock_text_size"
         android:textStyle="bold"
         android:textColor="#FFEB3B" />
 
@@ -22,16 +22,16 @@
         android:id="@+id/tv_gregorian_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="18sp"
+        android:layout_marginTop="6dp"
+        android:textSize="@dimen/date_text_size"
         android:textColor="#FFEB3B" />
 
     <TextView
         android:id="@+id/tv_tamil_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textSize="18sp"
+        android:layout_marginTop="2dp"
+        android:textSize="@dimen/tamil_date_text_size"
         android:textStyle="bold"
         android:textColor="#FFEB3B" />
 </LinearLayout>
