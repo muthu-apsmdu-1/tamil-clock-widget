@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_widget_card"
+    android:padding="12dp">
+
+    <!-- Top Section (Horizontal Split: Left Analog Dial, Right Date Stack) -->
+    <LinearLayout
+        android:id="@+id/layout_top_section"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/layout_row4_container"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Left: Native AnalogClock (Display Only - Zero Battery Overhead) -->
+        <LinearLayout
+            android:id="@+id/layout_clock_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="2dp">
+
+            <AnalogClock
+                android:id="@+id/ac_classic_clock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:dial="@drawable/clock_dial_classic"
+                android:hand_hour="@drawable/clock_hour_hand"
+                android:hand_minute="@drawable/clock_minute_hand" />
+        </LinearLayout>
+
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/view_split_divider"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginVertical="6dp"
+            android:background="#22FFFFFF" />
+
+        <!-- Right: Date Column (Rows 1, 2, 3) -->
+        <LinearLayout
+            android:id="@+id/layout_date_column"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:gravity="center_vertical|start"
+            android:paddingStart="12dp"
+            android:orientation="vertical">
+
+            <!-- Row 1: Gregorian Date (Display Only) -->
+            <TextView
+                android:id="@+id/tv_gregorian_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="22 - 10 - 2026"
+                android:textSize="12sp"
+                android:textColor="#CCCCCC"
+                android:textStyle="normal" />
+
+            <!-- Row 2: Weekday (Display Only) -->
+            <TextView
+                android:id="@+id/tv_weekday_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="வியாழன்"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <!-- Row 3: Tamil Month & Date (EXCLUSIVE TAP TARGET TO OPEN APP) -->
+            <TextView
+                android:id="@+id/tv_tamil_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:paddingVertical="2dp"
+                android:paddingHorizontal="4dp"
+                android:text="ஐப்பசி 5"
+                android:textSize="17sp"
+                android:textColor="#FFD4AF37"
+                android:textStyle="bold"
+                android:background="?android:attr/selectableItemBackground" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Section: Row 4 Full Width Container -->
+    <LinearLayout
+        android:id="@+id/layout_row4_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <!-- Option Choice 1 Chip -->
+        <TextView
+            android:id="@+id/tv_row4_chip1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:background="@drawable/bg_row4_chip"
+            android:gravity="center"
+            android:text="பராபவ வருடம்"
+            android:textSize="11sp"
+            android:textColor="#E0E0E0"
+            android:singleLine="true" />
+
+        <!-- Option Choice 2 Chip -->
+        <TextView
+            android:id="@+id/tv_row4_chip2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_row4_chip"
+            android:gravity="center"
+            android:text="வளர்பிறை"
+            android:textSize="11sp"
+            android:textColor="#FFD4AF37"
+            android:singleLine="true" />
+    </LinearLayout>
+
+</RelativeLayout>
