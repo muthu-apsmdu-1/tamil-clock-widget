@@ -1,107 +1,72 @@
 package com.example.tamilclock
 
-import android.content.Context
-import android.graphics.Color
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.SeekBar
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    private var currentAlpha = 80
-    private var currentTextColor = Color.parseColor("#FFEB3B")
-    private var currentBgColor = Color.parseColor("#000000")
+    private lateinit var dbHelper: TamilDatabaseHelper
+    private var currentDate = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val prefs = getSharedPreferences("WidgetPreferences", Context.MODE_PRIVATE)
-        currentTextColor = prefs.getInt("text_color", Color.parseColor("#FFEB3B"))
-        currentBgColor = prefs.getInt("bg_color", Color.parseColor("#000000"))
-        currentAlpha = prefs.getInt("bg_alpha", 80)
+        dbHelper = TamilDatabaseHelper(this)
 
-        val tvPanchangam = findViewById<TextView>(R.id.tv_panchangam_details)
-        val previewBox = findViewById<View>(R.id.preview_box)
-        val previewClock = findViewById<TextView>(R.id.preview_clock)
-        val previewDate = findViewById<TextView>(R.id.preview_date)
+        updateUI()
+        updateWidgets()
+    }
 
-        val btnYellow = findViewById<Button>(R.id.btn_color_yellow)
-        val btnWhite = findViewById<Button>(R.id.btn_color_white)
-        val btnCyan = findViewById<Button>(R.id.btn_color_cyan)
-        val alphaSeekBar = findViewById<SeekBar>(R.id.seek_alpha)
-        val btnSave = findViewById<Button>(R.id.btn_save_widget)
+    private fun updateUI() {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateString = dateFormat.format(currentDate.time)
+        val info = dbHelper.getDayDetails(dateString)
 
-        val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-        val dbHelper = TamilDatabaseHelper(this)
-        val info = dbHelper.getDayDetails(todayStr)
+        val tvTamilDate = findViewById<TextView?>(R.id.tv_tamil_date)
+        val tvNallaNeram = findViewById<TextView?>(R.id.tv_nalla_neram)
 
         if (info != null) {
-            tvPanchangam.text = """
-                தேதி: ${info.dayName} - ${info.tamilMonth} ${info.tamilDay}
-                திதி: ${info.tithi}
-                நட்சத்திரம்: ${info.nakshatra}
-                நல்ல நேரம்: ${info.nallaNeram}
-                ராகு காலம்: ${info.rahuKalam}
-                எமகண்டம்: ${info.yamaGandam}
-            """.trimIndent()
-            previewDate.text = "${info.dayName} - ${info.tamilMonth} ${info.tamilDay}"
+            tvTamilDate?.text = "${info.tamilMonth} ${info.tamilDay}, ${info.tamilYear}"
+            tvNallaNeram?.text = "${info.nallaNeramMorning} / ${info.nallaNeramEvening}"
         } else {
-            tvPanchangam.text = "இன்றைய பஞ்சாங்க விவரங்கள் கிடைக்கவில்லை"
+            tvTamilDate?.text = "ஐப்பசி 5"
+            tvNallaNeram?.text = "10:45 AM - 11:45 AM"
         }
+    }
 
-        fun updatePreview() {
-            val bg = Color.argb(
-                currentAlpha,
-                Color.red(currentBgColor),
-                Color.green(currentBgColor),
-                Color.blue(currentBgColor)
-            )
-            previewBox.setBackgroundColor(bg)
-            previewClock.setTextColor(currentTextColor)
-            previewDate.setTextColor(currentTextColor)
-        }
+    private fun updateWidgets() {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
 
-        updatePreview()
-
-        btnYellow.setOnClickListener {
-            currentTextColor = Color.parseColor("#FFEB3B")
-            updatePreview()
-        }
-        btnWhite.setOnClickListener {
-            currentTextColor = Color.parseColor("#FFFFFF")
-            updatePreview()
-        }
-        btnCyan.setOnClickListener {
-            currentTextColor = Color.parseColor("#00E5FF")
-            updatePreview()
-        }
-
-        alphaSeekBar.progress = currentAlpha
-        alphaSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(bar: SeekBar?, progress: Int, fromUser: Boolean) {
-                currentAlpha = progress
-                updatePreview()
+        // Notify Digital Widget
+        val digitalComponent = ComponentName(this, DigitalClockWidgetProvider::class.java)
+        val digitalIds = appWidgetManager.getAppWidgetIds(digitalComponent)
+        if (digitalIds.isNotEmpty()) {
+            val intent = Intent(this, DigitalClockWidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, digitalIds)
             }
-            override fun onStartTrackingTouch(bar: SeekBar?) {}
-            override fun onStopTrackingTouch(bar: SeekBar?) {}
-        })
+            sendBroadcast(intent)
+        }
 
-        btnSave.setOnClickListener {
-            prefs.edit()
-                .putInt("text_color", currentTextColor)
-                .putInt("bg_color", currentBgColor)
-                .putInt("bg_alpha", currentAlpha)
-                .apply()
-
-            TamilClockWidgetProvider.updateAllWidgets(this)
-            finish()
+        // Notify Classic Analog Widget
+        val classicComponent = ComponentName(this, ClassicClockWidgetProvider::class.java)
+        val classicIds = appWidgetManager.getAppWidgetIds(classicComponent)
+        if (classicIds.isNotEmpty()) {
+            val intent = Intent(this, ClassicClockWidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, classicIds)
+            }
+            sendBroadcast(intent)
         }
     }
 }
