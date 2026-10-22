@@ -1,139 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
-    android:padding="20dp">
+    android:background="@color/app_background_cream">
 
+    <!-- Main Vertical Content Tree -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="இன்றைய பஞ்சாங்கம்"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#FFEB3B" />
-
-        <TextView
-            android:id="@+id/tv_panchangam_details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:lineSpacingExtra="6dp"
-            android:textSize="16sp"
-            android:textColor="#FFFFFF" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="#333333" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Widget Appearance"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
-
-        <!-- Live Preview Box -->
+        <!-- Top Golden Header Container -->
         <LinearLayout
-            android:id="@+id/preview_box"
+            android:id="@+id/header_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:gravity="center"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/widget_background">
+            android:background="@color/gold_header_primary">
 
-            <TextView
-                android:id="@+id/preview_clock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10 : 30 AM"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="#FFEB3B" />
+            <!-- Top Header Action Bar (56dp) -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:paddingHorizontal="8dp">
 
-            <TextView
-                android:id="@+id/preview_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="புதன் - ஐப்பசி 4"
-                android:textSize="16sp"
-                android:textColor="#FFEB3B" />
+                <!-- Left: Open Month Calendar Sheet -->
+                <ImageButton
+                    android:id="@+id/btn_monthly_calendar"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/clock_dial_classic"
+                    android:tint="@color/text_primary_dark"
+                    android:contentDescription="மாத காலண்டர்" />
+
+                <!-- Center: பஞ்சாங்கம் Header Title -->
+                <TextView
+                    android:id="@+id/tv_header_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="பஞ்சாங்கம்"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary_dark" />
+
+                <!-- Right: Customization Settings Menu -->
+                <ImageButton
+                    android:id="@+id/btn_settings_customization"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/clock_dial_classic"
+                    android:tint="@color/text_primary_dark"
+                    android:contentDescription="அமைப்புகள்" />
+            </RelativeLayout>
+
+            <!-- Three Main Tabs (Panchangam, Rasi Palan, Horai) -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout_main"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/gold_header_primary"
+                app:tabIndicatorColor="@color/crimson_card_bg"
+                app:tabIndicatorHeight="3dp"
+                app:tabSelectedTextColor="@color/traditional_maroon"
+                app:tabTextColor="@color/text_secondary_dark"
+                app:tabMode="fixed"
+                app:tabGravity="fill" />
         </LinearLayout>
 
-        <!-- Text Color Choices -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="Text Color"
-            android:textSize="15sp"
-            android:textColor="#CCCCCC" />
-
-        <LinearLayout
+        <!-- ViewPager2 for the 3 Tab Screens -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_color_yellow"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="Yellow" />
-
-            <Button
-                android:id="@+id/btn_color_white"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="White" />
-
-            <Button
-                android:id="@+id/btn_color_cyan"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cyan" />
-        </LinearLayout>
-
-        <!-- Transparency Slider -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="Background Transparency"
-            android:textSize="15sp"
-            android:textColor="#CCCCCC" />
-
-        <SeekBar
-            android:id="@+id/seek_alpha"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:max="255"
-            android:progress="80" />
-
-        <Button
-            android:id="@+id/btn_save_widget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Apply to Widget" />
-
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
-</ScrollView>
+
+    <!-- Hybrid Monthly Calendar Bottom Sheet -->
+    <LinearLayout
+        android:id="@+id/bottom_sheet_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/bg_widget_card"
+        app:behavior_hideable="true"
+        app:behavior_skipCollapsed="false"
+        app:behavior_peekHeight="380dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Top Drag Pill Handle -->
+        <View
+            android:layout_width="38dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/bg_row4_chip" />
+
+        <!-- Month Navigation Bar (< ஐப்பசி 2026 >) -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:paddingHorizontal="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_prev_month"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/clock_hour_hand"
+                android:contentDescription="முந்தைய மாதம்" />
+
+            <TextView
+                android:id="@+id/tv_sheet_month_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="ஐப்பசி 2026"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_gold_accent" />
+
+            <ImageButton
+                android:id="@+id/btn_next_month"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/clock_minute_hand"
+                android:contentDescription="அடுத்த மாதம்" />
+        </RelativeLayout>
+
+        <!-- Dynamic Content: Month Grid & Full-Screen Traditional Details -->
+        <FrameLayout
+            android:id="@+id/container_calendar_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
