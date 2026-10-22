@@ -17,8 +17,9 @@
             </intent-filter>
         </activity>
 
+        <!-- 1. Digital Clock & Panchangam Widget Receiver -->
         <receiver
-            android:name=".TamilClockWidgetProvider"
+            android:name=".DigitalClockWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -28,7 +29,22 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/tamil_clock_widget_info" />
+                android:resource="@xml/appwidget_digital_info" />
+        </receiver>
+
+        <!-- 2. Classic Analog Clock Widget Receiver -->
+        <receiver
+            android:name=".ClassicClockWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_classic_info" />
         </receiver>
 
     </application>
