@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Outer Dial Rim -->
+    <path
+        android:pathData="M 100,100 m -92,0 a 92,92 0 1,1 184,0 a 92,92 0 1,1 -184,0"
+        android:strokeWidth="2.5"
+        android:strokeColor="#55D4AF37"
+        android:fillColor="#151212" />
+
+    <!-- Inner Subtle Accent Ring -->
+    <path
+        android:pathData="M 100,100 m -85,0 a 85,85 0 1,1 170,0 a 85,85 0 1,1 -170,0"
+        android:strokeWidth="1"
+        android:strokeColor="#22FFFFFF"
+        android:fillColor="#00000000" />
+
+    <!-- 12, 3, 6, 9 Cardinal Markers (Bold Gold Pills) -->
+    <!-- 12 o'clock -->
+    <path
+        android:pathData="M 98,18 H 102 V 30 H 98 Z"
+        android:fillColor="#FFD4AF37" />
+    <!-- 3 o'clock -->
+    <path
+        android:pathData="M 170,98 H 182 V 102 H 170 Z"
+        android:fillColor="#FFD4AF37" />
+    <!-- 6 o'clock -->
+    <path
+        android:pathData="M 98,170 H 102 V 182 H 98 Z"
+        android:fillColor="#FFD4AF37" />
+    <!-- 9 o'clock -->
+    <path
+        android:pathData="M 18,98 H 30 V 102 H 18 Z"
+        android:fillColor="#FFD4AF37" />
+
+    <!-- Intermediate Hour Markers (1, 2, 4, 5, 7, 8, 10, 11) Subtle Dots -->
+    <path
+        android:pathData="
+            M 141,27 A 3,3 0 1,1 139,23 Z
+            M 173,59 A 3,3 0 1,1 171,55 Z
+            M 173,141 A 3,3 0 1,1 171,145 Z
+            M 141,173 A 3,3 0 1,1 139,177 Z
+            M 59,173 A 3,3 0 1,1 61,177 Z
+            M 27,141 A 3,3 0 1,1 29,145 Z
+            M 27,59 A 3,3 0 1,1 29,55 Z
+            M 59,27 A 3,3 0 1,1 61,23 Z"
+        android:fillColor="#B3FFFFFF" />
+</vector>
