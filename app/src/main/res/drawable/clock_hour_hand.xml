@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Tapered Hour Pointer (Pivot point at 100, 100) -->
+    <path
+        android:pathData="M 97.5,100 L 98.5,45 L 100,40 L 101.5,45 L 102.5,100 L 101,114 L 99,114 Z"
+        android:fillColor="#FFFFFFFF" />
+</vector>
