@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cell_root"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:layout_margin="2dp"
+    android:background="@drawable/bg_row4_chip"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- Gregorian Date Number (Bold White) -->
+    <TextView
+        android:id="@+id/tv_cell_gregorian"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="23"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_white" />
+
+    <!-- Tamil Date Number (Gold Accent) -->
+    <TextView
+        android:id="@+id/tv_cell_tamil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6"
+        android:textSize="11sp"
+        android:textColor="@color/text_gold_accent" />
+
+    <!-- Indicator Dot for Special Tithi / Muhurtham -->
+    <View
+        android:id="@+id/view_cell_indicator"
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/bg_widget_card"
+        android:visibility="gone" />
+</LinearLayout>
