@@ -96,9 +96,8 @@ class MainPagerAdapter(
         private val tvMoonrise: TextView = itemView.findViewById(R.id.tv_moonrise_val)
         private val tvMoonset: TextView = itemView.findViewById(R.id.tv_moonset_val)
 
-        private val tvTithi: TextView = itemView.findViewById(R.id.tv_tithi_val)
         private val tvNakshatra: TextView = itemView.findViewById(R.id.tv_nakshatra_val)
-        private val tvPaksham: TextView = itemView.findViewById(R.id.tv_paksham_val)
+        private val tvNakshatraTime: TextView? = itemView.findViewById(R.id.tv_nakshatra_time)
 
         private val tvNallaNeram: TextView = itemView.findViewById(R.id.tv_nalla_neram_val)
         private val tvGouri: TextView = itemView.findViewById(R.id.tv_gouri_val)
@@ -113,21 +112,31 @@ class MainPagerAdapter(
 
             if (data != null) {
                 tvWeekday.text = data.dayName
-                tvTamilDate.text = "${data.tamilYear} வருடம் - ${data.tamilMonth} ${data.tamilDay}"
 
-                tvSunrise.text = data.sunrise.ifEmpty { "06:08 AM" }
-                tvSunset.text = data.sunset.ifEmpty { "05:58 PM" }
-                tvMoonrise.text = data.moonrise.ifEmpty { "04:20 PM" }
-                tvMoonset.text = data.moonset.ifEmpty { "04:55 AM" }
+                // Format: வருடம் - மாதம் தேதி / திதி
+                val tithiText = if (data.tithi.isNotEmpty()) " / ${data.tithi}" else ""
+                tvTamilDate.text = "${data.tamilYear} வருடம் - ${data.tamilMonth} ${data.tamilDay}$tithiText"
 
-                tvTithi.text = data.tithi
-                tvNakshatra.text = data.nakshatra
-                tvPaksham.text = data.paksham
+                tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "06:08 AM" }}"
+                tvSunset.text = "↓  ${data.sunset.ifEmpty { "05:57 PM" }}"
+                tvMoonrise.text = "↑  ${data.moonrise.ifEmpty { "03:00 PM" }}"
+                tvMoonset.text = "↓  ${data.moonset.ifEmpty { "03:12 AM" }}"
 
-                tvNallaNeram.text = "${data.nallaNeramMorning} / ${data.nallaNeramEvening}"
-                tvGouri.text = "${data.gouriNallaMorning} / ${data.gouriNallaEvening}"
-                tvRahu.text = data.rahuKalam
-                tvYamagandam.text = data.yamaGandam
+                tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}"
+                tvNakshatraTime?.text = data.paksham.ifEmpty { "" }
+
+                val nallaNeramCombined = listOf(data.nallaNeramMorning, data.nallaNeramEvening)
+                    .filter { it.isNotEmpty() }
+                    .joinToString(" / ")
+                tvNallaNeram.text = nallaNeramCombined.ifEmpty { "10:45 AM - 11:45 AM" }
+
+                val gowriCombined = listOf(data.gouriNallaMorning, data.gouriNallaEvening)
+                    .filter { it.isNotEmpty() }
+                    .joinToString(" / ")
+                tvGouri.text = gowriCombined.ifEmpty { "06:30 PM - 07:30 PM" }
+
+                tvRahu.text = "இராகு காலம்: ${data.rahuKalam}"
+                tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam}"
             }
         }
     }
