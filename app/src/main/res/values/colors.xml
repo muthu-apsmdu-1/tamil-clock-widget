@@ -6,8 +6,10 @@
     <color name="crimson_card_bg">#5D0A14</color>
     <color name="crimson_text">#6A0DAD</color>
     <color name="traditional_maroon">#4A000A</color>
+    <color name="temple_green">#0D5323</color>
+    <color name="temple_green_muted">#1E6637</color>
 
-    <!-- Content & Card Backgrounds -->
+    <!-- Content & Card Backgrounds (Default Traditional) -->
     <color name="app_background_cream">#FDFBF7</color>
     <color name="card_surface_light">#FFFFFF</color>
     <color name="card_border_subtle">#EFE8DC</color>
@@ -25,4 +27,34 @@
     <color name="horai_medium_text">#F57F17</color>
     <color name="horai_avoid_bg">#ECEFF1</color>
     <color name="horai_avoid_text">#546E7A</color>
+
+    <!-- ==================== 4 DYNAMIC THEME PALETTES ==================== -->
+
+    <!-- Theme 1: Classic White (தூய வெள்ளை) -->
+    <color name="theme_white_canvas">#FBFBFD</color>
+    <color name="theme_white_card">#FFFFFF</color>
+    <color name="theme_white_card_stroke">#E5E5EA</color>
+    <color name="theme_white_text_title">#5D0A14</color>
+    <color name="theme_white_text_body">#1C1C1E</color>
+
+    <!-- Theme 2: Sandalwood Yellow (சந்தன மஞ்சள்) -->
+    <color name="theme_yellow_canvas">#FAF3E0</color>
+    <color name="theme_yellow_card">#FFFDF7</color>
+    <color name="theme_yellow_card_stroke">#E6D7B8</color>
+    <color name="theme_yellow_text_title">#5D0A14</color>
+    <color name="theme_yellow_text_body">#2D1F18</color>
+
+    <!-- Theme 3: Temple Light Green (மென் பச்சை) -->
+    <color name="theme_green_canvas">#EBF3ED</color>
+    <color name="theme_green_card">#F6FAF7</color>
+    <color name="theme_green_card_stroke">#CFE2D4</color>
+    <color name="theme_green_text_title">#0D5323</color>
+    <color name="theme_green_text_body">#1B3322</color>
+
+    <!-- Theme 4: Charcoal Dark (கரிவண்ணம்) -->
+    <color name="theme_dark_canvas">#121214</color>
+    <color name="theme_dark_card">#1E1E24</color>
+    <color name="theme_dark_card_stroke">#2C2C34</color>
+    <color name="theme_dark_text_title">#FFD54F</color>
+    <color name="theme_dark_text_body">#EDEDED</color>
 </resources>
