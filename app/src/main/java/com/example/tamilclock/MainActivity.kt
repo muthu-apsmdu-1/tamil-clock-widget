@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         val formattedHeader = displayFormat.format(selectedCalendar.time)
 
         val dayData = dbHelper.getDayDetails(dateKey)
-        pagerAdapter.updateData(formattedHeader, dayData)
+        pagerAdapter.updateData(formattedHeader, dayData, selectedCalendar)
     }
 
     private fun setupHybridBottomSheet() {
@@ -75,21 +75,7 @@ class MainActivity : AppCompatActivity() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        // Full Screen mode
-                    }
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        // Half raised quick picker
-                    }
-                    BottomSheetBehavior.STATE_HIDDEN -> {
-                        // Dismissed
-                    }
-                    else -> Unit
-                }
-            }
-
+            override fun onStateChanged(bottomSheet: View, newState: Int) = Unit
             override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
         })
     }
@@ -107,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSettings?.setOnClickListener {
-            // Widget/preference settings
+            // Future settings dialog
         }
     }
 
