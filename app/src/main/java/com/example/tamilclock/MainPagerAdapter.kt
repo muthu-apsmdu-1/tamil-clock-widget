@@ -7,8 +7,17 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Calendar
+
+data class RasiItem(
+    val name: String,
+    val lord: String,
+    val prediction: String,
+    val luckyNumber: String,
+    val luckyColor: String
+)
 
 class MainPagerAdapter(
     private val onPrevDayClick: () -> Unit,
@@ -48,13 +57,13 @@ class MainPagerAdapter(
                 val view = inflater.inflate(R.layout.fragment_panchangam, parent, false)
                 PanchangamViewHolder(view)
             }
-            TYPE_HORAI -> {
-                val view = inflater.inflate(R.layout.fragment_horai, parent, false)
-                HoraiViewHolder(view)
+            TYPE_RASI_PALAN -> {
+                val view = inflater.inflate(R.layout.fragment_rasi_palan, parent, false)
+                RasiPalanViewHolder(view)
             }
             else -> {
-                val view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false)
-                PlaceholderViewHolder(view)
+                val view = inflater.inflate(R.layout.fragment_horai, parent, false)
+                HoraiViewHolder(view)
             }
         }
     }
@@ -64,14 +73,11 @@ class MainPagerAdapter(
             is PanchangamViewHolder -> {
                 holder.bind(gregorianDateText, panchangamData, onPrevDayClick, onNextDayClick)
             }
+            is RasiPalanViewHolder -> {
+                holder.bind()
+            }
             is HoraiViewHolder -> {
                 holder.bind(dayOfWeek)
-            }
-            is PlaceholderViewHolder -> {
-                holder.textView.text = "${tabTitles[position]} பக்கம் விரைவில்..."
-                holder.textView.textSize = 18f
-                holder.textView.setPadding(32, 64, 32, 32)
-                holder.textView.setTextColor(0xFF2C1A14.toInt())
             }
         }
     }
@@ -126,22 +132,73 @@ class MainPagerAdapter(
         }
     }
 
+    class RasiPalanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val rvGrid: RecyclerView = itemView.findViewById(R.id.rv_rasi_grid)
+
+        private val rasiList = listOf(
+            RasiItem("மேஷம்", "செவ்வாய்", "தொழிலில் மேன்மை உண்டாகும். சுப முயற்சிகள் கைகூடும்.", "9", "சிவப்பு"),
+            RasiItem("ரிஷபம்", "சுக்கிரன்", "பணவரவு திருப்திகரமாக இருக்கும். குடும்பத்தில் மகிழ்ச்சி கூடும்.", "6", "வெள்ளை"),
+            RasiItem("மிதுனம்", "புதன்", "புதிய வாய்ப்புகள் தேடி வரும். நண்பர்களின் ஆதரவு கிடைக்கும்.", "5", "பச்சை"),
+            RasiItem("கடகம்", "சந்திரன்", "மன அமைதியும் ஆரோக்கியமும் கூடும். பயணங்களால் அனுகூலம்.", "2", "வெள்ளை"),
+            RasiItem("சிம்மம்", "சூரியன்", "எடுத்த காரியங்களில் வெற்றி கிட்டும். தலைமைப் பண்பு பளிச்சிடும்.", "1", "மஞ்சள்"),
+            RasiItem("கன்னி", "புதன்", "திட்டமிட்ட காரியங்கள் சுமூகமாக முடியும். வரவு செலவில் கவனம் தேவை.", "5", "சாம்பல்"),
+            RasiItem("துலாம்", "சுக்கிரன்", "தொழில் கூட்டாளிகளிடம் இணக்கம் கூடும். எதிர்பாராத தனலாபம்.", "6", "நீலம்"),
+            RasiItem("விருச்சிகம்", "செவ்வாய்", "தைரியத்துடன் செயல்பட்டு தடைகளைத் தாண்டுவீர்கள். உடல்நலம் சீராகும்.", "9", "சிவப்பு"),
+            RasiItem("தனுசு", "குரு", "பக்தி மார்க்கத்தில் நாட்டம் செல்லும். பெரியோரின் ஆசி கிட்டும்.", "3", "மஞ்சள்"),
+            RasiItem("மகரம்", "சனி", "கடின உழைப்பிற்கு ஏற்ற பலன் கிடைக்கும். நிதானத்துடன் செயல்படவும்.", "8", "கருநீலம்"),
+            RasiItem("கும்பம்", "சனி", "புதிய சிந்தனைகள் மேலோங்கும். சமூகத்தில் நற்பெயர் கூடும்.", "8", "நீலம்"),
+            RasiItem("மீனம்", "குரு", "சுப காரிய பேச்சுவார்த்தைகள் முடிவுக்கு வரும். அமைதியான நாள்.", "3", "பொன்நிறம்")
+        )
+
+        fun bind() {
+            rvGrid.layoutManager = GridLayoutManager(itemView.context, 2)
+            rvGrid.adapter = RasiCardAdapter(rasiList)
+        }
+    }
+
+    class RasiCardAdapter(private val list: List<RasiItem>) :
+        RecyclerView.Adapter<RasiCardAdapter.CardVH>() {
+
+        class CardVH(view: View) : RecyclerView.ViewHolder(view) {
+            val tvName: TextView = view.findViewById(R.id.tv_rasi_name)
+            val tvLord: TextView = view.findViewById(R.id.tv_rasi_lord)
+            val tvPrediction: TextView = view.findViewById(R.id.tv_rasi_prediction)
+            val tvLuckyNum: TextView = view.findViewById(R.id.tv_rasi_lucky_num)
+            val tvLuckyColor: TextView = view.findViewById(R.id.tv_rasi_lucky_color)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardVH {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_rasi_card, parent, false)
+            return CardVH(view)
+        }
+
+        override fun onBindViewHolder(holder: CardVH, position: Int) {
+            val item = list[position]
+            holder.tvName.text = item.name
+            holder.tvLord.text = item.lord
+            holder.tvPrediction.text = item.prediction
+            holder.tvLuckyNum.text = "எண்: ${item.luckyNumber}"
+            holder.tvLuckyColor.text = "நிறம்: ${item.luckyColor}"
+        }
+
+        override fun getItemCount(): Int = list.size
+    }
+
     class HoraiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val dayContainer: LinearLayout = itemView.findViewById(R.id.layout_day_horai_container)
         private val nightContainer: LinearLayout = itemView.findViewById(R.id.layout_night_horai_container)
 
-        // Chaldean planetary order
         private val planets = listOf("சூரியன்", "சுக்கிரன்", "புதன்", "சந்திரன்", "சனி", "குரு", "செவ்வாய்")
 
-        // First daytime Horai ruler based on day of week (Calendar.SUNDAY = 1)
         private val dayStartPlanetIndex = mapOf(
-            Calendar.SUNDAY to 0,    // சூரியன்
-            Calendar.MONDAY to 3,    // சந்திரன்
-            Calendar.TUESDAY to 6,   // செவ்வாய்
-            Calendar.WEDNESDAY to 2, // புதன்
-            Calendar.THURSDAY to 5,  // குரு
-            Calendar.FRIDAY to 1,    // சுக்கிரன்
-            Calendar.SATURDAY to 4   // சனி
+            Calendar.SUNDAY to 0,
+            Calendar.MONDAY to 3,
+            Calendar.TUESDAY to 6,
+            Calendar.WEDNESDAY to 2,
+            Calendar.THURSDAY to 5,
+            Calendar.FRIDAY to 1,
+            Calendar.SATURDAY to 4
         )
 
         private val dayTimes = listOf(
@@ -165,13 +222,11 @@ class MainPagerAdapter(
             val startIndex = dayStartPlanetIndex[dayOfWeek] ?: 0
             val inflater = LayoutInflater.from(itemView.context)
 
-            // Daytime 12 Horais
             for (i in 0 until 12) {
                 val planet = planets[(startIndex + i) % 7]
                 addHoraiRow(inflater, dayContainer, dayTimes[i], planet)
             }
 
-            // Nighttime 12 Horais continues consecutively from hour 12
             for (i in 0 until 12) {
                 val planet = planets[(startIndex + 12 + i) % 7]
                 addHoraiRow(inflater, nightContainer, nightTimes[i], planet)
@@ -206,9 +261,5 @@ class MainPagerAdapter(
             }
             container.addView(row)
         }
-    }
-
-    class PlaceholderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val textView: TextView = itemView.findViewById(android.R.id.text1)
     }
 }
