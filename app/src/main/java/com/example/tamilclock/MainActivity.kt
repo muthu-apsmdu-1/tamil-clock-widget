@@ -4,9 +4,14 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayout
@@ -19,8 +24,13 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var pagerAdapter: MainPagerAdapter
+    private lateinit var calendarMonthAdapter: CalendarMonthAdapter
     private lateinit var dbHelper: TamilDatabaseHelper
+
     private val selectedCalendar: Calendar = Calendar.getInstance()
+    private val displayedMonthCalendar: Calendar = Calendar.getInstance()
+
+    private lateinit var tvSheetMonthYear: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +52,15 @@ class MainActivity : AppCompatActivity() {
         pagerAdapter = MainPagerAdapter(
             onPrevDayClick = {
                 selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
+                displayedMonthCalendar.time = selectedCalendar.time
                 loadDayData()
+                refreshMonthCalendarGrid()
             },
             onNextDayClick = {
                 selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
+                displayedMonthCalendar.time = selectedCalendar.time
                 loadDayData()
+                refreshMonthCalendarGrid()
             }
         )
         viewPager.adapter = pagerAdapter
@@ -71,13 +85,57 @@ class MainActivity : AppCompatActivity() {
     private fun setupHybridBottomSheet() {
         val sheetView = findViewById<View>(R.id.bottom_sheet_calendar)
         bottomSheetBehavior = BottomSheetBehavior.from(sheetView)
-
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) = Unit
-            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
-        })
+        tvSheetMonthYear = findViewById(R.id.tv_sheet_month_year)
+        val btnPrevMonth = findViewById<ImageButton>(R.id.btn_prev_month)
+        val btnNextMonth = findViewById<ImageButton>(R.id.btn_next_month)
+        val container = findViewById<FrameLayout>(R.id.container_calendar_content)
+
+        // Inflate view_calendar_sheet_content into bottom sheet container
+        val contentView = LayoutInflater.from(this).inflate(
+            R.layout.view_calendar_sheet_content,
+            container,
+            true
+        )
+
+        val rvGrid = contentView.findViewById<RecyclerView>(R.id.rv_calendar_month_grid)
+        rvGrid.layoutManager = GridLayoutManager(this, 7)
+
+        calendarMonthAdapter = CalendarMonthAdapter { selectedDateKey ->
+            val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            format.parse(selectedDateKey)?.let { parsedDate ->
+                selectedCalendar.time = parsedDate
+                displayedMonthCalendar.time = parsedDate
+                loadDayData()
+                refreshMonthCalendarGrid()
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            }
+        }
+        rvGrid.adapter = calendarMonthAdapter
+
+        btnPrevMonth.setOnClickListener {
+            displayedMonthCalendar.add(Calendar.MONTH, -1)
+            refreshMonthCalendarGrid()
+        }
+
+        btnNextMonth.setOnClickListener {
+            displayedMonthCalendar.add(Calendar.MONTH, 1)
+            refreshMonthCalendarGrid()
+        }
+
+        refreshMonthCalendarGrid()
+    }
+
+    private fun refreshMonthCalendarGrid() {
+        val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("ta"))
+        tvSheetMonthYear.text = monthYearFormat.format(displayedMonthCalendar.time)
+
+        calendarMonthAdapter.setMonthData(
+            displayedMonthCalendar,
+            selectedCalendar,
+            dbHelper
+        )
     }
 
     private fun setupHeaderButtons() {
@@ -86,6 +144,8 @@ class MainActivity : AppCompatActivity() {
 
         btnCalendar?.setOnClickListener {
             if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
+                displayedMonthCalendar.time = selectedCalendar.time
+                refreshMonthCalendarGrid()
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -93,7 +153,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSettings?.setOnClickListener {
-            // Future settings dialog
+            // Widget/preference customization dialog
         }
     }
 
