@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- White Outer Ring -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 50,50 m -45,0 a 45,45 0 1,0 90,0 a 45,45 0 1,0 -90,0" />
+
+    <!-- Yellow Circular Disk -->
+    <path
+        android:fillColor="#FFEE00"
+        android:pathData="M 50,50 m -41,0 a 41,41 0 1,0 82,0 a 41,41 0 1,0 -82,0" />
+
+    <!-- Blue Rounded Chevron Arrow (<) -->
+    <path
+        android:pathData="M 59,26 L 36,50 L 59,74"
+        android:strokeColor="#0026E6"
+        android:strokeWidth="13"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
