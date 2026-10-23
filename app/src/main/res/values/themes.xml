@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base App Theme (Parent) -->
+    <style name="Theme.TamilCalendar" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/crimson_card_bg</item>
+        <item name="colorPrimaryDark">@color/traditional_maroon</item>
+        <item name="colorAccent">@color/gold_header_primary</item>
+        <item name="android:statusBarColor">#D89200</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <!-- 1. Classic White Theme (தூய வெள்ளை) - Default -->
+    <style name="Theme.TamilCalendar.White" parent="Theme.TamilCalendar">
+        <item name="android:windowBackground">@color/theme_white_canvas</item>
+        <item name="themeCanvasBackground">@color/theme_white_canvas</item>
+        <item name="themeCardBackground">@color/theme_white_card</item>
+        <item name="themeCardStroke">@color/theme_white_card_stroke</item>
+        <item name="themeTextTitle">@color/theme_white_text_title</item>
+        <item name="themeTextBody">@color/theme_white_text_body</item>
+    </style>
+
+    <!-- 2. Sandalwood Yellow Theme (சந்தன மஞ்சள்) -->
+    <style name="Theme.TamilCalendar.Yellow" parent="Theme.TamilCalendar">
+        <item name="android:windowBackground">@color/theme_yellow_canvas</item>
+        <item name="themeCanvasBackground">@color/theme_yellow_canvas</item>
+        <item name="themeCardBackground">@color/theme_yellow_card</item>
+        <item name="themeCardStroke">@color/theme_yellow_card_stroke</item>
+        <item name="themeTextTitle">@color/theme_yellow_text_title</item>
+        <item name="themeTextBody">@color/theme_yellow_text_body</item>
+    </style>
+
+    <!-- 3. Temple Light Green Theme (மென் பச்சை) -->
+    <style name="Theme.TamilCalendar.Green" parent="Theme.TamilCalendar">
+        <item name="android:windowBackground">@color/theme_green_canvas</item>
+        <item name="themeCanvasBackground">@color/theme_green_canvas</item>
+        <item name="themeCardBackground">@color/theme_green_card</item>
+        <item name="themeCardStroke">@color/theme_green_card_stroke</item>
+        <item name="themeTextTitle">@color/theme_green_text_title</item>
+        <item name="themeTextBody">@color/theme_green_text_body</item>
+    </style>
+
+    <!-- 4. Charcoal Dark Theme (கரிவண்ணம்) -->
+    <style name="Theme.TamilCalendar.Charcoal" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/crimson_card_bg</item>
+        <item name="colorPrimaryDark">#0A0A0C</item>
+        <item name="colorAccent">@color/text_gold_accent</item>
+        <item name="android:statusBarColor">#D89200</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/theme_dark_canvas</item>
+        <item name="themeCanvasBackground">@color/theme_dark_canvas</item>
+        <item name="themeCardBackground">@color/theme_dark_card</item>
+        <item name="themeCardStroke">@color/theme_dark_card_stroke</item>
+        <item name="themeTextTitle">@color/theme_dark_text_title</item>
+        <item name="themeTextBody">@color/theme_dark_text_body</item>
+    </style>
+
+</resources>
