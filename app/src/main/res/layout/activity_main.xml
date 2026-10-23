@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/gold_header_primary">
+            android:background="@drawable/bg_gold_header_texture">
 
             <!-- Top Header Action Bar (56dp) -->
             <RelativeLayout
@@ -29,49 +29,51 @@
                 <!-- Left: Open Month Calendar Sheet -->
                 <ImageButton
                     android:id="@+id/btn_monthly_calendar"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/clock_dial_classic"
-                    android:tint="@color/text_primary_dark"
+                    android:background="@drawable/bg_header_btn_ripple"
+                    android:scaleType="fitCenter"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_calendar_month"
                     android:contentDescription="மாத காலண்டர்" />
 
-                <!-- Center: பஞ்சாங்கம் Header Title -->
+                <!-- Center: App Title (Deep Royal Maroon) -->
                 <TextView
                     android:id="@+id/tv_header_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="பஞ்சாங்கம்"
-                    android:textSize="21sp"
+                    android:text="தமிழ் நாட்காட்டி"
+                    android:textSize="22sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary_dark" />
+                    android:textColor="#5D0A14" />
 
                 <!-- Right: Customization Settings Menu -->
                 <ImageButton
                     android:id="@+id/btn_settings_customization"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/clock_dial_classic"
-                    android:tint="@color/text_primary_dark"
+                    android:background="@drawable/bg_header_btn_ripple"
+                    android:scaleType="fitCenter"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_settings_gear"
                     android:contentDescription="அமைப்புகள்" />
             </RelativeLayout>
 
-            <!-- Three Main Tabs (Panchangam, Rasi Palan, Horai) -->
+            <!-- Three Main Tabs (Panchangam, Rasi Palan, Horai) in Temple Green -->
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout_main"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
-                android:background="@color/gold_header_primary"
-                app:tabIndicatorColor="@color/crimson_card_bg"
+                android:background="@android:color/transparent"
+                app:tabIndicatorColor="#0D5323"
                 app:tabIndicatorHeight="3dp"
-                app:tabSelectedTextColor="@color/traditional_maroon"
-                app:tabTextColor="@color/text_secondary_dark"
+                app:tabSelectedTextColor="#0D5323"
+                app:tabTextColor="#1E6637"
                 app:tabMode="fixed"
                 app:tabGravity="fill" />
         </LinearLayout>
@@ -117,8 +119,9 @@
                 android:layout_height="36dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/clock_hour_hand"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_nav_circle_prev"
                 android:contentDescription="முந்தைய மாதம்" />
 
             <TextView
@@ -137,8 +140,9 @@
                 android:layout_height="36dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/clock_minute_hand"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_nav_circle_next"
                 android:contentDescription="அடுத்த மாதம்" />
         </RelativeLayout>
 
