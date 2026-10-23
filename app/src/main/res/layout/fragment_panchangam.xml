@@ -5,13 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/app_background_cream">
+    android:background="?attr/themeCanvasBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:paddingHorizontal="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="24dp">
 
         <!-- 1. Top Crimson Date Navigator Card -->
         <com.google.android.material.card.MaterialCardView
@@ -19,26 +21,25 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/crimson_card_bg">
+            app:cardBackgroundColor="#5D0A14">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="14dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="12dp">
 
-                                <!-- Previous Day Button (<) -->
+                <!-- Previous Day Button (<) -->
                 <ImageButton
                     android:id="@+id/btn_prev_day"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="8dp"
                     android:background="@drawable/bg_header_btn_ripple"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_nav_circle_prev"
                     android:contentDescription="முந்தைய நாள்" />
-
 
                 <!-- Center Date Details -->
                 <LinearLayout
@@ -48,380 +49,400 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
+                    <!-- Gregorian Date -->
                     <TextView
                         android:id="@+id/tv_gregorian_header"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="23 அக்டோபர் 2026"
-                        android:textSize="18sp"
+                        android:text="அக்டோபர் 22, 2026"
+                        android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_white" />
+                        android:textColor="#FFFFFF" />
 
+                    <!-- Weekday -->
                     <TextView
                         android:id="@+id/tv_weekday_header"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="வெள்ளிக்கிழமை"
-                        android:textSize="14sp"
-                        android:textColor="#FFD54F"
+                        android:text="வியாழன்"
+                        android:textSize="22sp"
+                        android:textColor="#FFDF00"
                         android:textStyle="bold" />
 
+                    <!-- Tamil Year - Month Date / Tithi -->
                     <TextView
                         android:id="@+id/tv_tamil_date_full"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="பராபவ வருடம் - ஐப்பசி 6"
-                        android:textSize="15sp"
-                        android:textColor="@color/text_white" />
+                        android:text="பராபவ வருடம் - ஐப்பசி 5 / துவாதசி"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF" />
                 </LinearLayout>
 
-                                <!-- Next Day Button (>) -->
+                <!-- Next Day Button (>) -->
                 <ImageButton
                     android:id="@+id/btn_next_day"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_header_btn_ripple"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_nav_circle_next"
                     android:contentDescription="அடுத்த நாள்" />
 
-
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 2. Sun & Moon 1x4 Compact Strip -->
+        <!-- 2. Dual Cards: Sun and Moon Times -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+            <!-- Sun Card (Left) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="5dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="?attr/themeCardBackground"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#701018">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/clock_dial_classic"
+                        android:contentDescription="சூரியன்" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp">
+
+                        <TextView
+                            android:id="@+id/tv_sunrise_val"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="↑  06:08 AM"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#5D0A14" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#D1D1D6"
+                            android:layout_marginVertical="5dp" />
+
+                        <TextView
+                            android:id="@+id/tv_sunset_val"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="↓  05:57 PM"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#5D0A14" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Moon Card (Right) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="5dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="?attr/themeCardBackground"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#701018">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="10dp"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/clock_dial_classic"
+                        android:contentDescription="சந்திரன்" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp">
+
+                        <TextView
+                            android:id="@+id/tv_moonrise_val"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="↑  03:00 PM"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#5D0A14" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#D1D1D6"
+                            android:layout_marginVertical="5dp" />
+
+                        <TextView
+                            android:id="@+id/tv_moonset_val"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="↓  03:12 AM"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#5D0A14" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- 3. Strip 1: Nakshatram -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="12dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
             app:cardElevation="1dp"
-            app:cardBackgroundColor="@color/card_surface_light"
+            app:cardBackgroundColor="?attr/themeCardBackground"
             app:strokeWidth="1dp"
-            app:strokeColor="@color/card_border_subtle">
+            app:strokeColor="?attr/themeCardStroke">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:paddingVertical="10dp"
-                android:paddingHorizontal="4dp">
+                android:paddingHorizontal="14dp">
 
-                <!-- Sunrise -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சூரிய உதயம்"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_sunrise_val"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="06:08 AM"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_panch_star" />
 
-                <!-- Sunset -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சூரிய மறைவு"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_sunset_val"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="05:58 PM"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
-
-                <!-- Moonrise -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சந்திர உதயம்"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_moonrise_val"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="04:20 PM"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
-
-                <!-- Moonset -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சந்திர மறைவு"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_moonset_val"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="04:55 AM"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 3. Core Panchangam Card (Tithi, Nakshatra, Paksham) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="@color/card_surface_light"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/card_border_subtle">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="பஞ்சாங்க விபரம்"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/traditional_maroon" />
-
-                <!-- Row: Tithi -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:text="திதி"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_tithi_val"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="துவாதசி"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
 
-                <!-- Row: Nakshatra -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="120dp"
-                        android:layout_height="wrap_content"
-                        android:text="நட்சத்திரம்"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary_dark" />
                     <TextView
                         android:id="@+id/tv_nakshatra_val"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="பூரட்டாதி"
-                        android:textSize="14sp"
+                        android:text="நட்சத்திரம்: உத்திராடம்"
+                        android:textSize="15sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
-                </LinearLayout>
+                        android:textColor="#0B2545" />
 
-                <!-- Row: Paksham -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
                     <TextView
-                        android:layout_width="120dp"
+                        android:id="@+id/tv_nakshatra_time"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="பட்சம்"
+                        android:layout_marginTop="2dp"
+                        android:text="பின்வ 07:30 PM"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_paksham_val"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="வளர்பிறை"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary_dark" />
+                        android:textColor="#1C1C1E" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 4. Auspicious & Inauspicious Timings Card -->
+        <!-- 4. Strip 2: Nalla Neram -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="14dp"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
             app:cardElevation="1dp"
-            app:cardBackgroundColor="@color/card_surface_light"
+            app:cardBackgroundColor="?attr/themeCardBackground"
             app:strokeWidth="1dp"
-            app:strokeColor="@color/card_border_subtle">
+            app:strokeColor="?attr/themeCardStroke">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="14dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="நேரங்கள்"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/traditional_maroon" />
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_panch_clock" />
 
-                <!-- Nalla Neram -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
                     <TextView
-                        android:layout_width="140dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="நல்ல நேரம் (கா/மா)"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_secondary_dark" />
+                        android:text="நல்ல நேரம்:"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#0B2545" />
+
                     <TextView
                         android:id="@+id/tv_nalla_neram_val"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="09:15 - 10:15 / 04:45 - 05:45"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/horai_good_text" />
+                        android:layout_marginTop="2dp"
+                        android:text="10:45 AM - 11:45 AM"
+                        android:textSize="14sp"
+                        android:textColor="#1C1C1E" />
                 </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                <!-- Gouri Nalla Neram -->
+        <!-- 5. Strip 3: Gowri Nalla Neram -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="?attr/themeCardBackground"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/themeCardStroke">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="14dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_panch_lamp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
                     <TextView
-                        android:layout_width="140dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="கௌரி நல்ல நேரம்"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_secondary_dark" />
+                        android:text="கௌரி நல்ல நேரம்:"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#0B2545" />
+
                     <TextView
                         android:id="@+id/tv_gouri_val"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="12:15 - 01:15 / 06:30 - 07:30"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/horai_good_text" />
+                        android:layout_marginTop="2dp"
+                        android:text="06:30 PM - 07:30 PM"
+                        android:textSize="14sp"
+                        android:textColor="#1C1C1E" />
                 </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-                <!-- Rahu Kalam -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="140dp"
-                        android:layout_height="wrap_content"
-                        android:text="இராகு காலம்"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_rahu_val"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="10:30 - 12:00"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/crimson_card_bg" />
-                </LinearLayout>
+        <!-- 6. Strip 4: Rahu Kalam (Single Row) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="?attr/themeCardBackground"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/themeCardStroke">
 
-                <!-- Yama Gandam -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="14dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_panch_rahu" />
+
+                <TextView
+                    android:id="@+id/tv_rahu_val"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="140dp"
-                        android:layout_height="wrap_content"
-                        android:text="எமகண்டம்"
-                        android:textSize="13sp"
-                        android:textColor="@color/text_secondary_dark" />
-                    <TextView
-                        android:id="@+id/tv_yamagandam_val"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="03:00 - 04:30"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/crimson_card_bg" />
-                </LinearLayout>
+                    android:layout_marginStart="14dp"
+                    android:text="இராகு காலம்: 01:30 PM - 03:00 PM"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#0B2545" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 7. Strip 5: Yama Gandam (Single Row) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="?attr/themeCardBackground"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/themeCardStroke">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="14dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_panch_yama" />
+
+                <TextView
+                    android:id="@+id/tv_yamagandam_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="எமகண்டம்: 06:00 AM - 07:30 AM"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#0B2545" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
