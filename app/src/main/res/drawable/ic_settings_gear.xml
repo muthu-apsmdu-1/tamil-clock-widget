@@ -1,0 +1,55 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Green settings gear -->
+    <path
+        android:fillColor="#0D5323"
+        android:pathData="M19.4,13.5L21,14.7L19.5,17.3L17.5,16.7L16,18L16.1,20.1L13.1,21L12,19.2L10,19.2L8.9,21L5.9,20.1L6,18L4.5,16.7L2.5,17.3L1,14.7L2.6,13.5L2.4,11.5L0.7,10.4L1.6,7.5L3.7,7.6L4.8,6L4.1,4L6.6,2.5L8,4.1L10,3.8L10.7,1.8L13.8,1.8L14.5,3.8L16.5,4.1L17.9,2.5L20.4,4L19.7,6L20.8,7.6L22.9,7.5L23.3,10.4L21.6,11.5L21.4,13.5Z" />
+
+    <!-- Light mint interior -->
+    <path
+        android:fillColor="#DDF8E3"
+        android:pathData="M12,4.8A7.2,7.2 0,1 0,12 19.2A7.2,7.2 0,1 0,12 4.8Z" />
+
+    <!-- Red colour adjustment slider -->
+    <path
+        android:fillColor="#FF3B30"
+        android:pathData="M4.5,8.1L17.8,8.1A0.5,0.5 0,0 1,17.8 9.1L4.5,9.1A0.5,0.5 0,0 1,4.5 8.1Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,7.5A1.1,1.1 0,1 0,13 9.7A1.1,1.1 0,1 0,13 7.5Z" />
+
+    <path
+        android:fillColor="#FF3B30"
+        android:pathData="M13,7.9A0.7,0.7 0,1 0,13 9.3A0.7,0.7 0,1 0,13 7.9Z" />
+
+    <!-- Green colour adjustment slider -->
+    <path
+        android:fillColor="#00B853"
+        android:pathData="M4.5,11.5L19.5,11.5A0.5,0.5 0,0 1,19.5 12.5L4.5,12.5A0.5,0.5 0,0 1,4.5 11.5Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M8,10.9A1.1,1.1 0,1 0,8 13.1A1.1,1.1 0,1 0,8 10.9Z" />
+
+    <path
+        android:fillColor="#00B853"
+        android:pathData="M8,11.3A0.7,0.7 0,1 0,8 12.7A0.7,0.7 0,1 0,8 11.3Z" />
+
+    <!-- Blue colour adjustment slider -->
+    <path
+        android:fillColor="#168BFF"
+        android:pathData="M4.5,14.9L17.8,14.9A0.5,0.5 0,0 1,17.8 15.9L4.5,15.9A0.5,0.5 0,0 1,4.5 14.9Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,14.3A1.1,1.1 0,1 0,14 16.5A1.1,1.1 0,1 0,14 14.3Z" />
+
+    <path
+        android:fillColor="#168BFF"
+        android:pathData="M14,14.7A0.7,0.7 0,1 0,14 16.1A0.7,0.7 0,1 0,14 14.7Z" />
+</vector>
