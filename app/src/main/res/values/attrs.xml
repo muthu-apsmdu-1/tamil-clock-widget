@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dynamic Semantic Theme Attributes -->
+    <attr name="themeCanvasBackground" format="color" />
+    <attr name="themeCardBackground" format="color" />
+    <attr name="themeCardStroke" format="color" />
+    <attr name="themeTextTitle" format="color" />
+    <attr name="themeTextBody" format="color" />
+</resources>
