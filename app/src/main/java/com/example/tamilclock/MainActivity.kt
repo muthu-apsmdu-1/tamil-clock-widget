@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import java.text.SimpleDateFormat
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSheetMonthYear: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Enforce the saved theme before inflating views
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -153,8 +156,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnSettings?.setOnClickListener {
-            // Widget/preference customization dialog
+            showThemeCustomizationSheet()
         }
+    }
+
+    private fun showThemeCustomizationSheet() {
+        val dialog = BottomSheetDialog(this)
+        val sheetView = layoutInflater.inflate(R.layout.dialog_theme_customization, null)
+        dialog.setContentView(sheetView)
+
+        sheetView.findViewById<View>(R.id.option_theme_white)?.setOnClickListener {
+            changeTheme(ThemeManager.THEME_WHITE, dialog)
+        }
+        sheetView.findViewById<View>(R.id.option_theme_yellow)?.setOnClickListener {
+            changeTheme(ThemeManager.THEME_YELLOW, dialog)
+        }
+        sheetView.findViewById<View>(R.id.option_theme_green)?.setOnClickListener {
+            changeTheme(ThemeManager.THEME_GREEN, dialog)
+        }
+        sheetView.findViewById<View>(R.id.option_theme_charcoal)?.setOnClickListener {
+            changeTheme(ThemeManager.THEME_CHARCOAL, dialog)
+        }
+
+        dialog.show()
+    }
+
+    private fun changeTheme(themeId: Int, dialog: BottomSheetDialog) {
+        ThemeManager.saveTheme(this, themeId)
+        dialog.dismiss()
+        recreate()
     }
 
     private fun updateWidgets() {
