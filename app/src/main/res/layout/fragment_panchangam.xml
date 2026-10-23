@@ -26,16 +26,19 @@
                 android:layout_height="wrap_content"
                 android:padding="14dp">
 
-                <!-- Previous Day Button -->
+                                <!-- Previous Day Button (<) -->
                 <ImageButton
                     android:id="@+id/btn_prev_day"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/bg_row4_chip"
-                    android:src="@drawable/clock_hour_hand"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_header_btn_ripple"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_nav_circle_prev"
                     android:contentDescription="முந்தைய நாள்" />
+
 
                 <!-- Center Date Details -->
                 <LinearLayout
@@ -74,16 +77,20 @@
                         android:textColor="@color/text_white" />
                 </LinearLayout>
 
-                <!-- Next Day Button -->
+                                <!-- Next Day Button (>) -->
                 <ImageButton
                     android:id="@+id/btn_next_day"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:background="@drawable/bg_row4_chip"
-                    android:src="@drawable/clock_minute_hand"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_header_btn_ripple"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_nav_circle_next"
                     android:contentDescription="அடுத்த நாள்" />
+
+
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
