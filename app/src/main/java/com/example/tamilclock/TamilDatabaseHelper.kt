@@ -10,8 +10,28 @@ import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+data class TamilDateInfo(
+    val tamilYear: String = "",
+    val dayName: String = "",
+    val tamilMonth: String = "",
+    val tamilDay: Int = 1,
+    val paksham: String = "",
+    val tithi: String = "",
+    val nakshatra: String = "",
+    val nallaNeramMorning: String = "",
+    val nallaNeramEvening: String = "",
+    val gouriNallaMorning: String = "",
+    val gouriNallaEvening: String = "",
+    val rahuKalam: String = "",
+    val yamaGandam: String = "",
+    val sunrise: String = "",
+    val sunset: String = "",
+    val moonrise: String = "",
+    val moonset: String = ""
+)
+
 class TamilDatabaseHelper(private val context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 7) { // Version 7-க்கு உயர்த்தப்பட்டு பழைய டேட்டா முழுமையாக நீக்கப்படும்
+    SQLiteOpenHelper(context, "tamil_calendar.db", null, 7) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("""
@@ -59,7 +79,6 @@ class TamilDatabaseHelper(private val context: Context) :
                     val rawDate = obj.optString("gregorian_date").trim()
                     val normalizedDate = normalizeDateKey(rawDate)
 
-                    // nalla_neram அல்லது nalla_neram_morning இரண்டையும் ஆதரிக்கும் விதம்
                     val nallaNeramRaw = obj.optString("nalla_neram", obj.optString("nalla_neram_morning"))
                     val gowriRaw = obj.optString("gouri_nalla_neram", obj.optString("gouri_nalla_neram_morning"))
 
@@ -130,16 +149,4 @@ class TamilDatabaseHelper(private val context: Context) :
                     nakshatra = it.getString(6) ?: "",
                     nallaNeramMorning = it.getString(7) ?: "",
                     nallaNeramEvening = it.getString(8) ?: "",
-                    gouriNallaMorning = it.getString(9) ?: "",
-                    gouriNallaEvening = it.getString(10) ?: "",
-                    rahuKalam = it.getString(11) ?: "",
-                    yamaGandam = it.getString(12) ?: "",
-                    sunrise = it.getString(13) ?: "",
-                    sunset = it.getString(14) ?: "",
-                    moonrise = it.getString(15) ?: "",
-                    moonset = it.getString(16) ?: ""
-                )
-            } else null
-        }
-    }
-}
+                    gouriNallaMorning = it.
