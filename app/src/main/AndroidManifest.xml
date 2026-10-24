@@ -17,9 +17,9 @@
             </intent-filter>
         </activity>
 
-        <!-- 1. Digital Clock & Panchangam Widget Receiver -->
+        <!-- 1. 2x1 Capsule Widget Receiver -->
         <receiver
-            android:name=".DigitalClockWidgetProvider"
+            android:name=".WidgetProvider2x1"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -29,12 +29,12 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/appwidget_digital_info" />
+                android:resource="@xml/widget_provider_2x1_info" />
         </receiver>
 
-        <!-- 2. Classic Analog Clock Widget Receiver -->
+        <!-- 2. 4x1 Ribbon Widget Receiver -->
         <receiver
-            android:name=".ClassicClockWidgetProvider"
+            android:name=".WidgetProvider4x1"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -44,7 +44,37 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/appwidget_classic_info" />
+                android:resource="@xml/widget_provider_4x1_info" />
+        </receiver>
+
+        <!-- 3. 4x2 Panoramic Widget Receiver -->
+        <receiver
+            android:name=".WidgetProvider4x2"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_4x2_info" />
+        </receiver>
+
+        <!-- 4. 4x4 Heritage Wall Widget Receiver -->
+        <receiver
+            android:name=".WidgetProvider4x4"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_4x4_info" />
         </receiver>
 
     </application>
