@@ -1,36 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_horai_row"
     android:layout_width="match_parent"
-    android:layout_height="38dp"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingHorizontal="10dp">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#C8E6C9"
+    app:cardBackgroundColor="#D7F0DC">
 
-    <TextView
-        android:id="@+id/tv_horai_time"
-        android:layout_width="140dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="06:00 AM - 07:00 AM"
-        android:textSize="13sp"
-        android:textColor="@color/text_primary_dark" />
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="14dp">
 
-    <TextView
-        android:id="@+id/tv_horai_planet"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="சூரியன்"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary_dark" />
+        <!-- Planet Short Symbol Circle -->
+        <TextView
+            android:id="@+id/tv_horai_badge_letter"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="குரு"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1B5E20"
+            android:background="@drawable/bg_header_btn_ripple" />
 
-    <TextView
-        android:id="@+id/tv_horai_nature"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="2dp"
-        android:text="மத்திமம்"
-        android:textSize="11sp"
-        android:textStyle="bold" />
-</LinearLayout>
+        <!-- Planet Name and Timing -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tv_horai_badge_letter"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_horai_planet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="குரு •"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/tv_horai_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="06:00 AM - 06:59 AM"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#1C1C1E" />
+        </LinearLayout>
+
+        <!-- Status Tag (Good / Medium / Avoid) -->
+        <TextView
+            android:id="@+id/tv_horai_nature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="Good"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1C1C1E" />
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
