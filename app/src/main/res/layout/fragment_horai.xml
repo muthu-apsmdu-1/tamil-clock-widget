@@ -5,140 +5,91 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/app_background_cream">
+    android:background="?attr/themeCanvasBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:paddingHorizontal="14dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
 
-        <!-- Header Card: Current Horai & Day Info -->
-        <com.google.android.material.card.MaterialCardView
+        <!-- 1. Day / Night Pill Segmented Toggle -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/crimson_card_bg">
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_widget_card"
+            android:padding="3dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp"
-                android:gravity="center">
+            <TextView
+                android:id="@+id/btn_toggle_day_horai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:text="பகல் ஹோரை"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000" />
 
-                <TextView
-                    android:id="@+id/tv_horai_day_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="இன்றைய சுப ஓரைகள்"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_white" />
+            <TextView
+                android:id="@+id/btn_toggle_night_horai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="இரவு ஹோரை"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#3C3C43" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/tv_current_horai_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="சுப ஓரைகள்: குரு, சுக்கிரன், புதன், சந்திரன்"
-                    android:textSize="13sp"
-                    android:textColor="#FFD54F" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Legend Bar -->
+        <!-- 2. Section Heading -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp">
 
             <TextView
+                android:id="@+id/tv_horai_section_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● உத்தமம் (சுபம்)"
-                android:textSize="12sp"
+                android:text="பகல் ஹோரை நேரங்கள்"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@color/horai_good_text"
-                android:layout_marginEnd="12dp" />
+                android:textColor="#5D0A14" />
 
             <TextView
+                android:id="@+id/tv_horai_section_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● மத்திமம்"
-                android:textSize="12sp"
+                android:layout_marginTop="2dp"
+                android:text="(சூரிய உதயம் - சூரிய அஸ்தமனம்)"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textColor="@color/horai_medium_text"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="● தவிர்க்கவும்"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@color/horai_avoid_text" />
+                android:textColor="#1C1C1E" />
         </LinearLayout>
 
-        <!-- Section: Daytime Horai Table (பகல் ஓரை) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="6dp"
-            android:text="பகல் ஓரை (காலை 6:00 - மாலை 6:00)"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@color/traditional_maroon" />
-
-        <com.google.android.material.card.MaterialCardView
+        <!-- 3. Day Horai Container -->
+        <LinearLayout
+            android:id="@+id/layout_day_horai_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="@color/card_surface_light"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/card_border_subtle">
+            android:orientation="vertical" />
 
-            <LinearLayout
-                android:id="@+id/layout_day_horai_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Section: Nighttime Horai Table (இரவு ஓரை) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="6dp"
-            android:text="இரவு ஓரை (மாலை 6:00 - காலை 6:00)"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@color/traditional_maroon" />
-
-        <com.google.android.material.card.MaterialCardView
+        <!-- 4. Night Horai Container -->
+        <LinearLayout
+            android:id="@+id/layout_night_horai_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:cardBackgroundColor="@color/card_surface_light"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/card_border_subtle">
-
-            <LinearLayout
-                android:id="@+id/layout_night_horai_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp" />
-        </com.google.android.material.card.MaterialCardView>
+            android:orientation="vertical"
+            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
