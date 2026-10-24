@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         val rvGrid = contentView.findViewById<RecyclerView>(R.id.rv_calendar_month_grid)
         rvGrid.layoutManager = GridLayoutManager(this, 7)
 
+        // Selective date jump works seamlessly across both simple and classic view modes
         calendarMonthAdapter = CalendarMonthAdapter { selectedDateKey ->
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             format.parse(selectedDateKey)?.let { parsedDate ->
@@ -116,6 +117,30 @@ class MainActivity : AppCompatActivity() {
             }
         }
         rvGrid.adapter = calendarMonthAdapter
+
+        // Callback handling the pull-up full-screen transformation into Classic Wall Calendar
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        calendarMonthAdapter.setClassicMode(true)
+                    }
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        calendarMonthAdapter.setClassicMode(false)
+                    }
+                    else -> Unit
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // Smooth transition threshold while dragging
+                if (slideOffset > 0.5f) {
+                    calendarMonthAdapter.setClassicMode(true)
+                } else if (slideOffset < 0.3f) {
+                    calendarMonthAdapter.setClassicMode(false)
+                }
+            }
+        })
 
         btnPrevMonth.setOnClickListener {
             displayedMonthCalendar.add(Calendar.MONTH, -1)
@@ -149,6 +174,7 @@ class MainActivity : AppCompatActivity() {
             if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
                 displayedMonthCalendar.time = selectedCalendar.time
                 refreshMonthCalendarGrid()
+                calendarMonthAdapter.setClassicMode(false)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
