@@ -7,9 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper
 import org.json.JSONArray
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TamilDatabaseHelper(private val context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 5) {
+    SQLiteOpenHelper(context, "tamil_calendar.db", null, 6) { // Bumped to v6 to force clean data reload
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("""
@@ -54,8 +56,13 @@ class TamilDatabaseHelper(private val context: Context) :
             try {
                 for (i in 0 until jsonArray.length()) {
                     val obj = jsonArray.getJSONObject(i)
+                    
+                    // Normalize date key to yyyy-MM-dd
+                    val rawDate = obj.optString("gregorian_date").trim()
+                    val normalizedDate = normalizeDateKey(rawDate)
+
                     val cv = ContentValues().apply {
-                        put("gregorian_date", obj.optString("gregorian_date"))
+                        put("gregorian_date", normalizedDate)
                         put("tamil_year", obj.optString("tamil_year"))
                         put("day_name_ta", obj.optString("day_name_ta"))
                         put("tamil_month", obj.optString("tamil_month"))
@@ -85,7 +92,20 @@ class TamilDatabaseHelper(private val context: Context) :
         }
     }
 
+    private fun normalizeDateKey(input: String): String {
+        return try {
+            val inFormat = if (input.contains("/")) SimpleDateFormat("yyyy/MM/dd", Locale.US)
+                           else SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val outFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val parsed = inFormat.parse(input)
+            if (parsed != null) outFormat.format(parsed) else input
+        } catch (e: Exception) {
+            input
+        }
+    }
+
     fun getDayDetails(dateString: String): TamilDateInfo? {
+        val normalized = normalizeDateKey(dateString)
         val db = readableDatabase
         val cursor = db.rawQuery(
             """SELECT tamil_year, day_name_ta, tamil_month, tamil_day, 
@@ -93,7 +113,7 @@ class TamilDatabaseHelper(private val context: Context) :
                       gouri_nalla_neram_morning, gouri_nalla_neram_evening, 
                       rahu_kalam, yama_gandam, sunrise, sunset, moonrise, moonset 
                FROM tamil_panchangam WHERE gregorian_date = ?""",
-            arrayOf(dateString)
+            arrayOf(normalized)
         )
 
         return cursor.use {
