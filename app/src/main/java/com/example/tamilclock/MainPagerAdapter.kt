@@ -82,56 +82,6 @@ class MainPagerAdapter(
 
     override fun getItemCount(): Int = tabTitles.size
 
-
-
-    // ==================== 2. RASI PALAN VIEW HOLDER ====================
-    class RasiPalanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val rvGrid: RecyclerView = itemView.findViewById(R.id.rv_rasi_grid)
-
-        // Exact 12 keywords matching the sample layout
-        private val rasiList = listOf(
-            RasiItem("மேஷம்", "பெருமை"),
-            RasiItem("ரிஷபம்", "பக்தி"),
-            RasiItem("மிதுனம்", "உழைப்பு"),
-            RasiItem("கடகம்", "புகழ்"),
-            RasiItem("சிம்மம்", "வரவு"),
-            RasiItem("கன்னி", "போட்டி"),
-            RasiItem("துலாம்", "இன்பம்"),
-            RasiItem("விருச்சிகம்", "நலம்"),
-            RasiItem("தனுசு", "ஆதரவு"),
-            RasiItem("மகரம்", "வெற்றி"),
-            RasiItem("கும்பம்", "மேன்மை"),
-            RasiItem("மீனம்", "அமைதி")
-        )
-
-        fun bind() {
-            rvGrid.layoutManager = GridLayoutManager(itemView.context, 2)
-            rvGrid.adapter = RasiCardAdapter(rasiList)
-        }
-    }
-
-    class RasiCardAdapter(private val list: List<RasiItem>) :
-        RecyclerView.Adapter<RasiCardAdapter.CardVH>() {
-
-        class CardVH(view: View) : RecyclerView.ViewHolder(view) {
-            val tvName: TextView = view.findViewById(R.id.tv_rasi_name)
-            val tvPrediction: TextView = view.findViewById(R.id.tv_rasi_prediction)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardVH {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_rasi_card, parent, false)
-            return CardVH(view)
-        }
-
-        override fun onBindViewHolder(holder: CardVH, position: Int) {
-            val item = list[position]
-            holder.tvName.text = item.name
-            holder.tvPrediction.text = item.keyword
-        }
-
-        override fun getItemCount(): Int = list.size
-    }
     // ==================== 1. PANCHANGAM VIEW HOLDER ====================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val btnPrev: ImageButton = itemView.findViewById(R.id.btn_prev_day)
@@ -174,16 +124,19 @@ class MainPagerAdapter(
                 tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}"
                 tvNakshatraTime?.text = data.paksham.ifEmpty { "" }
 
-                val nallaList = listOf(data.nallaNeramMorning, data.nallaNeramEvening).filter { it.isNotBlank() }
+                val nallaList = mutableListOf<String>()
+                if (data.nallaNeramMorning.isNotBlank()) nallaList.add(data.nallaNeramMorning)
+                if (data.nallaNeramEvening.isNotBlank()) nallaList.add(data.nallaNeramEvening)
                 tvNallaNeram.text = if (nallaList.isNotEmpty()) nallaList.joinToString(" / ") else "காலை 07:15 - 08:15"
 
-                val gouriList = listOf(data.gouriNallaMorning, data.gouriNallaEvening).filter { it.isNotBlank() }
+                val gouriList = mutableListOf<String>()
+                if (data.gouriNallaMorning.isNotBlank()) gouriList.add(data.gouriNallaMorning)
+                if (data.gouriNallaEvening.isNotBlank()) gouriList.add(data.gouriNallaEvening)
                 tvGouri.text = if (gouriList.isNotEmpty()) gouriList.joinToString(" / ") else "பகல் 01:30 - 02:30"
 
                 tvRahu.text = "இராகு காலம்: ${data.rahuKalam.ifEmpty { "--" }}"
                 tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam.ifEmpty { "--" }}"
             } else {
-                // Explicitly clear/set informative state when date entry has no DB record
                 tvWeekday.text = ""
                 tvTamilDate.text = "தகவல் இல்லை"
                 tvNakshatra.text = "நட்சத்திரம்: --"
@@ -194,6 +147,54 @@ class MainPagerAdapter(
                 tvYamagandam.text = "எமகண்டம்: --"
             }
         }
+    }
+
+    // ==================== 2. RASI PALAN VIEW HOLDER ====================
+    class RasiPalanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val rvGrid: RecyclerView = itemView.findViewById(R.id.rv_rasi_grid)
+
+        private val rasiList = listOf(
+            RasiItem("மேஷம்", "பெருமை"),
+            RasiItem("ரிஷபம்", "பக்தி"),
+            RasiItem("மிதுனம்", "உழைப்பு"),
+            RasiItem("கடகம்", "புகழ்"),
+            RasiItem("சிம்மம்", "வரவு"),
+            RasiItem("கன்னி", "போட்டி"),
+            RasiItem("துலாம்", "இன்பம்"),
+            RasiItem("விருச்சிகம்", "நலம்"),
+            RasiItem("தனுசு", "ஆதரவு"),
+            RasiItem("மகரம்", "வெற்றி"),
+            RasiItem("கும்பம்", "மேன்மை"),
+            RasiItem("மீனம்", "அமைதி")
+        )
+
+        fun bind() {
+            rvGrid.layoutManager = GridLayoutManager(itemView.context, 2)
+            rvGrid.adapter = RasiCardAdapter(rasiList)
+        }
+    }
+
+    class RasiCardAdapter(private val list: List<RasiItem>) :
+        RecyclerView.Adapter<RasiCardAdapter.CardVH>() {
+
+        class CardVH(view: View) : RecyclerView.ViewHolder(view) {
+            val tvName: TextView = view.findViewById(R.id.tv_rasi_name)
+            val tvPrediction: TextView = view.findViewById(R.id.tv_rasi_prediction)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardVH {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_rasi_card, parent, false)
+            return CardVH(view)
+        }
+
+        override fun onBindViewHolder(holder: CardVH, position: Int) {
+            val item = list[position]
+            holder.tvName.text = item.name
+            holder.tvPrediction.text = item.keyword
+        }
+
+        override fun getItemCount(): Int = list.size
     }
 
     // ==================== 3. HORAI VIEW HOLDER ====================
@@ -296,7 +297,7 @@ class MainPagerAdapter(
                     card?.strokeColor = Color.parseColor("#F5D78E")
                     tvBadge?.setTextColor(Color.parseColor("#E65100"))
                 }
-                else -> { // செவ்வாய், சனி
+                else -> {
                     tvNature?.text = "Avoid"
                     card?.setCardBackgroundColor(Color.parseColor("#E5E5EA"))
                     card?.strokeColor = Color.parseColor("#D1D1D6")
