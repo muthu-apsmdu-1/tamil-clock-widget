@@ -79,8 +79,17 @@ class TamilDatabaseHelper(private val context: Context) :
                     val rawDate = obj.optString("gregorian_date").trim()
                     val normalizedDate = normalizeDateKey(rawDate)
 
-                    val nallaNeramRaw = obj.optString("nalla_neram", obj.optString("nalla_neram_morning"))
-                    val gowriRaw = obj.optString("gouri_nalla_neram", obj.optString("gouri_nalla_neram_morning"))
+                    val nallaNeramRaw = if (obj.has("nalla_neram")) {
+                        obj.optString("nalla_neram")
+                    } else {
+                        obj.optString("nalla_neram_morning", "")
+                    }
+
+                    val gowriRaw = if (obj.has("gouri_nalla_neram")) {
+                        obj.optString("gouri_nalla_neram")
+                    } else {
+                        obj.optString("gouri_nalla_neram_morning", "")
+                    }
 
                     val cv = ContentValues().apply {
                         put("gregorian_date", normalizedDate)
@@ -137,16 +146,30 @@ class TamilDatabaseHelper(private val context: Context) :
             arrayOf(normalized)
         )
 
-        return cursor.use {
-            if (it.moveToFirst()) {
+        return cursor.use { c ->
+            if (c.moveToFirst()) {
                 TamilDateInfo(
-                    tamilYear = it.getString(0) ?: "",
-                    dayName = it.getString(1) ?: "",
-                    tamilMonth = it.getString(2) ?: "",
-                    tamilDay = it.getInt(3),
-                    paksham = it.getString(4) ?: "",
-                    tithi = it.getString(5) ?: "",
-                    nakshatra = it.getString(6) ?: "",
-                    nallaNeramMorning = it.getString(7) ?: "",
-                    nallaNeramEvening = it.getString(8) ?: "",
-                    gouriNallaMorning = it.
+                    tamilYear = c.getString(0) ?: "",
+                    dayName = c.getString(1) ?: "",
+                    tamilMonth = c.getString(2) ?: "",
+                    tamilDay = c.getInt(3),
+                    paksham = c.getString(4) ?: "",
+                    tithi = c.getString(5) ?: "",
+                    nakshatra = c.getString(6) ?: "",
+                    nallaNeramMorning = c.getString(7) ?: "",
+                    nallaNeramEvening = c.getString(8) ?: "",
+                    gouriNallaMorning = c.getString(9) ?: "",
+                    gouriNallaEvening = c.getString(10) ?: "",
+                    rahuKalam = c.getString(11) ?: "",
+                    yamaGandam = c.getString(12) ?: "",
+                    sunrise = c.getString(13) ?: "",
+                    sunset = c.getString(14) ?: "",
+                    moonrise = c.getString(15) ?: "",
+                    moonset = c.getString(16) ?: ""
+                )
+            } else {
+                null
+            }
+        }
+    }
+}
