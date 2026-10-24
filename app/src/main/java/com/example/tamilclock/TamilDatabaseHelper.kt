@@ -31,7 +31,7 @@ data class TamilDateInfo(
 )
 
 class TamilDatabaseHelper(private val context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 7) {
+    SQLiteOpenHelper(context, "tamil_calendar.db", null, 8) {
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("""
