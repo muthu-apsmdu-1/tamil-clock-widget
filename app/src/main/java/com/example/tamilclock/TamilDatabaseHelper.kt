@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class TamilDatabaseHelper(private val context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 6) { // Bumped to v6 to force clean data reload
+    SQLiteOpenHelper(context, "tamil_calendar.db", null, 7) { // Version 7-க்கு உயர்த்தப்பட்டு பழைய டேட்டா முழுமையாக நீக்கப்படும்
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("""
@@ -56,24 +56,26 @@ class TamilDatabaseHelper(private val context: Context) :
             try {
                 for (i in 0 until jsonArray.length()) {
                     val obj = jsonArray.getJSONObject(i)
-                    
-                    // Normalize date key to yyyy-MM-dd
                     val rawDate = obj.optString("gregorian_date").trim()
                     val normalizedDate = normalizeDateKey(rawDate)
 
+                    // nalla_neram அல்லது nalla_neram_morning இரண்டையும் ஆதரிக்கும் விதம்
+                    val nallaNeramRaw = obj.optString("nalla_neram", obj.optString("nalla_neram_morning"))
+                    val gowriRaw = obj.optString("gouri_nalla_neram", obj.optString("gouri_nalla_neram_morning"))
+
                     val cv = ContentValues().apply {
                         put("gregorian_date", normalizedDate)
-                        put("tamil_year", obj.optString("tamil_year"))
+                        put("tamil_year", obj.optString("tamil_year", "பராபவ"))
                         put("day_name_ta", obj.optString("day_name_ta"))
                         put("tamil_month", obj.optString("tamil_month"))
                         put("tamil_day", obj.optInt("tamil_day"))
                         put("paksham", obj.optString("paksham"))
                         put("tithi", obj.optString("tithi"))
                         put("nakshatra", obj.optString("nakshatra"))
-                        put("nalla_neram_morning", obj.optString("nalla_neram_morning"))
-                        put("nalla_neram_evening", obj.optString("nalla_neram_evening"))
-                        put("gouri_nalla_neram_morning", obj.optString("gouri_nalla_neram_morning"))
-                        put("gouri_nalla_neram_evening", obj.optString("gouri_nalla_neram_evening"))
+                        put("nalla_neram_morning", nallaNeramRaw)
+                        put("nalla_neram_evening", obj.optString("nalla_neram_evening", ""))
+                        put("gouri_nalla_neram_morning", gowriRaw)
+                        put("gouri_nalla_neram_evening", obj.optString("gouri_nalla_neram_evening", ""))
                         put("rahu_kalam", obj.optString("rahu_kalam"))
                         put("yama_gandam", obj.optString("yama_gandam"))
                         put("sunrise", obj.optString("sunrise"))
@@ -141,23 +143,3 @@ class TamilDatabaseHelper(private val context: Context) :
         }
     }
 }
-
-data class TamilDateInfo(
-    val tamilYear: String,
-    val dayName: String,
-    val tamilMonth: String,
-    val tamilDay: Int,
-    val paksham: String,
-    val tithi: String,
-    val nakshatra: String,
-    val nallaNeramMorning: String,
-    val nallaNeramEvening: String,
-    val gouriNallaMorning: String,
-    val gouriNallaEvening: String,
-    val rahuKalam: String,
-    val yamaGandam: String,
-    val sunrise: String,
-    val sunset: String,
-    val moonrise: String,
-    val moonset: String
-)
