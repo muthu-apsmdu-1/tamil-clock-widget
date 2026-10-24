@@ -20,7 +20,12 @@ object WidgetUpdateHelper {
     const val KEY_4X4_SHOW_YAMAGANDAM = "pref_4x4_show_yamagandam"
 
     fun update2x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        val (data, gregDate) = getDayInfo(context)
+        val dbHelper = TamilDatabaseHelper(context)
+        val today = Calendar.getInstance()
+        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val gregFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val dateKey = queryFormat.format(today.time)
+        val data = dbHelper.getDayDetails(dateKey)
         val isAnalog = isAnalogClockPreferred(context)
 
         for (id in appWidgetIds) {
@@ -28,7 +33,7 @@ object WidgetUpdateHelper {
             attachClickPendingIntent(context, views, R.id.widget_2x1_root)
 
             setClockVisibility(views, R.id.clock_analog_2x1, R.id.clock_digital_2x1, isAnalog)
-            views.setTextViewText(R.id.tv_2x1_greg_date, gregDate)
+            views.setTextViewText(R.id.tv_2x1_greg_date, gregFormat.format(today.time))
 
             if (data != null) {
                 views.setTextViewText(R.id.tv_2x1_tamil_date, "${data.tamilMonth} ${data.tamilDay} ${getDayOfWeekTamil()}")
@@ -38,7 +43,12 @@ object WidgetUpdateHelper {
     }
 
     fun update4x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        val (data, gregDate) = getDayInfo(context)
+        val dbHelper = TamilDatabaseHelper(context)
+        val today = Calendar.getInstance()
+        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val gregFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val dateKey = queryFormat.format(today.time)
+        val data = dbHelper.getDayDetails(dateKey)
         val isAnalog = isAnalogClockPreferred(context)
 
         for (id in appWidgetIds) {
@@ -48,7 +58,7 @@ object WidgetUpdateHelper {
             setClockVisibility(views, R.id.clock_analog_4x1, R.id.clock_digital_4x1, isAnalog)
 
             if (data != null) {
-                views.setTextViewText(R.id.tv_4x1_dates_line, "$gregDate | ${data.tamilMonth} ${data.tamilDay}")
+                views.setTextViewText(R.id.tv_4x1_dates_line, "${gregFormat.format(today.time)} | ${data.tamilMonth} ${data.tamilDay}")
                 views.setTextViewText(R.id.tv_4x1_tithi_line, "${getDayOfWeekTamil()} - ${data.tithi}")
             }
             appWidgetManager.updateAppWidget(id, views)
@@ -56,7 +66,12 @@ object WidgetUpdateHelper {
     }
 
     fun update4x2(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        val (data, gregDate) = getDayInfo(context)
+        val dbHelper = TamilDatabaseHelper(context)
+        val today = Calendar.getInstance()
+        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val gregFormat = SimpleDateFormat("dd - MM - yyyy", Locale.getDefault())
+        val dateKey = queryFormat.format(today.time)
+        val data = dbHelper.getDayDetails(dateKey)
         val isAnalog = isAnalogClockPreferred(context)
 
         for (id in appWidgetIds) {
@@ -64,7 +79,7 @@ object WidgetUpdateHelper {
             attachClickPendingIntent(context, views, R.id.widget_4x2_root)
 
             setClockVisibility(views, R.id.clock_analog_4x2, R.id.clock_digital_4x2, isAnalog)
-            views.setTextViewText(R.id.tv_4x2_greg_date, gregDate)
+            views.setTextViewText(R.id.tv_4x2_greg_date, gregFormat.format(today.time))
 
             if (data != null) {
                 views.setTextViewText(R.id.tv_4x2_tamil_date, "${data.tamilMonth} ${data.tamilDay} ${getDayOfWeekTamil()}")
@@ -76,7 +91,12 @@ object WidgetUpdateHelper {
     }
 
     fun update4x4(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        val (data, _) = getDayInfo(context)
+        val dbHelper = TamilDatabaseHelper(context)
+        val today = Calendar.getInstance()
+        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateKey = queryFormat.format(today.time)
+        val data = dbHelper.getDayDetails(dateKey)
+
         val isAnalog = isAnalogClockPreferred(context)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -86,10 +106,10 @@ object WidgetUpdateHelper {
         val showYamagandam = prefs.getBoolean(KEY_4X4_SHOW_YAMAGANDAM, false)
 
         val fullGregFormat = SimpleDateFormat("dd - MM - yyyy | EEEE", Locale("ta"))
-        val fullGregDate = fullGregFormat.format(Calendar.getInstance().time)
+        val fullGregDate = fullGregFormat.format(today.time)
 
         for (id in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_classic_4x4)
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
             attachClickPendingIntent(context, views, R.id.widget_4x4_root)
 
             setClockVisibility(views, R.id.clock_analog_4x4, R.id.clock_digital_4x4, isAnalog)
@@ -103,8 +123,15 @@ object WidgetUpdateHelper {
                 views.setTextViewText(R.id.tv_4x4_nakshatra, "★ நட்சத்திரம்: ${data.nakshatra} ${data.paksham}")
 
                 views.setViewVisibility(R.id.tv_4x4_nalla_neram, if (showNallaNeram) View.VISIBLE else View.GONE)
-                val nallaNeram = listOf(data.nallaNeramMorning, data.nallaNeramEvening).filter { it.isNotEmpty() }.joinToString(" | ")
-                views.setTextViewText(R.id.tv_4x4_nalla_neram, "☉ ந.நேரம்: ${nallaNeram.ifEmpty { "காலை 10.45 - 11.45" }}")
+                val mTime = data.nallaNeramMorning
+                val eTime = data.nallaNeramEvening
+                val combinedTime = when {
+                    mTime.isNotEmpty() && eTime.isNotEmpty() -> "$mTime | $eTime"
+                    mTime.isNotEmpty() -> mTime
+                    eTime.isNotEmpty() -> eTime
+                    else -> "காலை 10.45 - 11.45"
+                }
+                views.setTextViewText(R.id.tv_4x4_nalla_neram, "☉ ந.நேரம்: $combinedTime")
 
                 views.setViewVisibility(R.id.tv_4x4_rahu, if (showRahu) View.VISIBLE else View.GONE)
                 views.setTextViewText(R.id.tv_4x4_rahu, "⊘ இராகு: ${data.rahuKalam}")
@@ -114,15 +141,6 @@ object WidgetUpdateHelper {
             }
             appWidgetManager.updateAppWidget(id, views)
         }
-    }
-
-    private fun getDayInfo(context: Context): Pair<DayInfo?, String> {
-        val dbHelper = TamilDatabaseHelper(context)
-        val today = Calendar.getInstance()
-        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val gregFormat = SimpleDateFormat("dd - MM - yyyy", Locale.getDefault())
-        val data = dbHelper.getDayDetails(queryFormat.format(today.time))
-        return Pair(data, gregFormat.format(today.time))
     }
 
     private fun getDayOfWeekTamil(): String {
