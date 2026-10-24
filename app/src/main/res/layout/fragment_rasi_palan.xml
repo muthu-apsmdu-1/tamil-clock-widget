@@ -5,36 +5,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/app_background_cream"
-    android:padding="8dp">
+    android:background="?attr/themeCanvasBackground"
+    android:padding="10dp">
 
-    <!-- Header Banner -->
+    <!-- Top Crimson Header Pill: இன்றைய ராசிபலன் -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        app:cardCornerRadius="12dp"
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="14dp"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/crimson_card_bg">
+        app:cardBackgroundColor="#5D0A14">
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
+            android:layout_height="48dp"
             android:gravity="center"
-            android:text="இன்றைய 12 ராசி பலன்கள்"
-            android:textSize="16sp"
+            android:text="இன்றைய ராசிபலன்"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/text_white" />
+            android:textColor="#FFFFFF" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 2-Column Grid of 12 Rasis -->
+    <!-- 2x6 Zodiac Grid View -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_rasi_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingTop="4dp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="12dp" />
+
 </LinearLayout>
