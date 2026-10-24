@@ -112,9 +112,9 @@ class MainPagerAdapter(
             if (data != null) {
                 tvWeekday.text = data.dayName
 
-                // Format: வருடம் - மாதம் தேதி / திதி
+                val yearPrefix = if (data.tamilYear.isNotEmpty()) "${data.tamilYear} வருடம் - " else ""
                 val tithiText = if (data.tithi.isNotEmpty()) " / ${data.tithi}" else ""
-                tvTamilDate.text = "${data.tamilYear} வருடம் - ${data.tamilMonth} ${data.tamilDay}$tithiText"
+                tvTamilDate.text = "$yearPrefix${data.tamilMonth} ${data.tamilDay}$tithiText"
 
                 tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "06:08 AM" }}"
                 tvSunset.text = "↓  ${data.sunset.ifEmpty { "05:57 PM" }}"
@@ -122,20 +122,26 @@ class MainPagerAdapter(
                 tvMoonset.text = "↓  ${data.moonset.ifEmpty { "03:12 AM" }}"
 
                 tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}"
-                tvNakshatraTime?.text = data.paksham.ifEmpty { "பின்வ 07:30 PM" }
+                tvNakshatraTime?.text = data.paksham.ifEmpty { "" }
 
-                val nallaNeramCombined = listOf(data.nallaNeramMorning, data.nallaNeramEvening)
-                    .filter { it.isNotEmpty() }
-                    .joinToString(" / ")
-                tvNallaNeram.text = nallaNeramCombined.ifEmpty { "10:45 AM - 11:45 AM" }
+                val nallaList = listOf(data.nallaNeramMorning, data.nallaNeramEvening).filter { it.isNotBlank() }
+                tvNallaNeram.text = if (nallaList.isNotEmpty()) nallaList.joinToString(" / ") else "காலை 07:15 - 08:15"
 
-                val gowriCombined = listOf(data.gouriNallaMorning, data.gouriNallaEvening)
-                    .filter { it.isNotEmpty() }
-                    .joinToString(" / ")
-                tvGouri.text = gowriCombined.ifEmpty { "06:30 PM - 07:30 PM" }
+                val gouriList = listOf(data.gouriNallaMorning, data.gouriNallaEvening).filter { it.isNotBlank() }
+                tvGouri.text = if (gouriList.isNotEmpty()) gouriList.joinToString(" / ") else "பகல் 01:30 - 02:30"
 
-                tvRahu.text = "இராகு காலம்: ${data.rahuKalam}"
-                tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam}"
+                tvRahu.text = "இராகு காலம்: ${data.rahuKalam.ifEmpty { "--" }}"
+                tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam.ifEmpty { "--" }}"
+            } else {
+                // Explicitly clear/set informative state when date entry has no DB record
+                tvWeekday.text = ""
+                tvTamilDate.text = "தகவல் இல்லை"
+                tvNakshatra.text = "நட்சத்திரம்: --"
+                tvNakshatraTime?.text = ""
+                tvNallaNeram.text = "--"
+                tvGouri.text = "--"
+                tvRahu.text = "இராகு காலம்: --"
+                tvYamagandam.text = "எமகண்டம்: --"
             }
         }
     }
