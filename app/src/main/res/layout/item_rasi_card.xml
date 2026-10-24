@@ -7,81 +7,57 @@
     android:layout_margin="5dp"
     app:cardCornerRadius="14dp"
     app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/card_surface_light"
+    app:cardBackgroundColor="?attr/themeCardBackground"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/card_border_subtle">
+    app:strokeColor="?attr/themeCardStroke">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:layout_height="76dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="10dp">
 
-        <!-- Top Header: Rasi Name & Planet Lord -->
+        <!-- Deep Maroon Circular Disc for Zodiac Icon -->
+        <FrameLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_header_btn_ripple">
+
+            <ImageView
+                android:id="@+id/iv_rasi_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/clock_dial_classic" />
+        </FrameLayout>
+
+        <!-- Rasi Name and Keyword Text -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
 
             <TextView
                 android:id="@+id/tv_rasi_name"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="மேஷம்"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:textStyle="bold"
-                android:textColor="@color/traditional_maroon" />
+                android:textColor="#0B2545" />
 
             <TextView
-                android:id="@+id/tv_rasi_lord"
+                android:id="@+id/tv_rasi_prediction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_row4_chip"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:text="செவ்வாய்"
-                android:textSize="11sp"
-                android:textColor="@color/text_gold_accent" />
+                android:layout_marginTop="2dp"
+                android:text="பெருமை"
+                android:textSize="15sp"
+                android:textColor="#1C1C1E" />
         </LinearLayout>
 
-        <!-- Prediction Summary -->
-        <TextView
-            android:id="@+id/tv_rasi_prediction"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="தொழிலில் மேன்மை உண்டாகும். சுப காரிய முயற்சிகள் கைகூடும்."
-            android:textSize="12sp"
-            android:textColor="@color/text_primary_dark"
-            android:lineSpacingExtra="2dp"
-            android:maxLines="3"
-            android:ellipsize="end" />
-
-        <!-- Lucky Chip Bar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_rasi_lucky_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="எண்: 9"
-                android:textSize="11sp"
-                android:textColor="@color/text_secondary_dark"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:id="@+id/tv_rasi_lucky_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="நிறம்: சிவப்பு"
-                android:textSize="11sp"
-                android:textColor="@color/text_secondary_dark" />
-        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
