@@ -9,14 +9,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import java.util.Calendar
 
 data class RasiItem(
     val name: String,
-    val lord: String,
-    val prediction: String,
-    val luckyNumber: String,
-    val luckyColor: String
+    val keyword: String
 )
 
 class MainPagerAdapter(
@@ -84,6 +82,7 @@ class MainPagerAdapter(
 
     override fun getItemCount(): Int = tabTitles.size
 
+    // ==================== 1. PANCHANGAM VIEW HOLDER ====================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val btnPrev: ImageButton = itemView.findViewById(R.id.btn_prev_day)
         private val btnNext: ImageButton = itemView.findViewById(R.id.btn_next_day)
@@ -123,7 +122,7 @@ class MainPagerAdapter(
                 tvMoonset.text = "↓  ${data.moonset.ifEmpty { "03:12 AM" }}"
 
                 tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}"
-                tvNakshatraTime?.text = data.paksham.ifEmpty { "" }
+                tvNakshatraTime?.text = data.paksham.ifEmpty { "பின்வ 07:30 PM" }
 
                 val nallaNeramCombined = listOf(data.nallaNeramMorning, data.nallaNeramEvening)
                     .filter { it.isNotEmpty() }
@@ -141,22 +140,24 @@ class MainPagerAdapter(
         }
     }
 
+    // ==================== 2. RASI PALAN VIEW HOLDER ====================
     class RasiPalanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val rvGrid: RecyclerView = itemView.findViewById(R.id.rv_rasi_grid)
 
+        // Exact 12 keywords matching the sample layout
         private val rasiList = listOf(
-            RasiItem("மேஷம்", "செவ்வாய்", "தொழிலில் மேன்மை உண்டாகும். சுப முயற்சிகள் கைகூடும்.", "9", "சிவப்பு"),
-            RasiItem("ரிஷபம்", "சுக்கிரன்", "பணவரவு திருப்திகரமாக இருக்கும். குடும்பத்தில் மகிழ்ச்சி கூடும்.", "6", "வெள்ளை"),
-            RasiItem("மிதுனம்", "புதன்", "புதிய வாய்ப்புகள் தேடி வரும். நண்பர்களின் ஆதரவு கிடைக்கும்.", "5", "பச்சை"),
-            RasiItem("கடகம்", "சந்திரன்", "மன அமைதியும் ஆரோக்கியமும் கூடும். பயணங்களால் அனுகூலம்.", "2", "வெள்ளை"),
-            RasiItem("சிம்மம்", "சூரியன்", "எடுத்த காரியங்களில் வெற்றி கிட்டும். தலைமைப் பண்பு பளிச்சிடும்.", "1", "மஞ்சள்"),
-            RasiItem("கன்னி", "புதன்", "திட்டமிட்ட காரியங்கள் சுமூகமாக முடியும். வரவு செலவில் கவனம் தேவை.", "5", "சாம்பல்"),
-            RasiItem("துலாம்", "சுக்கிரன்", "தொழில் கூட்டாளிகளிடம் இணக்கம் கூடும். எதிர்பாராத தனலாபம்.", "6", "நீலம்"),
-            RasiItem("விருச்சிகம்", "செவ்வாய்", "தைரியத்துடன் செயல்பட்டு தடைகளைத் தாண்டுவீர்கள். உடல்நலம் சீராகும்.", "9", "சிவப்பு"),
-            RasiItem("தனுசு", "குரு", "பக்தி மார்க்கத்தில் நாட்டம் செல்லும். பெரியோரின் ஆசி கிட்டும்.", "3", "மஞ்சள்"),
-            RasiItem("மகரம்", "சனி", "கடின உழைப்பிற்கு ஏற்ற பலன் கிடைக்கும். நிதானத்துடன் செயல்படவும்.", "8", "கருநீலம்"),
-            RasiItem("கும்பம்", "சனி", "புதிய சிந்தனைகள் மேலோங்கும். சமூகத்தில் நற்பெயர் கூடும்.", "8", "நீலம்"),
-            RasiItem("மீனம்", "குரு", "சுப காரிய பேச்சுவார்த்தைகள் முடிவுக்கு வரும். அமைதியான நாள்.", "3", "பொன்நிறம்")
+            RasiItem("மேஷம்", "பெருமை"),
+            RasiItem("ரிஷபம்", "பக்தி"),
+            RasiItem("மிதுனம்", "உழைப்பு"),
+            RasiItem("கடகம்", "புகழ்"),
+            RasiItem("சிம்மம்", "வரவு"),
+            RasiItem("கன்னி", "போட்டி"),
+            RasiItem("துலாம்", "இன்பம்"),
+            RasiItem("விருச்சிகம்", "நலம்"),
+            RasiItem("தனுசு", "ஆதரவு"),
+            RasiItem("மகரம்", "வெற்றி"),
+            RasiItem("கும்பம்", "மேன்மை"),
+            RasiItem("மீனம்", "அமைதி")
         )
 
         fun bind() {
@@ -170,10 +171,7 @@ class MainPagerAdapter(
 
         class CardVH(view: View) : RecyclerView.ViewHolder(view) {
             val tvName: TextView = view.findViewById(R.id.tv_rasi_name)
-            val tvLord: TextView = view.findViewById(R.id.tv_rasi_lord)
             val tvPrediction: TextView = view.findViewById(R.id.tv_rasi_prediction)
-            val tvLuckyNum: TextView = view.findViewById(R.id.tv_rasi_lucky_num)
-            val tvLuckyColor: TextView = view.findViewById(R.id.tv_rasi_lucky_color)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardVH {
@@ -185,20 +183,26 @@ class MainPagerAdapter(
         override fun onBindViewHolder(holder: CardVH, position: Int) {
             val item = list[position]
             holder.tvName.text = item.name
-            holder.tvLord.text = item.lord
-            holder.tvPrediction.text = item.prediction
-            holder.tvLuckyNum.text = "எண்: ${item.luckyNumber}"
-            holder.tvLuckyColor.text = "நிறம்: ${item.luckyColor}"
+            holder.tvPrediction.text = item.keyword
         }
 
         override fun getItemCount(): Int = list.size
     }
 
+    // ==================== 3. HORAI VIEW HOLDER ====================
     class HoraiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val dayContainer: LinearLayout = itemView.findViewById(R.id.layout_day_horai_container)
         private val nightContainer: LinearLayout = itemView.findViewById(R.id.layout_night_horai_container)
+        private val btnDay: TextView? = itemView.findViewById(R.id.btn_toggle_day_horai)
+        private val btnNight: TextView? = itemView.findViewById(R.id.btn_toggle_night_horai)
+        private val tvSectionTitle: TextView? = itemView.findViewById(R.id.tv_horai_section_title)
+        private val tvSectionSubtitle: TextView? = itemView.findViewById(R.id.tv_horai_section_subtitle)
 
         private val planets = listOf("சூரியன்", "சுக்கிரன்", "புதன்", "சந்திரன்", "சனி", "குரு", "செவ்வாய்")
+        private val planetBadges = mapOf(
+            "சூரியன்" to "சூ", "சுக்கிரன்" to "சு", "புதன்" to "பு",
+            "சந்திரன்" to "சந்", "சனி" to "ச", "குரு" to "குரு", "செவ்வாய்" to "செ"
+        )
 
         private val dayStartPlanetIndex = mapOf(
             Calendar.SUNDAY to 0,
@@ -211,22 +215,40 @@ class MainPagerAdapter(
         )
 
         private val dayTimes = listOf(
-            "06:00 AM - 07:00 AM", "07:00 AM - 08:00 AM", "08:00 AM - 09:00 AM",
-            "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM",
-            "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM",
-            "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM"
+            "06:00 AM - 06:59 AM", "06:59 AM - 07:57 AM", "07:57 AM - 08:56 AM",
+            "08:56 AM - 09:55 AM", "09:55 AM - 10:54 AM", "10:54 AM - 11:53 AM",
+            "11:53 AM - 12:51 PM", "12:51 PM - 01:50 PM", "01:50 PM - 02:49 PM",
+            "02:49 PM - 03:48 PM", "03:48 PM - 04:47 PM", "04:47 PM - 05:46 PM"
         )
 
         private val nightTimes = listOf(
-            "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM", "08:00 PM - 09:00 PM",
-            "09:00 PM - 10:00 PM", "10:00 PM - 11:00 PM", "11:00 PM - 12:00 AM",
-            "12:00 AM - 01:00 AM", "01:00 AM - 02:00 AM", "02:00 AM - 03:00 AM",
-            "03:00 AM - 04:00 AM", "04:00 AM - 05:00 AM", "05:00 AM - 06:00 AM"
+            "05:46 PM - 06:47 PM", "06:47 PM - 07:48 PM", "07:48 PM - 08:49 PM",
+            "08:49 PM - 09:50 PM", "09:50 PM - 10:51 PM", "10:51 PM - 11:52 PM",
+            "11:52 PM - 12:53 AM", "12:53 AM - 01:54 AM", "01:54 AM - 02:55 AM",
+            "02:55 AM - 03:56 AM", "03:56 AM - 04:57 AM", "04:57 AM - 05:58 AM"
         )
 
         fun bind(dayOfWeek: Int) {
             dayContainer.removeAllViews()
             nightContainer.removeAllViews()
+
+            btnDay?.setOnClickListener {
+                dayContainer.visibility = View.VISIBLE
+                nightContainer.visibility = View.GONE
+                tvSectionTitle?.text = "பகல் ஹோரை நேரங்கள்"
+                tvSectionSubtitle?.text = "(சூரிய உதயம் - சூரிய அஸ்தமனம்)"
+                btnDay.setBackgroundResource(R.drawable.bg_header_btn_ripple)
+                btnNight?.background = null
+            }
+
+            btnNight?.setOnClickListener {
+                dayContainer.visibility = View.GONE
+                nightContainer.visibility = View.VISIBLE
+                tvSectionTitle?.text = "இரவு ஹோரை நேரங்கள்"
+                tvSectionSubtitle?.text = "(சூரிய அஸ்தமனம் - மறுநாள் சூரிய உதயம்)"
+                btnNight.setBackgroundResource(R.drawable.bg_header_btn_ripple)
+                btnDay?.background = null
+            }
 
             val startIndex = dayStartPlanetIndex[dayOfWeek] ?: 0
             val inflater = LayoutInflater.from(itemView.context)
@@ -244,28 +266,34 @@ class MainPagerAdapter(
 
         private fun addHoraiRow(inflater: LayoutInflater, container: LinearLayout, time: String, planet: String) {
             val row = inflater.inflate(R.layout.item_horai_row, container, false)
-            val tvTime = row.findViewById<TextView>(R.id.tv_horai_time)
+            val card = row.findViewById<MaterialCardView>(R.id.card_horai_row)
+            val tvBadge = row.findViewById<TextView>(R.id.tv_horai_badge_letter)
             val tvPlanet = row.findViewById<TextView>(R.id.tv_horai_planet)
+            val tvTime = row.findViewById<TextView>(R.id.tv_horai_time)
             val tvNature = row.findViewById<TextView>(R.id.tv_horai_nature)
 
-            tvTime.text = time
-            tvPlanet.text = planet
+            tvBadge?.text = planetBadges[planet] ?: planet.take(2)
+            tvPlanet?.text = "$planet •"
+            tvTime?.text = time
 
             when (planet) {
                 "குரு", "சுக்கிரன்", "புதன்", "சந்திரன்" -> {
-                    tvNature.text = "சுபம்"
-                    tvNature.setTextColor(Color.parseColor("#1B5E20"))
-                    tvNature.setBackgroundColor(Color.parseColor("#E2F3E7"))
+                    tvNature?.text = "Good"
+                    card?.setCardBackgroundColor(Color.parseColor("#D7F0DC"))
+                    card?.strokeColor = Color.parseColor("#A3D9AC")
+                    tvBadge?.setTextColor(Color.parseColor("#1B5E20"))
                 }
                 "சூரியன்" -> {
-                    tvNature.text = "மத்திமம்"
-                    tvNature.setTextColor(Color.parseColor("#F57F17"))
-                    tvNature.setBackgroundColor(Color.parseColor("#FFF8E1"))
+                    tvNature?.text = "Medium"
+                    card?.setCardBackgroundColor(Color.parseColor("#FCEECB"))
+                    card?.strokeColor = Color.parseColor("#F5D78E")
+                    tvBadge?.setTextColor(Color.parseColor("#E65100"))
                 }
-                else -> {
-                    tvNature.text = "தவிர்க்க"
-                    tvNature.setTextColor(Color.parseColor("#B71C1C"))
-                    tvNature.setBackgroundColor(Color.parseColor("#FFEBEE"))
+                else -> { // செவ்வாய், சனி
+                    tvNature?.text = "Avoid"
+                    card?.setCardBackgroundColor(Color.parseColor("#E5E5EA"))
+                    card?.strokeColor = Color.parseColor("#D1D1D6")
+                    tvBadge?.setTextColor(Color.parseColor("#48484A"))
                 }
             }
             container.addView(row)
