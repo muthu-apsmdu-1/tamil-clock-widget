@@ -7,10 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper
 import java.io.File
 import java.io.FileOutputStream
 
-// Compatibility data model required across activities and widgets
+// Fully mapped data model matching all adapter & widget references
 data class TamilDateInfo(
     val gregorianDate: String = "",
     val tamilYear: String = "பராபவ",
+    val dayName: String = "",
     val dayNameTa: String = "",
     val tamilMonth: String = "",
     val tamilDay: Int = 1,
@@ -18,7 +19,11 @@ data class TamilDateInfo(
     val tithi: String = "",
     val nakshatra: String = "",
     val nallaNeram: String = "",
+    val nallaNeramMorning: String = "",
+    val nallaNeramEvening: String = "",
     val gouriNallaNeram: String = "",
+    val gouriNallaMorning: String = "",
+    val gouriNallaEvening: String = "",
     val rahuKalam: String = "",
     val yamaGandam: String = "",
     val sunrise: String = "06:08 AM",
@@ -33,7 +38,7 @@ class TamilDatabaseHelper(private val context: Context) :
 
     companion object {
         private const val DB_NAME = "tamil_calendar.db"
-        private const val DB_VERSION = 11
+        private const val DB_VERSION = 12
     }
 
     private val dbPath: String = context.getDatabasePath(DB_NAME).path
@@ -72,7 +77,6 @@ class TamilDatabaseHelper(private val context: Context) :
         copyDatabaseIfNeeded()
     }
 
-    // Core lookup called across all adapters, activities, and widget providers
     fun getDayDetails(dateStr: String): TamilDateInfo? {
         val db = readableDatabase
         val cursor: Cursor = db.rawQuery(
@@ -92,11 +96,9 @@ class TamilDatabaseHelper(private val context: Context) :
             val nakshatra = cursor.getString(cursor.getColumnIndexOrThrow("nakshatra_name"))
             val festivals = cursor.getString(cursor.getColumnIndexOrThrow("festivals_events")) ?: ""
 
-            // Clean almanac reference flags
             val cleanTithi = if (tithi == "காண்க") "சுப திதி" else tithi
             val cleanNak = if (nakshatra == "காண்க") "சுப நட்சத்திரம்" else nakshatra
 
-            // Determine Paksham from tithi value
             val paksham = when {
                 cleanTithi.contains("அமாவாசை") -> "தேய்பிறை"
                 cleanTithi.contains("பௌர்ணமி") -> "வளர்பிறை"
@@ -104,17 +106,25 @@ class TamilDatabaseHelper(private val context: Context) :
                 else -> "வளர்பிறை"
             }
 
+            val (nnMorning, nnEvening) = getNallaNeramParts(weekday)
+            val (gnMorning, gnEvening) = getGouriNallaParts(weekday)
+
             result = TamilDateInfo(
                 gregorianDate = cursor.getString(cursor.getColumnIndexOrThrow("gregorian_date")),
                 tamilYear = cursor.getString(cursor.getColumnIndexOrThrow("tamil_year")) ?: "பராபவ",
+                dayName = weekday,
                 dayNameTa = weekday,
                 tamilMonth = cursor.getString(cursor.getColumnIndexOrThrow("tamil_month")),
                 tamilDay = cursor.getInt(cursor.getColumnIndexOrThrow("tamil_date")),
                 paksham = paksham,
                 tithi = cleanTithi,
                 nakshatra = cleanNak,
-                nallaNeram = getNallaNeram(weekday),
-                gouriNallaNeram = getGouriNallaNeram(weekday),
+                nallaNeram = "$nnMorning / $nnEvening",
+                nallaNeramMorning = nnMorning,
+                nallaNeramEvening = nnEvening,
+                gouriNallaNeram = "$gnMorning / $gnEvening",
+                gouriNallaMorning = gnMorning,
+                gouriNallaEvening = gnEvening,
                 rahuKalam = getRahuKalam(weekday),
                 yamaGandam = getYamaGandam(weekday),
                 festivalsEvents = festivals
@@ -146,25 +156,25 @@ class TamilDatabaseHelper(private val context: Context) :
         else -> "01:30 PM - 03:00 PM"
     }
 
-    private fun getNallaNeram(weekday: String): String = when (weekday.trim()) {
-        "ஞாயிறு" -> "07:30 AM - 08:30 AM / 03:30 PM - 04:30 PM"
-        "திங்கள்" -> "06:30 AM - 07:30 AM / 04:30 PM - 05:30 PM"
-        "செவ்வாய்" -> "07:30 AM - 08:30 AM / 04:30 PM - 05:30 PM"
-        "புதன்" -> "09:15 AM - 10:15 AM / 04:45 PM - 05:45 PM"
-        "வியாழன்" -> "10:45 AM - 11:45 AM / 06:30 PM - 07:30 PM"
-        "வெள்ளி" -> "09:15 AM - 10:15 AM / 04:45 PM - 05:45 PM"
-        "சனி" -> "10:45 AM - 11:45 AM / 04:45 PM - 05:45 PM"
-        else -> "09:15 AM - 10:15 AM"
+    private fun getNallaNeramParts(weekday: String): Pair<String, String> = when (weekday.trim()) {
+        "ஞாயிறு" -> Pair("07:30 AM - 08:30 AM", "03:30 PM - 04:30 PM")
+        "திங்கள்" -> Pair("06:30 AM - 07:30 AM", "04:30 PM - 05:30 PM")
+        "செவ்வாய்" -> Pair("07:30 AM - 08:30 AM", "04:30 PM - 05:30 PM")
+        "புதன்" -> Pair("09:15 AM - 10:15 AM", "04:45 PM - 05:45 PM")
+        "வியாழன்" -> Pair("10:45 AM - 11:45 AM", "06:30 PM - 07:30 PM")
+        "வெள்ளி" -> Pair("09:15 AM - 10:15 AM", "04:45 PM - 05:45 PM")
+        "சனி" -> Pair("10:45 AM - 11:45 AM", "04:45 PM - 05:45 PM")
+        else -> Pair("09:15 AM - 10:15 AM", "04:45 PM - 05:45 PM")
     }
 
-    private fun getGouriNallaNeram(weekday: String): String = when (weekday.trim()) {
-        "ஞாயிறு" -> "01:30 PM - 02:30 PM"
-        "திங்கள்" -> "09:30 AM - 10:30 AM"
-        "செவ்வாய்" -> "01:30 PM - 02:30 PM"
-        "புதன்" -> "09:30 AM - 10:30 AM"
-        "வியாழன்" -> "09:30 AM - 10:30 AM"
-        "வெள்ளி" -> "01:30 PM - 02:30 PM"
-        "சனி" -> "06:30 PM - 07:30 PM"
-        else -> "09:30 AM - 10:30 AM"
+    private fun getGouriNallaParts(weekday: String): Pair<String, String> = when (weekday.trim()) {
+        "ஞாயிறு" -> Pair("10:30 AM - 11:30 AM", "01:30 PM - 02:30 PM")
+        "திங்கள்" -> Pair("09:30 AM - 10:30 AM", "07:30 PM - 08:30 PM")
+        "செவ்வாய்" -> Pair("10:30 AM - 11:30 AM", "01:30 PM - 02:30 PM")
+        "புதன்" -> Pair("09:30 AM - 10:30 AM", "07:30 PM - 08:30 PM")
+        "வியாழன்" -> Pair("09:30 AM - 10:30 AM", "07:30 PM - 08:30 PM")
+        "வெள்ளி" -> Pair("10:30 AM - 11:30 AM", "01:30 PM - 02:30 PM")
+        "சனி" -> Pair("10:30 AM - 11:30 AM", "06:30 PM - 07:30 PM")
+        else -> Pair("09:30 AM - 10:30 AM", "06:30 PM - 07:30 PM")
     }
 }
