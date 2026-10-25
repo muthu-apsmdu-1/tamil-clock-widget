@@ -1,175 +1,102 @@
 package com.example.tamilclock
 
-import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import org.json.JSONArray
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.io.File
+import java.io.FileOutputStream
 
-data class TamilDateInfo(
-    val tamilYear: String = "",
-    val dayName: String = "",
-    val tamilMonth: String = "",
-    val tamilDay: Int = 1,
-    val paksham: String = "",
-    val tithi: String = "",
-    val nakshatra: String = "",
-    val nallaNeramMorning: String = "",
-    val nallaNeramEvening: String = "",
-    val gouriNallaMorning: String = "",
-    val gouriNallaEvening: String = "",
-    val rahuKalam: String = "",
-    val yamaGandam: String = "",
-    val sunrise: String = "",
-    val sunset: String = "",
-    val moonrise: String = "",
-    val moonset: String = ""
-)
+class TamilDatabaseHelper(private val context: Context) :
+    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
 
-class TamilDatabaseHelper(private val context: Context) : 
-    SQLiteOpenHelper(context, "tamil_calendar.db", null, 9) {
-
-    override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL("""
-            CREATE TABLE IF NOT EXISTS tamil_panchangam (
-                gregorian_date TEXT PRIMARY KEY,
-                tamil_year TEXT,
-                day_name_ta TEXT,
-                tamil_month TEXT,
-                tamil_day INTEGER,
-                paksham TEXT,
-                tithi TEXT,
-                nakshatra TEXT,
-                nalla_neram_morning TEXT,
-                nalla_neram_evening TEXT,
-                gouri_nalla_neram_morning TEXT,
-                gouri_nalla_neram_evening TEXT,
-                rahu_kalam TEXT,
-                yama_gandam TEXT,
-                sunrise TEXT,
-                sunset TEXT,
-                moonrise TEXT,
-                moonset TEXT
-            )
-        """.trimIndent())
-        
-        loadFromAssets(db)
+    companion object {
+        private const val DB_NAME = "tamil_calendar.db"
+        private const val DB_VERSION = 10 // Bumped to force refresh
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS tamil_panchangam")
-        onCreate(db)
+    private val dbPath: String = context.getDatabasePath(DB_NAME).path
+
+    init {
+        copyDatabaseIfNeeded()
     }
 
-    private fun loadFromAssets(db: SQLiteDatabase) {
-        try {
-            val inputStream = context.assets.open("calendar_data.json")
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val jsonString = reader.use { it.readText() }
-            val jsonArray = JSONArray(jsonString)
+    private fun copyDatabaseIfNeeded() {
+        val dbFile = File(dbPath)
+        val sp = context.getSharedPreferences("db_prefs", Context.MODE_PRIVATE)
+        val savedVersion = sp.getInt("db_version", 0)
 
-            db.beginTransaction()
-            try {
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    val rawDate = obj.optString("gregorian_date").trim()
-                    val normalizedDate = normalizeDateKey(rawDate)
-
-                    val nallaNeramRaw = if (obj.has("nalla_neram")) {
-                        obj.optString("nalla_neram")
-                    } else {
-                        obj.optString("nalla_neram_morning", "")
-                    }
-
-                    val gowriRaw = if (obj.has("gouri_nalla_neram")) {
-                        obj.optString("gouri_nalla_neram")
-                    } else {
-                        obj.optString("gouri_nalla_neram_morning", "")
-                    }
-
-                    val cv = ContentValues().apply {
-                        put("gregorian_date", normalizedDate)
-                        put("tamil_year", obj.optString("tamil_year", "பராபவ"))
-                        put("day_name_ta", obj.optString("day_name_ta"))
-                        put("tamil_month", obj.optString("tamil_month"))
-                        put("tamil_day", obj.optInt("tamil_day"))
-                        put("paksham", obj.optString("paksham"))
-                        put("tithi", obj.optString("tithi"))
-                        put("nakshatra", obj.optString("nakshatra"))
-                        put("nalla_neram_morning", nallaNeramRaw)
-                        put("nalla_neram_evening", obj.optString("nalla_neram_evening", ""))
-                        put("gouri_nalla_neram_morning", gowriRaw)
-                        put("gouri_nalla_neram_evening", obj.optString("gouri_nalla_neram_evening", ""))
-                        put("rahu_kalam", obj.optString("rahu_kalam"))
-                        put("yama_gandam", obj.optString("yama_gandam"))
-                        put("sunrise", obj.optString("sunrise"))
-                        put("sunset", obj.optString("sunset"))
-                        put("moonrise", obj.optString("moonrise"))
-                        put("moonset", obj.optString("moonset"))
-                    }
-                    db.insertWithOnConflict("tamil_panchangam", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+        if (!dbFile.exists() || savedVersion < DB_VERSION) {
+            dbFile.parentFile?.mkdirs()
+            context.assets.open(DB_NAME).use { input ->
+                FileOutputStream(dbFile).use { output ->
+                    input.copyTo(output)
                 }
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            sp.edit().putInt("db_version", DB_VERSION).apply()
         }
     }
 
-    private fun normalizeDateKey(input: String): String {
-        return try {
-            val inFormat = if (input.contains("/")) SimpleDateFormat("yyyy/MM/dd", Locale.US)
-                           else SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val outFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            val parsed = inFormat.parse(input)
-            if (parsed != null) outFormat.format(parsed) else input
-        } catch (e: Exception) {
-            input
-        }
+    override fun onCreate(db: SQLiteDatabase?) {
+        // Managed by pre-built assets file
     }
 
-    fun getDayDetails(dateString: String): TamilDateInfo? {
-        val normalized = normalizeDateKey(dateString)
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        // Force replace database with asset version
+        val dbFile = File(dbPath)
+        if (dbFile.exists()) {
+            dbFile.delete()
+        }
+        copyDatabaseIfNeeded()
+    }
+
+    fun getPanchangamForDate(dateStr: String): PanchangamDay? {
         val db = readableDatabase
-        val cursor = db.rawQuery(
-            """SELECT tamil_year, day_name_ta, tamil_month, tamil_day, 
-                      paksham, tithi, nakshatra, nalla_neram_morning, nalla_neram_evening, 
-                      gouri_nalla_neram_morning, gouri_nalla_neram_evening, 
-                      rahu_kalam, yama_gandam, sunrise, sunset, moonrise, moonset 
-               FROM tamil_panchangam WHERE gregorian_date = ?""",
-            arrayOf(normalized)
+        val cursor: Cursor = db.rawQuery(
+            """
+            SELECT gregorian_date, tamil_year, tamil_month, tamil_date, 
+                   weekday_ta, tithi_name, tithi_nazhikai, nakshatra_name, 
+                   nakshatra_nazhikai, yoga_name, festivals_events 
+            FROM panchangam_daily 
+            WHERE gregorian_date = ? LIMIT 1
+            """.trimIndent(),
+            arrayOf(dateStr)
         )
 
-        return cursor.use { c ->
-            if (c.moveToFirst()) {
-                TamilDateInfo(
-                    tamilYear = c.getString(0) ?: "",
-                    dayName = c.getString(1) ?: "",
-                    tamilMonth = c.getString(2) ?: "",
-                    tamilDay = c.getInt(3),
-                    paksham = c.getString(4) ?: "",
-                    tithi = c.getString(5) ?: "",
-                    nakshatra = c.getString(6) ?: "",
-                    nallaNeramMorning = c.getString(7) ?: "",
-                    nallaNeramEvening = c.getString(8) ?: "",
-                    gouriNallaMorning = c.getString(9) ?: "",
-                    gouriNallaEvening = c.getString(10) ?: "",
-                    rahuKalam = c.getString(11) ?: "",
-                    yamaGandam = c.getString(12) ?: "",
-                    sunrise = c.getString(13) ?: "",
-                    sunset = c.getString(14) ?: "",
-                    moonrise = c.getString(15) ?: "",
-                    moonset = c.getString(16) ?: ""
-                )
-            } else {
-                null
-            }
+        var result: PanchangamDay? = null
+        if (cursor.moveToFirst()) {
+            val tithi = cursor.getString(cursor.getColumnIndexOrThrow("tithi_name"))
+            val nakshatra = cursor.getString(cursor.getColumnIndexOrThrow("nakshatra_name"))
+            
+            // Filter placeholder strings
+            val cleanTithi = if (tithi == "காண்க") "சுப திதி" else tithi
+            val cleanNakshatra = if (nakshatra == "காண்க") "சுப நட்சத்திரம்" else nakshatra
+
+            result = PanchangamDay(
+                gregorianDate = cursor.getString(cursor.getColumnIndexOrThrow("gregorian_date")),
+                tamilYear = cursor.getString(cursor.getColumnIndexOrThrow("tamil_year")) ?: "பராபவ",
+                tamilMonth = cursor.getString(cursor.getColumnIndexOrThrow("tamil_month")),
+                tamilDate = cursor.getInt(cursor.getColumnIndexOrThrow("tamil_date")),
+                weekdayTa = cursor.getString(cursor.getColumnIndexOrThrow("weekday_ta")),
+                tithiName = cleanTithi,
+                nakshatraName = cleanNakshatra,
+                yogaName = cursor.getString(cursor.getColumnIndexOrThrow("yoga_name")) ?: "",
+                festivalsEvents = cursor.getString(cursor.getColumnIndexOrThrow("festivals_events")) ?: ""
+            )
         }
+        cursor.close()
+        return result
     }
 }
+
+data class PanchangamDay(
+    val gregorianDate: String,
+    val tamilYear: String,
+    val tamilMonth: String,
+    val tamilDate: Int,
+    val weekdayTa: String,
+    val tithiName: String,
+    val nakshatraName: String,
+    val yogaName: String,
+    val festivalsEvents: String
+)
