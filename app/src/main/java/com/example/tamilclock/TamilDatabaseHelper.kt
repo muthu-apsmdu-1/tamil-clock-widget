@@ -52,12 +52,13 @@ data class SunMoonTiming(
 class TamilDatabaseHelper(private val context: Context) {
 
     companion object {
-        private const val DB_VERSION = 1
+        // Incremented to 2 to trigger re-copy of new asset files on upgrade
+        private const val DB_VERSION = 2
         private const val PREFS_NAME = "tamil_db_prefs"
         private const val KEY_DB_VERSION = "copied_db_version"
 
-        // Exact filenames matching app/src/main/assets/
-        private const val DB_PAN = "Daily_pan.db"
+        // Updated filename matching app/src/main/assets/panchang_pure.db
+        private const val DB_PAN = "panchang_pure.db"
         private const val DB_AUSPICIOUS = "auspicious_periods.db"
         private const val DB_SUN_MOON = "sun_moon_timings.db"
         private const val DB_GOWRI = "gowri.db"
@@ -108,14 +109,14 @@ class TamilDatabaseHelper(private val context: Context) {
     }
 
     /**
-     * Primary lookup combining Daily_pan.db, auspicious_periods.db, and sun_moon_timings.db
+     * Primary lookup combining panchang_pure.db, auspicious_periods.db, and sun_moon_timings.db
      */
     fun getDayDetails(dateStr: String): TamilDateInfo? {
         val panDb = openDatabase(DB_PAN)
         val panCursor: Cursor = panDb.rawQuery(
             """
-            SELECT gregorian_date, tamil_month, tamil_date, weekday_ta, 
-                   paksha, tithi_name, nakshatra_name, festivals_events 
+            SELECT gregorian_date, tamil_year, tamil_month, tamil_date, 
+                   weekday_ta, paksha, tithi_name, nakshatra_name, festivals_events 
             FROM panchangam_daily 
             WHERE gregorian_date = ? LIMIT 1
             """.trimIndent(),
@@ -125,6 +126,7 @@ class TamilDatabaseHelper(private val context: Context) {
         var result: TamilDateInfo? = null
 
         if (panCursor.moveToFirst()) {
+            val tamilYear = panCursor.getString(panCursor.getColumnIndexOrThrow("tamil_year")) ?: "பராபவ"
             val weekdayTa = panCursor.getString(panCursor.getColumnIndexOrThrow("weekday_ta"))
             val tamilMonth = panCursor.getString(panCursor.getColumnIndexOrThrow("tamil_month"))
             val tamilDate = panCursor.getInt(panCursor.getColumnIndexOrThrow("tamil_date"))
@@ -152,7 +154,7 @@ class TamilDatabaseHelper(private val context: Context) {
 
             result = TamilDateInfo(
                 gregorianDate = dateStr,
-                tamilYear = "பராபவ",
+                tamilYear = tamilYear,
                 dayName = weekdayTa,
                 dayNameTa = weekdayTa,
                 tamilMonth = tamilMonth,
