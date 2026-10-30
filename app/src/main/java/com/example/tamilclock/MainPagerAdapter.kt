@@ -84,67 +84,121 @@ class MainPagerAdapter(
 
     // ==================== 1. PANCHANGAM VIEW HOLDER ====================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // Navigation Buttons
         private val btnPrev: ImageButton = itemView.findViewById(R.id.btn_prev_day)
         private val btnNext: ImageButton = itemView.findViewById(R.id.btn_next_day)
-        private val tvGregorian: TextView = itemView.findViewById(R.id.tv_gregorian_header)
-        private val tvWeekday: TextView = itemView.findViewById(R.id.tv_weekday_header)
-        private val tvTamilDate: TextView = itemView.findViewById(R.id.tv_tamil_date_full)
 
+        // 1. Top Date Header Card
+        private val tvHeaderLine1: TextView = itemView.findViewById(R.id.tv_gregorian_header)
+        private val tvHeaderLine2: TextView = itemView.findViewById(R.id.tv_tamil_date_full)
+
+        // 2. Festival / Event Badge Card
+        private val cardFestivalBadge: View? = itemView.findViewById(R.id.card_festival_badge)
+        private val tvFestivalText: TextView? = itemView.findViewById(R.id.tv_festival_badge_text)
+
+        // 3. Sun & Moon Timings Strip
         private val tvSunrise: TextView = itemView.findViewById(R.id.tv_sunrise_val)
         private val tvSunset: TextView = itemView.findViewById(R.id.tv_sunset_val)
         private val tvMoonrise: TextView = itemView.findViewById(R.id.tv_moonrise_val)
         private val tvMoonset: TextView = itemView.findViewById(R.id.tv_moonset_val)
 
+        // 4. Panchangam Core 5 Elements
+        private val tvPaksham: TextView? = itemView.findViewById(R.id.tv_paksham_val)
+        private val tvTithi: TextView? = itemView.findViewById(R.id.tv_tithi_val)
         private val tvNakshatra: TextView = itemView.findViewById(R.id.tv_nakshatra_val)
-        private val tvNakshatraTime: TextView? = itemView.findViewById(R.id.tv_nakshatra_time)
+        private val tvYoga: TextView? = itemView.findViewById(R.id.tv_yoga_val)
+        private val tvKarana: TextView? = itemView.findViewById(R.id.tv_karana_val)
 
+        // 5. Auspicious Timings Card (சுப நேரங்கள்)
         private val tvNallaNeram: TextView = itemView.findViewById(R.id.tv_nalla_neram_val)
         private val tvGouri: TextView = itemView.findViewById(R.id.tv_gouri_val)
+
+        // 6. Inauspicious Timings Card (அசுப நேரங்கள்)
         private val tvRahu: TextView = itemView.findViewById(R.id.tv_rahu_val)
         private val tvYamagandam: TextView = itemView.findViewById(R.id.tv_yamagandam_val)
+        private val tvKuligai: TextView? = itemView.findViewById(R.id.tv_kuligai_val)
+        private val tvTyajyam: TextView? = itemView.findViewById(R.id.tv_tyajyam_val)
 
         fun bind(gregDate: String, data: TamilDateInfo?, onPrev: () -> Unit, onNext: () -> Unit) {
             btnPrev.setOnClickListener { onPrev() }
             btnNext.setOnClickListener { onNext() }
 
-            tvGregorian.text = gregDate
-
             if (data != null) {
-                tvWeekday.text = data.dayName
+                // 1. TOP DATE HEADER CARD
+                val parts = data.gregorianDate.split("-")
+                val formattedGregorian = if (parts.size == 3) {
+                    "${parts[2]} - ${parts[1]} - ${parts[0]} ${data.dayNameTa}"
+                } else {
+                    "$gregDate ${data.dayNameTa}"
+                }
+                tvHeaderLine1.text = formattedGregorian
+                tvHeaderLine2.text = "${data.tamilYear} - ${data.tamilMonth} ${data.tamilDay}"
 
-                val yearPrefix = if (data.tamilYear.isNotEmpty()) "${data.tamilYear} வருடம் - " else ""
-                val tithiText = if (data.tithi.isNotEmpty()) " / ${data.tithi}" else ""
-                tvTamilDate.text = "$yearPrefix${data.tamilMonth} ${data.tamilDay}$tithiText"
+                // 2. FESTIVAL / EVENT BADGE (Visible only if present)
+                if (data.festivalsEvents.isNotBlank()) {
+                    cardFestivalBadge?.visibility = View.VISIBLE
+                    tvFestivalText?.visibility = View.VISIBLE
+                    tvFestivalText?.text = "🎉 ${data.festivalsEvents}"
+                } else {
+                    cardFestivalBadge?.visibility = View.GONE
+                    tvFestivalText?.visibility = View.GONE
+                }
 
-                tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "06:08 AM" }}"
-                tvSunset.text = "↓  ${data.sunset.ifEmpty { "05:57 PM" }}"
-                tvMoonrise.text = "↑  ${data.moonrise.ifEmpty { "03:00 PM" }}"
-                tvMoonset.text = "↓  ${data.moonset.ifEmpty { "03:12 AM" }}"
+                // 3. SUN & MOON TIMINGS
+                tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "--:--" }}"
+                tvSunset.text = "↓  ${data.sunset.ifEmpty { "--:--" }}"
+                tvMoonrise.text = "↑  ${data.moonrise.ifEmpty { "--:--" }}"
+                tvMoonset.text = "↓  ${data.moonset.ifEmpty { "--:--" }}"
 
-                tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}"
-                tvNakshatraTime?.text = data.paksham.ifEmpty { "" }
+                // 4. PANCHANGAM CORE 5 ELEMENTS (Specified Order)
+                tvPaksham?.text = "பக்ஷம்: ${data.paksham.ifEmpty { "--" }}"
 
-                val nallaList = mutableListOf<String>()
-                if (data.nallaNeramMorning.isNotBlank()) nallaList.add(data.nallaNeramMorning)
-                if (data.nallaNeramEvening.isNotBlank()) nallaList.add(data.nallaNeramEvening)
-                tvNallaNeram.text = if (nallaList.isNotEmpty()) nallaList.joinToString(" / ") else "காலை 07:15 - 08:15"
+                val tithiTimeSuffix = if (data.tithiTime.isNotBlank()) " (${data.tithiTime} வரை)" else ""
+                tvTithi?.text = "திதி: ${data.tithi}$tithiTimeSuffix"
 
-                val gouriList = mutableListOf<String>()
-                if (data.gouriNallaMorning.isNotBlank()) gouriList.add(data.gouriNallaMorning)
-                if (data.gouriNallaEvening.isNotBlank()) gouriList.add(data.gouriNallaEvening)
-                tvGouri.text = if (gouriList.isNotEmpty()) gouriList.joinToString(" / ") else "பகல் 01:30 - 02:30"
+                val nakshatraTimeSuffix = if (data.nakshatraTime.isNotBlank()) " (${data.nakshatraTime} வரை)" else ""
+                tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}$nakshatraTimeSuffix"
 
+                val yogaTimeSuffix = if (data.yogaTime.isNotBlank()) " (${data.yogaTime} வரை)" else ""
+                tvYoga?.text = "யோகம்: ${data.yogaName}$yogaTimeSuffix"
+
+                val karanaTimeSuffix = if (data.karanaTime.isNotBlank()) " (${data.karanaTime} வரை)" else ""
+                tvKarana?.text = "கரணம்: ${data.karanaName}$karanaTimeSuffix"
+
+                // 5. AUSPICIOUS TIMINGS (சுப நேரங்கள்)
+                tvNallaNeram.text = "நல்ல நேரம்: ${data.nallaNeram.ifEmpty { "--" }}"
+                tvGouri.text = "கௌரி நல்ல நேரம்: ${data.gouriNallaNeram.ifEmpty { "--" }}"
+
+                // 6. INAUSPICIOUS TIMINGS (அசுப நேரங்கள்)
                 tvRahu.text = "இராகு காலம்: ${data.rahuKalam.ifEmpty { "--" }}"
                 tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam.ifEmpty { "--" }}"
+                tvKuligai?.text = "குளிகை: ${data.kuligai.ifEmpty { "--" }}"
+
+                if (data.tyajyamTime.isNotBlank() && data.tyajyamTime != "0") {
+                    tvTyajyam?.visibility = View.VISIBLE
+                    tvTyajyam?.text = "தியாஜ்யம்: ${data.tyajyamTime}"
+                } else {
+                    tvTyajyam?.visibility = View.GONE
+                }
             } else {
-                tvWeekday.text = ""
-                tvTamilDate.text = "தகவல் இல்லை"
+                tvHeaderLine1.text = gregDate
+                tvHeaderLine2.text = "தகவல் இல்லை"
+                cardFestivalBadge?.visibility = View.GONE
+                tvSunrise.text = "↑  --:--"
+                tvSunset.text = "↓  --:--"
+                tvMoonrise.text = "↑  --:--"
+                tvMoonset.text = "↓  --:--"
+                tvPaksham?.text = "பக்ஷம்: --"
+                tvTithi?.text = "திதி: --"
                 tvNakshatra.text = "நட்சத்திரம்: --"
-                tvNakshatraTime?.text = ""
-                tvNallaNeram.text = "--"
-                tvGouri.text = "--"
+                tvYoga?.text = "யோகம்: --"
+                tvKarana?.text = "கரணம்: --"
+                tvNallaNeram.text = "நல்ல நேரம்: --"
+                tvGouri.text = "கௌரி நல்ல நேரம்: --"
                 tvRahu.text = "இராகு காலம்: --"
                 tvYamagandam.text = "எமகண்டம்: --"
+                tvKuligai?.text = "குளிகை: --"
+                tvTyajyam?.visibility = View.GONE
             }
         }
     }
@@ -223,17 +277,17 @@ class MainPagerAdapter(
         )
 
         private val dayTimes = listOf(
-            "06:00 AM - 06:59 AM", "06:59 AM - 07:57 AM", "07:57 AM - 08:56 AM",
-            "08:56 AM - 09:55 AM", "09:55 AM - 10:54 AM", "10:54 AM - 11:53 AM",
-            "11:53 AM - 12:51 PM", "12:51 PM - 01:50 PM", "01:50 PM - 02:49 PM",
-            "02:49 PM - 03:48 PM", "03:48 PM - 04:47 PM", "04:47 PM - 05:46 PM"
+            "06:00 AM - 07:00 AM", "07:00 AM - 08:00 AM", "08:00 AM - 09:00 AM",
+            "09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM",
+            "12:00 PM - 01:00 PM", "01:00 PM - 02:00 PM", "02:00 PM - 03:00 PM",
+            "03:00 PM - 04:00 PM", "04:00 PM - 05:00 PM", "05:00 PM - 06:00 PM"
         )
 
         private val nightTimes = listOf(
-            "05:46 PM - 06:47 PM", "06:47 PM - 07:48 PM", "07:48 PM - 08:49 PM",
-            "08:49 PM - 09:50 PM", "09:50 PM - 10:51 PM", "10:51 PM - 11:52 PM",
-            "11:52 PM - 12:53 AM", "12:53 AM - 01:54 AM", "01:54 AM - 02:55 AM",
-            "02:55 AM - 03:56 AM", "03:56 AM - 04:57 AM", "04:57 AM - 05:58 AM"
+            "06:00 PM - 07:00 PM", "07:00 PM - 08:00 PM", "08:00 PM - 09:00 PM",
+            "09:00 PM - 10:00 PM", "10:00 PM - 11:00 PM", "11:00 PM - 12:00 AM",
+            "12:00 AM - 01:00 AM", "01:00 AM - 02:00 AM", "02:00 AM - 03:00 AM",
+            "03:00 AM - 04:00 AM", "04:00 AM - 05:00 AM", "05:00 AM - 06:00 AM"
         )
 
         fun bind(dayOfWeek: Int) {
@@ -244,7 +298,7 @@ class MainPagerAdapter(
                 dayContainer.visibility = View.VISIBLE
                 nightContainer.visibility = View.GONE
                 tvSectionTitle?.text = "பகல் ஹோரை நேரங்கள்"
-                tvSectionSubtitle?.text = "(சூரிய உதயம் - சூரிய அஸ்தமனம்)"
+                tvSectionSubtitle?.text = "(காலை 06:00 - மாலை 06:00)"
                 btnDay.setBackgroundResource(R.drawable.bg_header_btn_ripple)
                 btnNight?.background = null
             }
@@ -253,7 +307,7 @@ class MainPagerAdapter(
                 dayContainer.visibility = View.GONE
                 nightContainer.visibility = View.VISIBLE
                 tvSectionTitle?.text = "இரவு ஹோரை நேரங்கள்"
-                tvSectionSubtitle?.text = "(சூரிய அஸ்தமனம் - மறுநாள் சூரிய உதயம்)"
+                tvSectionSubtitle?.text = "(மாலை 06:00 - மறுநாள் காலை 06:00)"
                 btnNight.setBackgroundResource(R.drawable.bg_header_btn_ripple)
                 btnDay?.background = null
             }
