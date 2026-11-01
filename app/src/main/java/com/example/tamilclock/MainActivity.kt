@@ -16,8 +16,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pagerAdapter: MainPagerAdapter
     private lateinit var calendarMonthAdapter: CalendarMonthAdapter
     private lateinit var dbHelper: TamilDatabaseHelper
+    private lateinit var viewPager: ViewPager2
 
     private val selectedCalendar: Calendar = Calendar.getInstance()
     private val displayedMonthCalendar: Calendar = Calendar.getInstance()
@@ -43,14 +42,12 @@ class MainActivity : AppCompatActivity() {
 
         setupTabsAndViewPager()
         setupHybridBottomSheet()
-        setupHeaderButtons()
         loadDayData()
         updateWidgets()
     }
 
     private fun setupTabsAndViewPager() {
-        val tabLayout = findViewById<TabLayout>(R.id.tab_layout_main)
-        val viewPager = findViewById<ViewPager2>(R.id.view_pager_main)
+        viewPager = findViewById(R.id.view_pager_main)
 
         pagerAdapter = MainPagerAdapter(
             onPrevDayClick = {
@@ -89,14 +86,26 @@ class MainActivity : AppCompatActivity() {
                 loadDayData()
                 refreshMonthCalendarGrid()
                 updateWidgets()
+            },
+            onMonthCalendarClick = {
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
+                    displayedMonthCalendar.time = selectedCalendar.time
+                    refreshMonthCalendarGrid()
+                    calendarMonthAdapter.setClassicMode(false)
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                } else {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                }
+            },
+            onHoraiClick = {
+                // Instantly flip to Horai Tab (Page index 2)
+                viewPager.currentItem = 2
+            },
+            onSettingsClick = {
+                showThemeCustomizationSheet()
             }
         )
         viewPager.adapter = pagerAdapter
-
-        val tabTitles = listOf("பஞ்சாங்கம்", "ராசிபலன்", "ஹோரை")
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = tabTitles[position]
-        }.attach()
     }
 
     private fun loadDayData() {
@@ -186,26 +195,6 @@ class MainActivity : AppCompatActivity() {
             selectedCalendar,
             dbHelper
         )
-    }
-
-    private fun setupHeaderButtons() {
-        val btnCalendar = findViewById<ImageButton>(R.id.btn_monthly_calendar)
-        val btnSettings = findViewById<ImageButton>(R.id.btn_settings_customization)
-
-        btnCalendar?.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
-                displayedMonthCalendar.time = selectedCalendar.time
-                refreshMonthCalendarGrid()
-                calendarMonthAdapter.setClassicMode(false)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            } else {
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            }
-        }
-
-        btnSettings?.setOnClickListener {
-            showThemeCustomizationSheet()
-        }
     }
 
     private fun showThemeCustomizationSheet() {
