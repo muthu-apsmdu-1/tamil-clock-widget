@@ -1,43 +1,42 @@
 package com.example.tamilclock
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatDelegate
+import android.content.SharedPreferences
 
 object ThemeManager {
-    private const val PREF_NAME = "app_theme_prefs"
-    private const val KEY_THEME_ID = "selected_theme_id"
-
     const val THEME_WHITE = 0
     const val THEME_YELLOW = 1
     const val THEME_GREEN = 2
     const val THEME_CHARCOAL = 3
 
-    fun applyTheme(context: Context) {
-        // Enforce strict independence from system dark/light mode
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+    const val CLOCK_ANALOG = 0
+    const val CLOCK_DIGITAL = 1
 
-        val themeId = getSavedTheme(context)
-        context.setTheme(getThemeStyleRes(themeId))
+    private const val PREFS_NAME = "tamil_clock_prefs"
+    private const val KEY_THEME = "selected_theme"
+    private const val KEY_CLOCK_STYLE = "clock_style"
+
+    private fun getPrefs(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     fun saveTheme(context: Context, themeId: Int) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putInt(KEY_THEME_ID, themeId)
-            .apply()
+        getPrefs(context).edit().putInt(KEY_THEME, themeId).apply()
     }
 
     fun getSavedTheme(context: Context): Int {
-        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            .getInt(KEY_THEME_ID, THEME_WHITE)
+        return getPrefs(context).getInt(KEY_THEME, THEME_CHARCOAL)
     }
 
-    private fun getThemeStyleRes(themeId: Int): Int {
-        return when (themeId) {
-            THEME_YELLOW -> R.style.Theme_TamilCalendar_Yellow
-            THEME_GREEN -> R.style.Theme_TamilCalendar_Green
-            THEME_CHARCOAL -> R.style.Theme_TamilCalendar_Charcoal
-            else -> R.style.Theme_TamilCalendar_White
-        }
+    fun applyTheme(context: Context) {
+        // Theme application logic
+    }
+
+    fun saveClockStyle(context: Context, clockStyle: Int) {
+        getPrefs(context).edit().putInt(KEY_CLOCK_STYLE, clockStyle).apply()
+    }
+
+    fun getClockStyle(context: Context): Int {
+        return getPrefs(context).getInt(KEY_CLOCK_STYLE, CLOCK_ANALOG)
     }
 }
