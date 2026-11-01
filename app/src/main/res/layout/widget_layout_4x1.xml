@@ -9,16 +9,15 @@
     android:padding="8dp"
     android:background="@drawable/widget_surface_bg">
 
-    <!-- Clock Container (1x1) Left -->
     <FrameLayout
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_gravity="center_vertical">
+        android:layout_width="68dp"
+        android:layout_height="68dp">
 
         <AnalogClock
             android:id="@+id/analog_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:dial="@drawable/classic_clock_dial"
             android:visibility="visible" />
 
         <TextClock
@@ -34,32 +33,32 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- Details Column Right -->
+    <!-- 7. இடைவெளி கூட்டப்பட்டு வலதுபுறம் அலைன் செய்யப்பட்டது -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="12dp"
-        android:gravity="center_vertical">
+        android:layout_marginStart="16dp"
+        android:gravity="end|center_vertical">
 
         <TextView
             android:id="@+id/tv_widget_greg_date_weekday"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
-            android:textSize="13.5sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:singleLine="true"
-            android:text="01: 11: 2026 Sunday" />
+            android:text="08: 11: 2026 Sunday" />
 
         <TextView
             android:id="@+id/tv_widget_tamil_month_date_tithi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_marginTop="4dp"
             android:textColor="#FFDF00"
-            android:textSize="12.5sp"
+            android:textSize="13sp"
             android:singleLine="true"
-            android:text="ஐப்பசி 15 • சப்தமி" />
+            android:text="ஐப்பசி 22 • சதுர்த்தசி" />
     </LinearLayout>
 </LinearLayout>
