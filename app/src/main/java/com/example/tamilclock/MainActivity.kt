@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -93,7 +94,6 @@ class MainActivity : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             },
             onHoraiClick = {
-                // Instantly flip to Horai Tab (Page index 2)
                 viewPager.currentItem = 2
             },
             onSettingsClick = {
@@ -209,6 +209,33 @@ class MainActivity : AppCompatActivity() {
             updateWidgets()
             dialog.dismiss()
         }
+
+        // Widget Opacity Slider & Percentage Text
+        val seekbarOpacity = sheetView.findViewById<SeekBar>(R.id.seekbar_widget_opacity)
+        val tvOpacity = sheetView.findViewById<TextView>(R.id.tv_opacity_value)
+        val currentOpacity = ThemeManager.getWidgetOpacity(this)
+
+        seekbarOpacity?.progress = currentOpacity
+        tvOpacity?.text = "$currentOpacity%"
+
+        seekbarOpacity?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tvOpacity?.text = "$progress%"
+                if (fromUser) {
+                    ThemeManager.saveWidgetOpacity(this@MainActivity, progress)
+                    updateWidgets()
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                seekBar?.let {
+                    ThemeManager.saveWidgetOpacity(this@MainActivity, it.progress)
+                    updateWidgets()
+                }
+            }
+        })
 
         // Color Theme Options
         sheetView.findViewById<View>(R.id.option_theme_white)?.setOnClickListener {
