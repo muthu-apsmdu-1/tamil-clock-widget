@@ -1,5 +1,6 @@
 package com.example.tamilclock
 
+import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
@@ -34,7 +35,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvSheetMonthYear: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Enforce the saved theme before inflating views
         ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -62,6 +62,29 @@ class MainActivity : AppCompatActivity() {
             },
             onNextDayClick = {
                 selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
+                displayedMonthCalendar.time = selectedCalendar.time
+                loadDayData()
+                refreshMonthCalendarGrid()
+                updateWidgets()
+            },
+            onDatePickerClick = {
+                val datePicker = DatePickerDialog(
+                    this,
+                    { _, year, month, dayOfMonth ->
+                        selectedCalendar.set(year, month, dayOfMonth)
+                        displayedMonthCalendar.time = selectedCalendar.time
+                        loadDayData()
+                        refreshMonthCalendarGrid()
+                        updateWidgets()
+                    },
+                    selectedCalendar.get(Calendar.YEAR),
+                    selectedCalendar.get(Calendar.MONTH),
+                    selectedCalendar.get(Calendar.DAY_OF_MONTH)
+                )
+                datePicker.show()
+            },
+            onTodayClick = {
+                selectedCalendar.time = Calendar.getInstance().time
                 displayedMonthCalendar.time = selectedCalendar.time
                 loadDayData()
                 refreshMonthCalendarGrid()
@@ -97,7 +120,6 @@ class MainActivity : AppCompatActivity() {
         val btnNextMonth = findViewById<ImageButton>(R.id.btn_next_month)
         val container = findViewById<FrameLayout>(R.id.container_calendar_content)
 
-        // Inflate view_calendar_sheet_content into bottom sheet container
         val contentView = LayoutInflater.from(this).inflate(
             R.layout.view_calendar_sheet_content,
             container,
@@ -107,7 +129,6 @@ class MainActivity : AppCompatActivity() {
         val rvGrid = contentView.findViewById<RecyclerView>(R.id.rv_calendar_month_grid)
         rvGrid.layoutManager = GridLayoutManager(this, 7)
 
-        // Selective date jump works across both simple and classic view modes
         calendarMonthAdapter = CalendarMonthAdapter { selectedDateKey ->
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             format.parse(selectedDateKey)?.let { parsedDate ->
@@ -121,7 +142,6 @@ class MainActivity : AppCompatActivity() {
         }
         rvGrid.adapter = calendarMonthAdapter
 
-        // Handles the pull-up full-screen transformation into Classic Wall Calendar
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
@@ -218,7 +238,6 @@ class MainActivity : AppCompatActivity() {
     private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
-        // 1. 2x1 Capsule Widget
         val c2x1 = ComponentName(this, WidgetProvider2x1::class.java)
         val ids2x1 = appWidgetManager.getAppWidgetIds(c2x1)
         if (ids2x1.isNotEmpty()) {
@@ -226,7 +245,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider2x1::class.java, ids2x1)
         }
 
-        // 2. 4x1 Ribbon Widget
         val c4x1 = ComponentName(this, WidgetProvider4x1::class.java)
         val ids4x1 = appWidgetManager.getAppWidgetIds(c4x1)
         if (ids4x1.isNotEmpty()) {
@@ -234,7 +252,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x1::class.java, ids4x1)
         }
 
-        // 3. 4x2 Panoramic Widget
         val c4x2 = ComponentName(this, WidgetProvider4x2::class.java)
         val ids4x2 = appWidgetManager.getAppWidgetIds(c4x2)
         if (ids4x2.isNotEmpty()) {
@@ -242,7 +259,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x2::class.java, ids4x2)
         }
 
-        // 4. 4x4 Heritage Wall Widget
         val c4x4 = ComponentName(this, WidgetProvider4x4::class.java)
         val ids4x4 = appWidgetManager.getAppWidgetIds(c4x4)
         if (ids4x4.isNotEmpty()) {
