@@ -1,39 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
+<androidx.core.widget.NestedScrollView 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?attr/themeCanvasBackground"
-    android:padding="10dp">
+    android:fillViewport="true"
+    android:background="#1E1E24">
 
-    <!-- Top Crimson Header Pill: இன்றைய ராசிபலன் -->
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="#5D0A14">
+        android:orientation="vertical"
+        android:paddingHorizontal="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="24dp">
 
-        <TextView
+        <!-- Gowri Panchangam Header Card -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:gravity="center"
-            android:text="இன்றைய ராசிபலன்"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="#5D0A14"
+            app:strokeColor="#FFDF00"
+            app:strokeWidth="1.5dp">
 
-    <!-- 2x6 Zodiac Grid View -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_rasi_grid"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingBottom="12dp" />
+            <TextView
+                android:id="@+id/tv_gowri_header_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:text="கௌரி பஞ்சாங்கம்"
+                android:textColor="#FFDF00"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
 
-</LinearLayout>
+        <!-- Day Gowri (பகல் கௌரி) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#FFFDF2"
+            app:strokeColor="#C5A059"
+            app:strokeWidth="1.2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#800000"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="பகல் கௌரி நல்ல நேரம் (காலை 6.00 - மாலை 6.00)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_day_gowri"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Night Gowri (இரவு கௌரி) -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#FFFDF2"
+            app:strokeColor="#C5A059"
+            app:strokeWidth="1.2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#1A237E"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="இரவு கௌரி நல்ல நேரம் (மாலை 6.00 - காலை 6.00)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_night_gowri"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
