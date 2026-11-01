@@ -125,8 +125,9 @@ class MainActivity : AppCompatActivity() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         tvSheetMonthYear = findViewById(R.id.tv_sheet_month_year)
-        val btnPrevMonth = findViewById<ImageButton>(R.id.btn_prev_month)
-        val btnNextMonth = findViewById<ImageButton>(R.id.btn_next_month)
+        val btnPrevMonth = findViewById<TextView>(R.id.btn_prev_month)
+        val btnNextMonth = findViewById<TextView>(R.id.btn_next_month)
+
         val container = findViewById<FrameLayout>(R.id.container_calendar_content)
 
         val contentView = LayoutInflater.from(this).inflate(
