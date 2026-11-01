@@ -4,12 +4,15 @@ import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,8 +45,25 @@ class MainActivity : AppCompatActivity() {
 
         setupTabsAndViewPager()
         setupHybridBottomSheet()
+        setupBackNavigation()
         loadDayData()
         updateWidgets()
+    }
+
+    // 5. Back பட்டன் அழுத்தினால் முதல் பக்கத்திற்கு வர வழிவகை
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                } else if (viewPager.currentItem != 0) {
+                    viewPager.currentItem = 0
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun setupTabsAndViewPager() {
@@ -125,12 +145,7 @@ class MainActivity : AppCompatActivity() {
         val btnNextMonth = findViewById<TextView>(R.id.btn_next_month)
 
         val container = findViewById<FrameLayout>(R.id.container_calendar_content)
-
-        val contentView = LayoutInflater.from(this).inflate(
-            R.layout.view_calendar_sheet_content,
-            container,
-            true
-        )
+        val contentView = LayoutInflater.from(this).inflate(R.layout.view_calendar_sheet_content, container, true)
 
         val rvGrid = contentView.findViewById<RecyclerView>(R.id.rv_calendar_month_grid)
         rvGrid.layoutManager = GridLayoutManager(this, 7)
@@ -148,28 +163,6 @@ class MainActivity : AppCompatActivity() {
         }
         rvGrid.adapter = calendarMonthAdapter
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        calendarMonthAdapter.setClassicMode(true)
-                    }
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        calendarMonthAdapter.setClassicMode(false)
-                    }
-                    else -> Unit
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                if (slideOffset > 0.5f) {
-                    calendarMonthAdapter.setClassicMode(true)
-                } else if (slideOffset < 0.3f) {
-                    calendarMonthAdapter.setClassicMode(false)
-                }
-            }
-        })
-
         btnPrevMonth.setOnClickListener {
             displayedMonthCalendar.add(Calendar.MONTH, -1)
             refreshMonthCalendarGrid()
@@ -179,39 +172,60 @@ class MainActivity : AppCompatActivity() {
             displayedMonthCalendar.add(Calendar.MONTH, 1)
             refreshMonthCalendarGrid()
         }
-
         refreshMonthCalendarGrid()
     }
 
     private fun refreshMonthCalendarGrid() {
         val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("ta"))
         tvSheetMonthYear.text = monthYearFormat.format(displayedMonthCalendar.time)
-
-        calendarMonthAdapter.setMonthData(
-            displayedMonthCalendar,
-            selectedCalendar,
-            dbHelper
-        )
+        calendarMonthAdapter.setMonthData(displayedMonthCalendar, selectedCalendar, dbHelper)
     }
 
+    // 13 & 14. Settings Customization (டிக் மார்க் & ஆட்டோ எக்ஸிட் நீக்கம்)
     private fun showThemeCustomizationSheet() {
         val dialog = BottomSheetDialog(this)
         val sheetView = layoutInflater.inflate(R.layout.dialog_theme_customization, null)
         dialog.setContentView(sheetView)
 
-        // Clock Style Toggles (Analog / Digital)
-        sheetView.findViewById<View>(R.id.btn_style_analog)?.setOnClickListener {
+        val btnAnalog = sheetView.findViewById<Button>(R.id.btn_style_analog)
+        val btnDigital = sheetView.findViewById<Button>(R.id.btn_style_digital)
+
+        val checkWhite = sheetView.findViewById<TextView>(R.id.check_theme_white)
+        val checkYellow = sheetView.findViewById<TextView>(R.id.check_theme_yellow)
+        val checkGreen = sheetView.findViewById<TextView>(R.id.check_theme_green)
+        val checkCharcoal = sheetView.findViewById<TextView>(R.id.check_theme_charcoal)
+
+        fun updateIndicators() {
+            val curClock = ThemeManager.getClockStyle(this)
+            if (curClock == ThemeManager.CLOCK_ANALOG) {
+                btnAnalog?.text = "✓ முள் கடிகாரம்"
+                btnDigital?.text = "எண் கடிகாரம்"
+            } else {
+                btnAnalog?.text = "முள் கடிகாரம்"
+                btnDigital?.text = "✓ எண் கடிகாரம்"
+            }
+
+            val curTheme = ThemeManager.getSavedTheme(this)
+            checkWhite?.visibility = if (curTheme == ThemeManager.THEME_WHITE) View.VISIBLE else View.GONE
+            checkYellow?.visibility = if (curTheme == ThemeManager.THEME_YELLOW) View.VISIBLE else View.GONE
+            checkGreen?.visibility = if (curTheme == ThemeManager.THEME_GREEN) View.VISIBLE else View.GONE
+            checkCharcoal?.visibility = if (curTheme == ThemeManager.THEME_CHARCOAL) View.VISIBLE else View.GONE
+        }
+        updateIndicators()
+
+        // Clock Style Buttons - No auto exit
+        btnAnalog?.setOnClickListener {
             ThemeManager.saveClockStyle(this, ThemeManager.CLOCK_ANALOG)
             updateWidgets()
-            dialog.dismiss()
+            updateIndicators()
         }
-        sheetView.findViewById<View>(R.id.btn_style_digital)?.setOnClickListener {
+        btnDigital?.setOnClickListener {
             ThemeManager.saveClockStyle(this, ThemeManager.CLOCK_DIGITAL)
             updateWidgets()
-            dialog.dismiss()
+            updateIndicators()
         }
 
-        // Widget Opacity Slider & Percentage Text
+        // Widget Opacity Slider
         val seekbarOpacity = sheetView.findViewById<SeekBar>(R.id.seekbar_widget_opacity)
         val tvOpacity = sheetView.findViewById<TextView>(R.id.tv_opacity_value)
         val currentOpacity = ThemeManager.getWidgetOpacity(this)
@@ -227,9 +241,7 @@ class MainActivity : AppCompatActivity() {
                     updateWidgets()
                 }
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.let {
                     ThemeManager.saveWidgetOpacity(this@MainActivity, it.progress)
@@ -238,33 +250,34 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Color Theme Options
+        // Theme Options - Update indicator & recreate without closing manually
         sheetView.findViewById<View>(R.id.option_theme_white)?.setOnClickListener {
-            changeTheme(ThemeManager.THEME_WHITE, dialog)
+            ThemeManager.saveTheme(this, ThemeManager.THEME_WHITE)
+            updateIndicators()
+            recreate()
         }
         sheetView.findViewById<View>(R.id.option_theme_yellow)?.setOnClickListener {
-            changeTheme(ThemeManager.THEME_YELLOW, dialog)
+            ThemeManager.saveTheme(this, ThemeManager.THEME_YELLOW)
+            updateIndicators()
+            recreate()
         }
         sheetView.findViewById<View>(R.id.option_theme_green)?.setOnClickListener {
-            changeTheme(ThemeManager.THEME_GREEN, dialog)
+            ThemeManager.saveTheme(this, ThemeManager.THEME_GREEN)
+            updateIndicators()
+            recreate()
         }
         sheetView.findViewById<View>(R.id.option_theme_charcoal)?.setOnClickListener {
-            changeTheme(ThemeManager.THEME_CHARCOAL, dialog)
+            ThemeManager.saveTheme(this, ThemeManager.THEME_CHARCOAL)
+            updateIndicators()
+            recreate()
         }
 
         dialog.show()
     }
 
-    private fun changeTheme(themeId: Int, dialog: BottomSheetDialog) {
-        ThemeManager.saveTheme(this, themeId)
-        dialog.dismiss()
-        recreate()
-    }
-
     private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
-        // 1. 2x1 Capsule Widget
         val c2x1 = ComponentName(this, WidgetProvider2x1::class.java)
         val ids2x1 = appWidgetManager.getAppWidgetIds(c2x1)
         if (ids2x1.isNotEmpty()) {
@@ -272,7 +285,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider2x1::class.java, ids2x1)
         }
 
-        // 2. 4x1 Ribbon Widget
         val c4x1 = ComponentName(this, WidgetProvider4x1::class.java)
         val ids4x1 = appWidgetManager.getAppWidgetIds(c4x1)
         if (ids4x1.isNotEmpty()) {
@@ -280,7 +292,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x1::class.java, ids4x1)
         }
 
-        // 3. 4x2 Panoramic Widget
         val c4x2 = ComponentName(this, WidgetProvider4x2::class.java)
         val ids4x2 = appWidgetManager.getAppWidgetIds(c4x2)
         if (ids4x2.isNotEmpty()) {
@@ -288,7 +299,6 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x2::class.java, ids4x2)
         }
 
-        // 4. 4x4 Heritage Wall Widget
         val c4x4 = ComponentName(this, WidgetProvider4x4::class.java)
         val ids4x4 = appWidgetManager.getAppWidgetIds(c4x4)
         if (ids4x4.isNotEmpty()) {
