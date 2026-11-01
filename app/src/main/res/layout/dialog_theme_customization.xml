@@ -14,103 +14,143 @@
         android:layout_marginBottom="16dp"
         android:background="#888888" />
 
-    <!-- Clock Selection Section -->
+    <!-- 1. Clock Selection Section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="10dp"
         android:text="கடிகார வடிவம் (Clock Style)"
         android:textColor="#FFDF00"
-        android:textSize="17sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="16dp">
 
         <Button
             android:id="@+id/btn_style_analog"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            android:text="முள் கடிகாரம் (Analog)"
+            android:text="முள் கடிகாரம்"
             android:textColor="#FFFFFF"
-            android:textSize="13sp"
+            android:textSize="12.5sp"
             android:backgroundTint="#1A6B75" />
 
         <Button
             android:id="@+id/btn_style_digital"
             android:layout_width="0dp"
-            android:layout_height="46dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
-            android:text="எண் கடிகாரம் (Digital)"
+            android:text="எண் கடிகாரம்"
             android:textColor="#FFFFFF"
-            android:textSize="13sp"
+            android:textSize="12.5sp"
             android:backgroundTint="#1A6B75" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="14dp"
         android:background="#444450" />
 
-    <!-- Background Color Theme Selection -->
+    <!-- 2. Widget Opacity Slider Section -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="விட்ஜெட் ஒளிபுகாமை (Widget Opacity)"
+            android:textColor="#FFDF00"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_opacity_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:text="85%" />
+    </RelativeLayout>
+
+    <SeekBar
+        android:id="@+id/seekbar_widget_opacity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="85"
+        android:progressTint="#FFDF00"
+        android:thumbTint="#FFDF00"
+        android:layout_marginBottom="16dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="14dp"
+        android:background="#444450" />
+
+    <!-- 3. Background Color Theme Selection -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:text="பின்னணி நிற அமைப்பு"
+        android:layout_marginBottom="12dp"
+        android:text="செயலி பின்னணி நிற அமைப்பு (App Theme)"
         android:textColor="#FFDF00"
-        android:textSize="17sp"
+        android:textSize="15sp"
         android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/option_theme_white"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="?attr/selectableItemBackground">
-        <View android:layout_width="26dp" android:layout_height="26dp" android:background="#FFFFFF" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="தூய வெள்ளை (Classic White)" android:textColor="#FFFFFF" android:textSize="14sp" />
+        <View android:layout_width="24dp" android:layout_height="24dp" android:background="#FFFFFF" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:text="தூய வெள்ளை (Classic White)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/option_theme_yellow"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="?attr/selectableItemBackground">
-        <View android:layout_width="26dp" android:layout_height="26dp" android:background="#FFF9E6" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="மங்கள மஞ்சள் (Warm Yellow)" android:textColor="#FFFFFF" android:textSize="14sp" />
+        <View android:layout_width="24dp" android:layout_height="24dp" android:background="#FFF9E6" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:text="மங்கள மஞ்சள் (Warm Yellow)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/option_theme_green"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="?attr/selectableItemBackground">
-        <View android:layout_width="26dp" android:layout_height="26dp" android:background="#E8F5E9" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="மென் பச்சை (Soft Green)" android:textColor="#FFFFFF" android:textSize="14sp" />
+        <View android:layout_width="24dp" android:layout_height="24dp" android:background="#E8F5E9" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:text="மென் பச்சை (Soft Green)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/option_theme_charcoal"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="44dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="?attr/selectableItemBackground">
-        <View android:layout_width="26dp" android:layout_height="26dp" android:background="#1E1E24" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="கரிம கருப்பு (Charcoal Dark)" android:textColor="#FFFFFF" android:textSize="14sp" />
+        <View android:layout_width="24dp" android:layout_height="24dp" android:background="#1E1E24" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:text="கரிம கருப்பு (Charcoal Dark)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
     </LinearLayout>
 
 </LinearLayout>
