@@ -1,5 +1,6 @@
 package com.example.tamilclock
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,12 +23,11 @@ class MainPagerAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TYPE_PANCHANGAM = 0
-        private const val TYPE_RASI_PALAN = 1
-        private const val TYPE_HORAI = 2
+        const val TYPE_PANCHANGAM = 0
+        const val TYPE_GOWRI = 1
+        const val TYPE_HORAI = 2
     }
 
-    private val tabTitles = listOf("பஞ்சாங்கம்", "ராசிபலன்", "ஹோரை")
     private var panchangamData: TamilDateInfo? = null
     private var gregorianDateText: String = ""
     private var calendar: Calendar = Calendar.getInstance()
@@ -42,7 +42,7 @@ class MainPagerAdapter(
     override fun getItemViewType(position: Int): Int {
         return when (position) {
             0 -> TYPE_PANCHANGAM
-            1 -> TYPE_RASI_PALAN
+            1 -> TYPE_GOWRI
             else -> TYPE_HORAI
         }
     }
@@ -54,9 +54,9 @@ class MainPagerAdapter(
                 val view = inflater.inflate(R.layout.fragment_panchangam, parent, false)
                 PanchangamViewHolder(view)
             }
-            TYPE_RASI_PALAN -> {
+            TYPE_GOWRI -> {
                 val view = inflater.inflate(R.layout.fragment_rasi_palan, parent, false)
-                RasiPalanViewHolder(view)
+                GowriViewHolder(view)
             }
             else -> {
                 val view = inflater.inflate(R.layout.fragment_horai, parent, false)
@@ -81,22 +81,23 @@ class MainPagerAdapter(
                     onSettingsClick
                 )
             }
-            is RasiPalanViewHolder -> {
-                holder.bind()
+            is GowriViewHolder -> {
+                val weekday = panchangamData?.dayNameTa?.ifEmpty { "ஞாயிறு" } ?: "ஞாயிறு"
+                holder.bind(weekday)
             }
             is HoraiViewHolder -> {
-                holder.bind(calendar.get(Calendar.DAY_OF_WEEK))
+                val weekday = panchangamData?.dayNameTa?.ifEmpty { "ஞாயிறு" } ?: "ஞாயிறு"
+                holder.bind(weekday)
             }
         }
     }
 
-    override fun getItemCount(): Int = tabTitles.size
+    override fun getItemCount(): Int = 3
 
     // =========================================================================
-    // 1. PANCHANGAM VIEW HOLDER (Simple & Expanded Views)
+    // 1. PANCHANGAM VIEW HOLDER
     // =========================================================================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Navigation & Action Buttons
         private val btnPrev: TextView = itemView.findViewById(R.id.btn_action_prev)
         private val btnNext: TextView = itemView.findViewById(R.id.btn_action_next)
         private val btnDatePicker: TextView = itemView.findViewById(R.id.btn_action_datepicker)
@@ -105,7 +106,6 @@ class MainPagerAdapter(
         private val btnHorai: TextView = itemView.findViewById(R.id.btn_action_horai)
         private val btnSettings: TextView = itemView.findViewById(R.id.btn_action_settings)
 
-        // Top Large Date & 3-Column Card
         private val tvBigGregorianDate: TextView = itemView.findViewById(R.id.tv_big_gregorian_date)
         private val tvBannerTamilYear: TextView = itemView.findViewById(R.id.tv_banner_tamil_year)
         private val tvBannerTamilMonth: TextView = itemView.findViewById(R.id.tv_banner_tamil_month)
@@ -114,13 +114,11 @@ class MainPagerAdapter(
         private val tvBannerEngMonth: TextView = itemView.findViewById(R.id.tv_banner_eng_month)
         private val tvBannerEngWeekday: TextView = itemView.findViewById(R.id.tv_banner_eng_weekday)
 
-        // Dual Mode Containers
         private val layoutSimpleMode: LinearLayout = itemView.findViewById(R.id.layout_simple_mode)
         private val layoutExpandedMode: LinearLayout = itemView.findViewById(R.id.layout_expanded_mode)
         private val btnToggleExpand: ImageButton = itemView.findViewById(R.id.btn_toggle_expand)
         private val btnToggleCollapse: ImageButton = itemView.findViewById(R.id.btn_toggle_collapse)
 
-        // Simple Mode Views
         private val tvSimpleParagraph: TextView = itemView.findViewById(R.id.tv_simple_panchangam_paragraph)
         private val tvSimpleChandrashtamam: TextView = itemView.findViewById(R.id.tv_simple_chandrashtamam)
         private val tvSimpleNallaMorning: TextView = itemView.findViewById(R.id.tv_simple_nalla_neram_morning)
@@ -133,7 +131,6 @@ class MainPagerAdapter(
         private val tvSimpleSoolam: TextView = itemView.findViewById(R.id.tv_simple_soolam)
         private val tvSimpleParikaram: TextView = itemView.findViewById(R.id.tv_simple_parikaram)
 
-        // Expanded Mode Views
         private val tvExpSunTimings: TextView = itemView.findViewById(R.id.tv_exp_sun_timings)
         private val tvExpMoonTimings: TextView = itemView.findViewById(R.id.tv_exp_moon_timings)
         private val tvExpTithiName: TextView = itemView.findViewById(R.id.tv_exp_tithi_name)
@@ -154,7 +151,6 @@ class MainPagerAdapter(
         private val tvExpParikaram: TextView = itemView.findViewById(R.id.tv_exp_parikaram)
         private val tvExpFestivals: TextView = itemView.findViewById(R.id.tv_exp_festivals)
 
-        // Bottom 4x3 Daily Rasi Palan Table
         private val tvRasiMesham: TextView = itemView.findViewById(R.id.tv_rasi_mesham)
         private val tvRasiKadagam: TextView = itemView.findViewById(R.id.tv_rasi_kadagam)
         private val tvRasiThulaam: TextView = itemView.findViewById(R.id.tv_rasi_thulaam)
@@ -190,7 +186,6 @@ class MainPagerAdapter(
             btnHorai.setOnClickListener { onHorai() }
             btnSettings.setOnClickListener { onSettings() }
 
-            // Mode Toggle Listeners
             btnToggleExpand.setOnClickListener {
                 isExpanded = true
                 applyModeState()
@@ -201,13 +196,11 @@ class MainPagerAdapter(
             }
             applyModeState()
 
-            // 1. Populate Big Gregorian Date Card
             val day = cal.get(Calendar.DAY_OF_MONTH)
             val month = cal.get(Calendar.MONTH) + 1
             val year = cal.get(Calendar.YEAR)
             tvBigGregorianDate.text = "$day-$month-$year"
 
-            // 2. Populate 3-Column Tamil / English Date Card
             val engMonthFormat = SimpleDateFormat("MMMM", Locale.ENGLISH)
             val engWeekdayFormat = SimpleDateFormat("EEEE", Locale.ENGLISH)
             tvBannerEngMonth.text = engMonthFormat.format(cal.time)
@@ -219,7 +212,6 @@ class MainPagerAdapter(
                 tvBannerTamilDate.text = data.tamilDay.toString()
                 tvBannerTamilWeekday.text = data.dayNameTa
 
-                // --- 3. POPULATE SIMPLE MODE ---
                 val nakshatraTimeStr = if (data.nakshatraTime.isNotBlank()) " - ${data.nakshatraTime} வரை" else ""
                 val tithiTimeStr = if (data.tithiTime.isNotBlank()) " - ${data.tithiTime} வரை" else ""
                 val amritaYogaStr = if (data.amritadiYoga.isNotBlank()) ", யோகம் : ${data.amritadiYoga}" else ""
@@ -235,7 +227,6 @@ class MainPagerAdapter(
                 }
 
                 tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : ${data.chandrashtamamRasi.ifEmpty { "--" }}"
-
                 tvSimpleNallaMorning.text = "காலை : ${data.nallaNeramMorning.ifEmpty { "--" }}"
                 tvSimpleNallaEvening.text = "மாலை : ${data.nallaNeramEvening.ifEmpty { "--" }}"
                 tvSimpleGowriMorning.text = "காலை : ${data.gouriNallaMorning.ifEmpty { "--" }}"
@@ -247,9 +238,8 @@ class MainPagerAdapter(
                 tvSimpleSoolam.text = data.soolam.ifEmpty { "மேற்கு" }
                 tvSimpleParikaram.text = data.parikaram.ifEmpty { "வெல்லம்" }
 
-                // --- 4. POPULATE EXPANDED MODE ---
-                tvExpSunTimings.text = "சூரிய உதயம்: ${data.sunrise.ifEmpty { "06:08 AM" }} • மறைவு: ${data.sunset.ifEmpty { "05:55 PM" }}"
-                tvExpMoonTimings.text = "சந்திர உதயம்: ${data.moonrise.ifEmpty { "08:56 PM" }} • மறைவு: ${data.moonset.ifEmpty { "09:06 AM" }}"
+                tvExpSunTimings.text = "சூரிய உதயம்: ${data.sunrise.ifEmpty { "06:08" }} • மறைவு: ${data.sunset.ifEmpty { "17:55" }}"
+                tvExpMoonTimings.text = "சந்திர உதயம்: ${data.moonrise.ifEmpty { "08:56 PM" }} • மறைவு: ${data.moonset.ifEmpty { "12:07" }}"
                 tvExpTithiName.text = "திதி: ${data.paksham} ${data.tithi}"
                 tvExpTithiTime.text = if (data.tithiTime.isNotBlank()) "${data.tithiTime} வரை" else "நாள் முழுவதும்"
                 tvExpNakshatraName.text = "நட்சத்திரம்: ${data.nakshatra}"
@@ -268,21 +258,20 @@ class MainPagerAdapter(
                 tvExpParikaram.text = "பரிகாரம்: ${data.parikaram.ifEmpty { "வெல்லம்" }}"
                 tvExpFestivals.text = data.festivalsEvents.ifEmpty { "சிறப்பு நிகழ்வுகள் ஏதுமில்லை" }
 
-                // --- 5. POPULATE 4x3 DAILY RASI PALAN TABLE ---
                 val rasi = data.rasiPalanMap
                 tvRasiMesham.text = "மேஷம் - ${rasi["mesham"] ?: "நன்மை"}"
                 tvRasiKadagam.text = "கடகம் - ${rasi["kadagam"] ?: "மகிழ்ச்சி"}"
-                tvRasiThulaam.text = "துலாம் - ${rasi["thulaam"] ?: "முயற்சி"}"
+                tvRasiThulaam.text = "துலாம் - ${rasi["thulaam"] ?: "உழைப்பு"}"
                 tvRasiMagaram.text = "மகரம் - ${rasi["magaram"] ?: "மேன்மை"}"
 
                 tvRasiRishabam.text = "ரிஷபம் - ${rasi["rishabam"] ?: "வெற்றி"}"
                 tvRasiSimmam.text = "சிம்மம் - ${rasi["simmam"] ?: "செலவு"}"
-                tvRasiViruchigam.text = "விருச்சி - ${rasi["viruchigam"] ?: "வரவு"}"
+                tvRasiViruchigam.text = "விருச்சி - ${rasi["viruchigam"] ?: "ஆதாயம்"}"
                 tvRasiKumbam.text = "கும்பம் - ${rasi["kumbam"] ?: "தனம்"}"
 
                 tvRasiMithunam.text = "மிதுனம் - ${rasi["mithunam"] ?: "வரவு"}"
                 tvRasiKanni.text = "கன்னி - ${rasi["kanni"] ?: "லாபம்"}"
-                tvRasiDhanusu.text = "தனுசு - ${rasi["dhanusu"] ?: "சாந்தம்"}"
+                tvRasiDhanusu.text = "தனுசு - ${rasi["dhanusu"] ?: "எச்சரிக்கை"}"
                 tvRasiMeenam.text = "மீனம் - ${rasi["meenam"] ?: "புகழ்"}"
             }
         }
@@ -299,16 +288,108 @@ class MainPagerAdapter(
     }
 
     // =========================================================================
-    // 2. RASI PALAN TAB VIEW HOLDER
+    // 2. GOWRI PANCHANGAM VIEW HOLDER (உத்தி, அமிர்தம், லாபம் table)
     // =========================================================================
-    class RasiPalanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind() {}
+    class GowriViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val containerDay: LinearLayout? = itemView.findViewById(R.id.container_day_gowri)
+        private val containerNight: LinearLayout? = itemView.findViewById(R.id.container_night_gowri)
+
+        fun bind(weekdayTa: String) {
+            val daySlots = listOf(
+                "காலை 06:00 - 07:30" to "உத்தி",
+                "காலை 07:30 - 09:00" to "அமிர்தம்",
+                "காலை 09:00 - 10:30" to "ரோகம்",
+                "காலை 10:30 - 12:00" to "லாபம்",
+                "மதியம் 12:00 - 01:30" to "தனம்",
+                "மதியம் 01:30 - 03:00" to "விஷம்",
+                "மாலை 03:00 - 04:30" to "சோரம்",
+                "மாலை 04:30 - 06:00" to "சுபம்"
+            )
+
+            val nightSlots = listOf(
+                "மாலை 06:00 - 07:30" to "சுபம்",
+                "இரவு 07:30 - 09:00" to "அமிர்தம்",
+                "இரவு 09:00 - 10:30" to "உத்தி",
+                "இரவு 10:30 - 12:00" to "ரோகம்",
+                "நள்ளிரவு 12:00 - 01:30" to "லாபம்",
+                "நள்ளிரவு 01:30 - 03:00" to "தனம்",
+                "விடியற்காலை 03:00 - 04:30" to "விஷம்",
+                "விடியற்காலை 04:30 - 06:00" to "சோரம்"
+            )
+
+            containerDay?.removeAllViews()
+            for ((time, name) in daySlots) {
+                containerDay?.addView(createGowriRow(itemView, time, name))
+            }
+
+            containerNight?.removeAllViews()
+            for ((time, name) in nightSlots) {
+                containerNight?.addView(createGowriRow(itemView, time, name))
+            }
+        }
+
+        private fun createGowriRow(parent: View, time: String, name: String): View {
+            val row = LinearLayout(parent.context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(8, 8, 8, 8)
+            }
+
+            val tvTime = TextView(parent.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.4f)
+                text = time
+                setTextColor(Color.parseColor("#333333"))
+                textSize = 12.5f
+                paint.isFakeBoldText = true
+            }
+
+            val isGood = name in listOf("அமிர்தம்", "சுபம்", "லாபம்", "தனம்", "உத்தி")
+            val tvName = TextView(parent.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = name
+                gravity = android.view.Gravity.END
+                setTextColor(if (isGood) Color.parseColor("#1B5E20") else Color.parseColor("#B71C1C"))
+                textSize = 13f
+                paint.isFakeBoldText = true
+            }
+
+            row.addView(tvTime)
+            row.addView(tvName)
+            return row
+        }
     }
 
     // =========================================================================
-    // 3. HORAI TAB VIEW HOLDER
+    // 3. HORAI VIEW HOLDER
     // =========================================================================
     class HoraiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(dayOfWeek: Int) {}
+        fun bind(weekdayTa: String) {
+            val container = itemView.findViewById<LinearLayout?>(R.id.container_horai_list)
+            if (container != null) {
+                container.removeAllViews()
+                val horais = listOf(
+                    "06:00 - 07:00" to "சூரியன்",
+                    "07:00 - 08:00" to "சுக்கிரன்",
+                    "08:00 - 09:00" to "புதன்",
+                    "09:00 - 10:00" to "சந்திரன்",
+                    "10:00 - 11:00" to "சனி",
+                    "11:00 - 12:00" to "குரு",
+                    "12:00 - 01:00" to "செவ்வாய்",
+                    "01:00 - 02:00" to "சூரியன்",
+                    "02:00 - 03:00" to "சுக்கிரன்",
+                    "03:00 - 04:00" to "புதன்",
+                    "04:00 - 05:00" to "சந்திரன்",
+                    "05:00 - 06:00" to "சனி"
+                )
+                for ((time, planet) in horais) {
+                    val tv = TextView(itemView.context).apply {
+                        text = "$time   •   $planet ஹோரை"
+                        textSize = 13.5f
+                        setTextColor(Color.WHITE)
+                        setPadding(16, 12, 16, 12)
+                    }
+                    container.addView(tv)
+                }
+            }
+        }
     }
 }
