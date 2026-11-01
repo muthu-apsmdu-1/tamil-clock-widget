@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="8dp"
+    android:background="@drawable/widget_surface_bg">
+
+    <!-- Clock Container (1x1) Left -->
+    <FrameLayout
+        android:layout_width="72dp"
+        android:layout_height="72dp">
+
+        <AnalogClock
+            android:id="@+id/analog_clock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
+
+        <TextClock
+            android:id="@+id/digital_clock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:format12Hour="hh:mm a"
+            android:format23Hour="HH:mm"
+            android:textColor="#FFDF00"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Details Column Right -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical">
+
+        <!-- Top Right: dd: mm: yyyy + weekday in english -->
+        <TextView
+            android:id="@+id/tv_widget_greg_date_weekday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:text="01: 11: 2026 Sunday" />
+
+        <!-- Bottom Right: Tamil month + tamil date + thithi -->
+        <TextView
+            android:id="@+id/tv_widget_tamil_month_date_tithi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:textColor="#FFDF00"
+            android:textSize="12.5sp"
+            android:singleLine="true"
+            android:text="ஐப்பசி 15 • சப்தமி" />
+    </LinearLayout>
+</LinearLayout>
