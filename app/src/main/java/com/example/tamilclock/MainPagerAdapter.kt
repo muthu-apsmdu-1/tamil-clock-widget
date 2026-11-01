@@ -15,7 +15,10 @@ class MainPagerAdapter(
     private val onPrevDayClick: () -> Unit,
     private val onNextDayClick: () -> Unit,
     private val onDatePickerClick: () -> Unit = {},
-    private val onTodayClick: () -> Unit = {}
+    private val onTodayClick: () -> Unit = {},
+    private val onMonthCalendarClick: () -> Unit = {},
+    private val onHoraiClick: () -> Unit = {},
+    private val onSettingsClick: () -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -65,7 +68,18 @@ class MainPagerAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is PanchangamViewHolder -> {
-                holder.bind(gregorianDateText, panchangamData, calendar, onPrevDayClick, onNextDayClick, onDatePickerClick, onTodayClick)
+                holder.bind(
+                    gregorianDateText, 
+                    panchangamData, 
+                    calendar, 
+                    onPrevDayClick, 
+                    onNextDayClick, 
+                    onDatePickerClick, 
+                    onTodayClick,
+                    onMonthCalendarClick,
+                    onHoraiClick,
+                    onSettingsClick
+                )
             }
             is RasiPalanViewHolder -> {
                 holder.bind()
@@ -82,11 +96,14 @@ class MainPagerAdapter(
     // 1. PANCHANGAM VIEW HOLDER (Simple & Expanded Views)
     // =========================================================================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Navigation Buttons
+        // Navigation & Action Buttons
         private val btnPrev: TextView = itemView.findViewById(R.id.btn_action_prev)
         private val btnNext: TextView = itemView.findViewById(R.id.btn_action_next)
         private val btnDatePicker: TextView = itemView.findViewById(R.id.btn_action_datepicker)
         private val btnToday: TextView = itemView.findViewById(R.id.btn_action_today)
+        private val btnMenu: TextView = itemView.findViewById(R.id.btn_action_menu)
+        private val btnHorai: TextView = itemView.findViewById(R.id.btn_action_horai)
+        private val btnSettings: TextView = itemView.findViewById(R.id.btn_action_settings)
 
         // Top Large Date & 3-Column Card
         private val tvBigGregorianDate: TextView = itemView.findViewById(R.id.tv_big_gregorian_date)
@@ -160,12 +177,18 @@ class MainPagerAdapter(
             onPrev: () -> Unit,
             onNext: () -> Unit,
             onDatePicker: () -> Unit,
-            onToday: () -> Unit
+            onToday: () -> Unit,
+            onMonthCalendar: () -> Unit,
+            onHorai: () -> Unit,
+            onSettings: () -> Unit
         ) {
             btnPrev.setOnClickListener { onPrev() }
             btnNext.setOnClickListener { onNext() }
             btnDatePicker.setOnClickListener { onDatePicker() }
             btnToday.setOnClickListener { onToday() }
+            btnMenu.setOnClickListener { onMonthCalendar() }
+            btnHorai.setOnClickListener { onHorai() }
+            btnSettings.setOnClickListener { onSettings() }
 
             // Mode Toggle Listeners
             btnToggleExpand.setOnClickListener {
@@ -247,18 +270,18 @@ class MainPagerAdapter(
 
                 // --- 5. POPULATE 4x3 DAILY RASI PALAN TABLE ---
                 val rasi = data.rasiPalanMap
-                tvRasiMesham.text = "மேஷம் - ${rasi["mesham"] ?: "உற்சாகம்"}"
-                tvRasiKadagam.text = "கடகம் - ${rasi["kadagam"] ?: "சுகம்"}"
+                tvRasiMesham.text = "மேஷம் - ${rasi["mesham"] ?: "நன்மை"}"
+                tvRasiKadagam.text = "கடகம் - ${rasi["kadagam"] ?: "மகிழ்ச்சி"}"
                 tvRasiThulaam.text = "துலாம் - ${rasi["thulaam"] ?: "முயற்சி"}"
                 tvRasiMagaram.text = "மகரம் - ${rasi["magaram"] ?: "மேன்மை"}"
 
-                tvRasiRishabam.text = "ரிஷபம் - ${rasi["rishabam"] ?: "இன்பம்"}"
-                tvRasiSimmam.text = "சிம்மம் - ${rasi["simmam"] ?: "பக்தி"}"
+                tvRasiRishabam.text = "ரிஷபம் - ${rasi["rishabam"] ?: "வெற்றி"}"
+                tvRasiSimmam.text = "சிம்மம் - ${rasi["simmam"] ?: "செலவு"}"
                 tvRasiViruchigam.text = "விருச்சி - ${rasi["viruchigam"] ?: "வரவு"}"
                 tvRasiKumbam.text = "கும்பம் - ${rasi["kumbam"] ?: "தனம்"}"
 
-                tvRasiMithunam.text = "மிதுனம் - ${rasi["mithunam"] ?: "பொறுமை"}"
-                tvRasiKanni.text = "கன்னி - ${rasi["kanni"] ?: "ஆக்கம்"}"
+                tvRasiMithunam.text = "மிதுனம் - ${rasi["mithunam"] ?: "வரவு"}"
+                tvRasiKanni.text = "கன்னி - ${rasi["kanni"] ?: "லாபம்"}"
                 tvRasiDhanusu.text = "தனுசு - ${rasi["dhanusu"] ?: "சாந்தம்"}"
                 tvRasiMeenam.text = "மீனம் - ${rasi["meenam"] ?: "புகழ்"}"
             }
