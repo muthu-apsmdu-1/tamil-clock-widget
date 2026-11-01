@@ -74,7 +74,7 @@ data class HoraiSlotItem(
     val planetName: String
 )
 
-class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 7) {
+class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 8) {
 
     companion object {
         const val DB_PAN = "panchang_clcon.db"
@@ -136,7 +136,6 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         }
     }
 
-    // 1. PANCHANGAM & DAILY DATA
     fun getDayDetails(dateStr: String): TamilDateInfo {
         var panDb: SQLiteDatabase? = null
         var panCursor: Cursor? = null
@@ -269,7 +268,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         )
     }
 
-    // 2. GOWRI PANCHANGAM (Queried 100% from gowri.db)
+    // 2. GOWRI PANCHANGAM (DB வினவல்)
     fun getGowriPanchangam(weekdayTa: String): Pair<List<GowriSlotItem>, List<GowriSlotItem>> {
         val dayList = mutableListOf<GowriSlotItem>()
         val nightList = mutableListOf<GowriSlotItem>()
@@ -280,33 +279,56 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         try {
             db = openDatabase(DB_GOWRI)
             if (db != null) {
-                // Find table name dynamically
-                val tableCur = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1", null)
-                val tableName = if (tableCur.moveToFirst()) tableCur.getString(0) else ""
-                tableCur.close()
+                // Table query
+                val checkTables = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android_%' AND name NOT LIKE 'sqlite_%'", null)
+                val tables = mutableListOf<String>()
+                while (checkTables.moveToNext()) {
+                    tables.add(checkTables.getString(0))
+                }
+                checkTables.close()
 
-                if (tableName.isNotEmpty()) {
-                    cursor = db.rawQuery("SELECT * FROM $tableName WHERE weekday_ta = ? OR weekday = ?", arrayOf(weekdayTa, weekdayTa))
-                    
-                    val periodCol = cursor.getColumnIndex("period")
-                    val timeCol = cursor.getColumnIndex("time_slot")
-                    val nameCol = cursor.getColumnIndex("gowri_name")
-                    val typeCol = cursor.getColumnIndex("status_type")
+                for (tableName in tables) {
+                    cursor = db.rawQuery("SELECT * FROM $tableName", null)
+                    val cols = cursor.columnNames.map { it.lowercase() }
 
+                    // weekday column check
+                    val dayCol = cursor.columnNames.firstOrNull { it.contains("weekday", ignoreCase = true) || it.contains("day", ignoreCase = true) }
+                    val query = if (dayCol != null && weekdayTa.isNotEmpty()) {
+                        "SELECT * FROM $tableName WHERE $dayCol LIKE '%$weekdayTa%'"
+                    } else {
+                        "SELECT * FROM $tableName"
+                    }
+                    cursor.close()
+
+                    cursor = db.rawQuery(query, null)
                     while (cursor.moveToNext()) {
-                        val period = if (periodCol >= 0) cursor.getString(periodCol) else ""
-                        val slot = if (timeCol >= 0) cursor.getString(timeCol) else ""
-                        val name = if (nameCol >= 0) cursor.getString(nameCol) else ""
-                        val status = if (typeCol >= 0) cursor.getString(typeCol) else ""
-                        val isGood = status.contains("GOOD", ignoreCase = true) || name in listOf("அமிர்தம்", "சுபம்", "லாபம்", "தனம்", "உத்தி")
+                        fun getVal(vararg names: String): String {
+                            for (name in names) {
+                                val idx = cursor.getColumnIndex(name)
+                                if (idx >= 0 && !cursor.isNull(idx)) {
+                                    val v = cursor.getString(idx).trim()
+                                    if (v.isNotEmpty()) return v
+                                }
+                            }
+                            return ""
+                        }
 
-                        val item = GowriSlotItem(slot, name, isGood)
-                        if (period.contains("NIGHT", ignoreCase = true) || period.contains("இரவு")) {
-                            nightList.add(item)
-                        } else {
-                            dayList.add(item)
+                        val time = getVal("time_slot", "time", "slot", "timings")
+                        val name = getVal("gowri_name", "name", "gowri", "status")
+                        val period = getVal("period", "type", "day_night").uppercase()
+
+                        if (time.isNotEmpty() && name.isNotEmpty()) {
+                            val isGood = name in listOf("அமிர்தம்", "சுபம்", "லாபம்", "தனம்", "உத்தி")
+                            val item = GowriSlotItem(time, name, isGood)
+                            if (period.contains("NIGHT") || period.contains("இரவு")) {
+                                nightList.add(item)
+                            } else {
+                                dayList.add(item)
+                            }
                         }
                     }
+                    cursor.close()
+                    if (dayList.isNotEmpty()) break
                 }
             }
         } catch (_: Exception) {
@@ -318,7 +340,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         return Pair(dayList, nightList)
     }
 
-    // 3. HORAI TIMINGS (Queried 100% from horai.db)
+    // 3. HORAI TIMINGS (DB வினவல்)
     fun getHoraiTimings(weekdayTa: String): List<HoraiSlotItem> {
         val list = mutableListOf<HoraiSlotItem>()
         var db: SQLiteDatabase? = null
@@ -327,21 +349,45 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         try {
             db = openDatabase(DB_HORAI)
             if (db != null) {
-                val tableCur = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1", null)
-                val tableName = if (tableCur.moveToFirst()) tableCur.getString(0) else ""
-                tableCur.close()
+                val checkTables = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android_%' AND name NOT LIKE 'sqlite_%'", null)
+                val tables = mutableListOf<String>()
+                while (checkTables.moveToNext()) {
+                    tables.add(checkTables.getString(0))
+                }
+                checkTables.close()
 
-                if (tableName.isNotEmpty()) {
-                    cursor = db.rawQuery("SELECT * FROM $tableName WHERE weekday_ta = ? OR weekday = ?", arrayOf(weekdayTa, weekdayTa))
-                    
-                    val timeCol = cursor.getColumnIndex("time_slot")
-                    val planetCol = cursor.getColumnIndex("planet_name")
+                for (tableName in tables) {
+                    val dayColCur = db.rawQuery("SELECT * FROM $tableName LIMIT 1", null)
+                    val dayCol = dayColCur.columnNames.firstOrNull { it.contains("weekday", ignoreCase = true) || it.contains("day", ignoreCase = true) }
+                    dayColCur.close()
 
-                    while (cursor.moveToNext()) {
-                        val slot = if (timeCol >= 0) cursor.getString(timeCol) else ""
-                        val planet = if (planetCol >= 0) cursor.getString(planetCol) else ""
-                        list.add(HoraiSlotItem(slot, planet))
+                    val query = if (dayCol != null && weekdayTa.isNotEmpty()) {
+                        "SELECT * FROM $tableName WHERE $dayCol LIKE '%$weekdayTa%'"
+                    } else {
+                        "SELECT * FROM $tableName"
                     }
+
+                    cursor = db.rawQuery(query, null)
+                    while (cursor.moveToNext()) {
+                        fun getVal(vararg names: String): String {
+                            for (name in names) {
+                                val idx = cursor.getColumnIndex(name)
+                                if (idx >= 0 && !cursor.isNull(idx)) {
+                                    val v = cursor.getString(idx).trim()
+                                    if (v.isNotEmpty()) return v
+                                }
+                            }
+                            return ""
+                        }
+
+                        val slot = getVal("time_slot", "time", "horai_time", "slot")
+                        val planet = getVal("planet_name", "planet", "horai_name", "name")
+                        if (slot.isNotEmpty() && planet.isNotEmpty()) {
+                            list.add(HoraiSlotItem(slot, planet))
+                        }
+                    }
+                    cursor.close()
+                    if (list.isNotEmpty()) break
                 }
             }
         } catch (_: Exception) {
