@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -74,7 +75,7 @@ data class HoraiSlotItem(
     val planetName: String
 )
 
-class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 8) {
+class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 10) {
 
     companion object {
         const val DB_PAN = "panchang_clcon.db"
@@ -86,6 +87,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
     }
 
     override fun onCreate(db: SQLiteDatabase?) {}
+
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         copyAllDatabases(force = true)
     }
@@ -136,6 +138,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         }
     }
 
+    // 1. PANCHANGAM & DAILY DATA
     fun getDayDetails(dateStr: String): TamilDateInfo {
         var panDb: SQLiteDatabase? = null
         var panCursor: Cursor? = null
@@ -268,7 +271,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         )
     }
 
-    // 2. GOWRI PANCHANGAM (DB வினவல்)
+    // 2. GOWRI PANCHANGAM (Queried directly from gowri.db -> table: weekday_gowri)
     fun getGowriPanchangam(weekdayTa: String): Pair<List<GowriSlotItem>, List<GowriSlotItem>> {
         val dayList = mutableListOf<GowriSlotItem>()
         val nightList = mutableListOf<GowriSlotItem>()
@@ -276,59 +279,48 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         var db: SQLiteDatabase? = null
         var cursor: Cursor? = null
 
+        val slotTimesDay = listOf(
+            "காலை 06:00 - 07:30", "காலை 07:30 - 09:00", "காலை 09:00 - 10:30", "காலை 10:30 - 12:00",
+            "மதியம் 12:00 - 01:30", "மதியம் 01:30 - 03:00", "மாலை 03:00 - 04:30", "மாலை 04:30 - 06:00"
+        )
+
+        val slotTimesNight = listOf(
+            "மாலை 06:00 - 07:30", "இரவு 07:30 - 09:00", "இரவு 09:00 - 10:30", "இரவு 10:30 - 12:00",
+            "நள்ளிரவு 12:00 - 01:30", "நள்ளிரவு 01:30 - 03:00", "விடியற்காலை 03:00 - 04:30", "விடியற்காலை 04:30 - 06:00"
+        )
+
+        val slotColumns = listOf(
+            "slot_6_730", "slot_730_9", "slot_9_1030", "slot_1030_12",
+            "slot_12_130", "slot_130_3", "slot_3_430", "slot_430_6"
+        )
+
         try {
             db = openDatabase(DB_GOWRI)
             if (db != null) {
-                // Table query
-                val checkTables = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android_%' AND name NOT LIKE 'sqlite_%'", null)
-                val tables = mutableListOf<String>()
-                while (checkTables.moveToNext()) {
-                    tables.add(checkTables.getString(0))
-                }
-                checkTables.close()
+                cursor = db.rawQuery(
+                    "SELECT * FROM weekday_gowri WHERE weekday_ta = ?",
+                    arrayOf(weekdayTa)
+                )
 
-                for (tableName in tables) {
-                    cursor = db.rawQuery("SELECT * FROM $tableName", null)
-                    val cols = cursor.columnNames.map { it.lowercase() }
+                while (cursor.moveToNext()) {
+                    val kaalamIdx = cursor.getColumnIndex("kaalam")
+                    val kaalam = if (kaalamIdx >= 0) cursor.getString(kaalamIdx)?.trim() ?: "" else ""
+                    val isDay = kaalam.contains("பகல்")
 
-                    // weekday column check
-                    val dayCol = cursor.columnNames.firstOrNull { it.contains("weekday", ignoreCase = true) || it.contains("day", ignoreCase = true) }
-                    val query = if (dayCol != null && weekdayTa.isNotEmpty()) {
-                        "SELECT * FROM $tableName WHERE $dayCol LIKE '%$weekdayTa%'"
-                    } else {
-                        "SELECT * FROM $tableName"
-                    }
-                    cursor.close()
-
-                    cursor = db.rawQuery(query, null)
-                    while (cursor.moveToNext()) {
-                        fun getVal(vararg names: String): String {
-                            for (name in names) {
-                                val idx = cursor.getColumnIndex(name)
-                                if (idx >= 0 && !cursor.isNull(idx)) {
-                                    val v = cursor.getString(idx).trim()
-                                    if (v.isNotEmpty()) return v
-                                }
-                            }
-                            return ""
-                        }
-
-                        val time = getVal("time_slot", "time", "slot", "timings")
-                        val name = getVal("gowri_name", "name", "gowri", "status")
-                        val period = getVal("period", "type", "day_night").uppercase()
-
-                        if (time.isNotEmpty() && name.isNotEmpty()) {
+                    for (i in slotColumns.indices) {
+                        val colIdx = cursor.getColumnIndex(slotColumns[i])
+                        if (colIdx >= 0 && !cursor.isNull(colIdx)) {
+                            val name = cursor.getString(colIdx).trim()
+                            val timeStr = if (isDay) slotTimesDay[i] else slotTimesNight[i]
                             val isGood = name in listOf("அமிர்தம்", "சுபம்", "லாபம்", "தனம்", "உத்தி")
-                            val item = GowriSlotItem(time, name, isGood)
-                            if (period.contains("NIGHT") || period.contains("இரவு")) {
-                                nightList.add(item)
+
+                            if (isDay) {
+                                dayList.add(GowriSlotItem(timeStr, name, isGood))
                             } else {
-                                dayList.add(item)
+                                nightList.add(GowriSlotItem(timeStr, name, isGood))
                             }
                         }
                     }
-                    cursor.close()
-                    if (dayList.isNotEmpty()) break
                 }
             }
         } catch (_: Exception) {
@@ -340,54 +332,51 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         return Pair(dayList, nightList)
     }
 
-    // 3. HORAI TIMINGS (DB வினவல்)
+    // 3. HORAI TIMINGS (Queried directly from horai.db -> table: weekday_horai)
     fun getHoraiTimings(weekdayTa: String): List<HoraiSlotItem> {
         val list = mutableListOf<HoraiSlotItem>()
         var db: SQLiteDatabase? = null
         var cursor: Cursor? = null
 
+        val slotTimes = listOf(
+            "காலை 06:00 - 07:00",
+            "காலை 07:00 - 08:00",
+            "காலை 08:00 - 09:00",
+            "காலை 09:00 - 10:00",
+            "காலை 10:00 - 11:00",
+            "காலை 11:00 - 12:00",
+            "மதியம் 12:00 - 01:00",
+            "மதியம் 01:00 - 02:00",
+            "மதியம் 02:00 - 03:00",
+            "மாலை 03:00 - 04:00",
+            "மாலை 04:00 - 05:00",
+            "மாலை 05:00 - 06:00"
+        )
+
+        val slotColumns = listOf(
+            "slot_6_7", "slot_7_8", "slot_8_9", "slot_9_10",
+            "slot_10_11", "slot_11_12", "slot_12_1", "slot_1_2",
+            "slot_2_3", "slot_3_4", "slot_4_5", "slot_5_6"
+        )
+
         try {
             db = openDatabase(DB_HORAI)
             if (db != null) {
-                val checkTables = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android_%' AND name NOT LIKE 'sqlite_%'", null)
-                val tables = mutableListOf<String>()
-                while (checkTables.moveToNext()) {
-                    tables.add(checkTables.getString(0))
-                }
-                checkTables.close()
+                cursor = db.rawQuery(
+                    "SELECT * FROM weekday_horai WHERE weekday_ta = ? AND kaalam LIKE '%பகல்%' LIMIT 1",
+                    arrayOf(weekdayTa)
+                )
 
-                for (tableName in tables) {
-                    val dayColCur = db.rawQuery("SELECT * FROM $tableName LIMIT 1", null)
-                    val dayCol = dayColCur.columnNames.firstOrNull { it.contains("weekday", ignoreCase = true) || it.contains("day", ignoreCase = true) }
-                    dayColCur.close()
-
-                    val query = if (dayCol != null && weekdayTa.isNotEmpty()) {
-                        "SELECT * FROM $tableName WHERE $dayCol LIKE '%$weekdayTa%'"
-                    } else {
-                        "SELECT * FROM $tableName"
-                    }
-
-                    cursor = db.rawQuery(query, null)
-                    while (cursor.moveToNext()) {
-                        fun getVal(vararg names: String): String {
-                            for (name in names) {
-                                val idx = cursor.getColumnIndex(name)
-                                if (idx >= 0 && !cursor.isNull(idx)) {
-                                    val v = cursor.getString(idx).trim()
-                                    if (v.isNotEmpty()) return v
-                                }
+                if (cursor.moveToFirst()) {
+                    for (i in slotColumns.indices) {
+                        val colIdx = cursor.getColumnIndex(slotColumns[i])
+                        if (colIdx >= 0 && !cursor.isNull(colIdx)) {
+                            val planetName = cursor.getString(colIdx).trim()
+                            if (planetName.isNotEmpty()) {
+                                list.add(HoraiSlotItem(slotTimes[i], planetName))
                             }
-                            return ""
-                        }
-
-                        val slot = getVal("time_slot", "time", "horai_time", "slot")
-                        val planet = getVal("planet_name", "planet", "horai_name", "name")
-                        if (slot.isNotEmpty() && planet.isNotEmpty()) {
-                            list.add(HoraiSlotItem(slot, planet))
                         }
                     }
-                    cursor.close()
-                    if (list.isNotEmpty()) break
                 }
             }
         } catch (_: Exception) {
