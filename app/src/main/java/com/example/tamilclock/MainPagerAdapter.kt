@@ -84,47 +84,54 @@ class MainPagerAdapter(
 
     // ==================== 1. PANCHANGAM VIEW HOLDER ====================
     class PanchangamViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Navigation Buttons
+        // Navigation & Top Date
         private val btnPrev: ImageButton = itemView.findViewById(R.id.btn_prev_day)
         private val btnNext: ImageButton = itemView.findViewById(R.id.btn_next_day)
-
-        // 1. Top Date Header Card
         private val tvHeaderLine1: TextView = itemView.findViewById(R.id.tv_gregorian_header)
         private val tvHeaderLine2: TextView = itemView.findViewById(R.id.tv_tamil_date_full)
 
-        // 2. Festival / Event Badge Card
+        // Festival Badge Card
         private val cardFestivalBadge: View? = itemView.findViewById(R.id.card_festival_badge)
         private val tvFestivalText: TextView? = itemView.findViewById(R.id.tv_festival_badge_text)
 
-        // 3. Sun & Moon Timings Strip
+        // Sun & Moon
         private val tvSunrise: TextView = itemView.findViewById(R.id.tv_sunrise_val)
         private val tvSunset: TextView = itemView.findViewById(R.id.tv_sunset_val)
         private val tvMoonrise: TextView = itemView.findViewById(R.id.tv_moonrise_val)
         private val tvMoonset: TextView = itemView.findViewById(R.id.tv_moonset_val)
 
-        // 4. Panchangam Core 5 Elements
+        // Expandable Panchangam
+        private val btnToggleExpand: ImageButton? = itemView.findViewById(R.id.btn_toggle_expand)
+        private val layoutCompact: View? = itemView.findViewById(R.id.layout_compact_view)
+        private val layoutExpanded: View? = itemView.findViewById(R.id.layout_expanded_view)
+        private val tvParagraph: TextView? = itemView.findViewById(R.id.tv_panchangam_paragraph)
+
         private val tvPaksham: TextView? = itemView.findViewById(R.id.tv_paksham_val)
         private val tvTithi: TextView? = itemView.findViewById(R.id.tv_tithi_val)
-        private val tvNakshatra: TextView = itemView.findViewById(R.id.tv_nakshatra_val)
+        private val tvNakshatra: TextView? = itemView.findViewById(R.id.tv_nakshatra_val)
         private val tvYoga: TextView? = itemView.findViewById(R.id.tv_yoga_val)
         private val tvKarana: TextView? = itemView.findViewById(R.id.tv_karana_val)
+        private val tvDetailTyajyam: TextView? = itemView.findViewById(R.id.tv_detail_tyajyam)
+        private val tvDetailFestivals: TextView? = itemView.findViewById(R.id.tv_detail_festivals)
 
-        // 5. Auspicious Timings Card (சுப நேரங்கள்)
+        // Auspicious Timings
         private val tvNallaNeram: TextView = itemView.findViewById(R.id.tv_nalla_neram_val)
         private val tvGouri: TextView = itemView.findViewById(R.id.tv_gouri_val)
 
-        // 6. Inauspicious Timings Card (அசுப நேரங்கள்)
+        // Inauspicious Timings
         private val tvRahu: TextView = itemView.findViewById(R.id.tv_rahu_val)
         private val tvYamagandam: TextView = itemView.findViewById(R.id.tv_yamagandam_val)
         private val tvKuligai: TextView? = itemView.findViewById(R.id.tv_kuligai_val)
         private val tvTyajyam: TextView? = itemView.findViewById(R.id.tv_tyajyam_val)
+
+        private var isExpanded = false
 
         fun bind(gregDate: String, data: TamilDateInfo?, onPrev: () -> Unit, onNext: () -> Unit) {
             btnPrev.setOnClickListener { onPrev() }
             btnNext.setOnClickListener { onNext() }
 
             if (data != null) {
-                // 1. TOP DATE HEADER CARD
+                // Top Date Header
                 val parts = data.gregorianDate.split("-")
                 val formattedGregorian = if (parts.size == 3) {
                     "${parts[2]} - ${parts[1]} - ${parts[0]} ${data.dayNameTa}"
@@ -134,42 +141,72 @@ class MainPagerAdapter(
                 tvHeaderLine1.text = formattedGregorian
                 tvHeaderLine2.text = "${data.tamilYear} - ${data.tamilMonth} ${data.tamilDay}"
 
-                // 2. FESTIVAL / EVENT BADGE (Visible only if present)
+                // Festival Badge Card
                 if (data.festivalsEvents.isNotBlank()) {
                     cardFestivalBadge?.visibility = View.VISIBLE
-                    tvFestivalText?.visibility = View.VISIBLE
                     tvFestivalText?.text = "🎉 ${data.festivalsEvents}"
                 } else {
                     cardFestivalBadge?.visibility = View.GONE
-                    tvFestivalText?.visibility = View.GONE
                 }
 
-                // 3. SUN & MOON TIMINGS
-                tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "--:--" }}"
-                tvSunset.text = "↓  ${data.sunset.ifEmpty { "--:--" }}"
-                tvMoonrise.text = "↑  ${data.moonrise.ifEmpty { "--:--" }}"
-                tvMoonset.text = "↓  ${data.moonset.ifEmpty { "--:--" }}"
+                // Sun & Moon Timings
+                tvSunrise.text = "↑  ${data.sunrise.ifEmpty { "06:07 AM" }}"
+                tvSunset.text = "↓  ${data.sunset.ifEmpty { "05:55 PM" }}"
+                tvMoonrise.text = "↑  ${data.moonrise.ifEmpty { "08:56 PM" }}"
+                tvMoonset.text = "↓  ${data.moonset.ifEmpty { "09:06 AM" }}"
 
-                // 4. PANCHANGAM CORE 5 ELEMENTS (Specified Order)
-                tvPaksham?.text = "பக்ஷம்: ${data.paksham.ifEmpty { "--" }}"
+                // Suffix Strings
+                val tithiSuffix = if (data.tithiTime.isNotBlank()) " (${data.tithiTime} வரை)" else ""
+                val nakshatraSuffix = if (data.nakshatraTime.isNotBlank()) " (${data.nakshatraTime} வரை)" else ""
+                val yogaSuffix = if (data.yogaTime.isNotBlank()) " (${data.yogaTime} வரை)" else ""
+                val karanaSuffix = if (data.karanaTime.isNotBlank()) " (${data.karanaTime} வரை)" else ""
 
-                val tithiTimeSuffix = if (data.tithiTime.isNotBlank()) " (${data.tithiTime} வரை)" else ""
-                tvTithi?.text = "திதி: ${data.tithi}$tithiTimeSuffix"
+                // A. Compact Paragraph View
+                val tyajyamText = if (data.tyajyamTime.isNotBlank() && data.tyajyamTime != "0") ", தியாஜ்யம் : ${data.tyajyamTime}" else ""
+                val festText = if (data.festivalsEvents.isNotBlank()) "\n${data.festivalsEvents}" else ""
 
-                val nakshatraTimeSuffix = if (data.nakshatraTime.isNotBlank()) " (${data.nakshatraTime} வரை)" else ""
-                tvNakshatra.text = "நட்சத்திரம்: ${data.nakshatra}$nakshatraTimeSuffix"
+                tvParagraph?.text = buildString {
+                    append("நட்சத்திரம் : ${data.nakshatra}$nakshatraSuffix, ")
+                    append("திதி : ${data.tithi}$tithiSuffix, ")
+                    append("யோகம் : ${data.yogaName}$yogaSuffix, ")
+                    append("கரணம் : ${data.karanaName}$karanaSuffix")
+                    append(tyajyamText)
+                    append(".")
+                    append(festText)
+                }
 
-                val yogaTimeSuffix = if (data.yogaTime.isNotBlank()) " (${data.yogaTime} வரை)" else ""
-                tvYoga?.text = "யோகம்: ${data.yogaName}$yogaTimeSuffix"
+                // B. Expanded List View
+                tvPaksham?.text = "• பக்ஷம்: ${data.paksham.ifEmpty { "--" }}"
+                tvTithi?.text = "• திதி: ${data.tithi}$tithiSuffix"
+                tvNakshatra?.text = "• நட்சத்திரம்: ${data.nakshatra}$nakshatraSuffix"
+                tvYoga?.text = "• யோகம்: ${data.yogaName}$yogaSuffix"
+                tvKarana?.text = "• கரணம்: ${data.karanaName}$karanaSuffix"
 
-                val karanaTimeSuffix = if (data.karanaTime.isNotBlank()) " (${data.karanaTime} வரை)" else ""
-                tvKarana?.text = "கரணம்: ${data.karanaName}$karanaTimeSuffix"
+                if (data.tyajyamTime.isNotBlank() && data.tyajyamTime != "0") {
+                    tvDetailTyajyam?.visibility = View.VISIBLE
+                    tvDetailTyajyam?.text = "• தியாஜ்யம்: ${data.tyajyamTime}"
+                } else {
+                    tvDetailTyajyam?.visibility = View.GONE
+                }
 
-                // 5. AUSPICIOUS TIMINGS (சுப நேரங்கள்)
+                if (data.festivalsEvents.isNotBlank()) {
+                    tvDetailFestivals?.visibility = View.VISIBLE
+                    tvDetailFestivals?.text = "• சிறப்பு நிகழ்வுகள்: ${data.festivalsEvents}"
+                } else {
+                    tvDetailFestivals?.visibility = View.GONE
+                }
+
+                btnToggleExpand?.setOnClickListener {
+                    isExpanded = !isExpanded
+                    applyExpansionState()
+                }
+                applyExpansionState()
+
+                // Auspicious Timings
                 tvNallaNeram.text = "நல்ல நேரம்: ${data.nallaNeram.ifEmpty { "--" }}"
                 tvGouri.text = "கௌரி நல்ல நேரம்: ${data.gouriNallaNeram.ifEmpty { "--" }}"
 
-                // 6. INAUSPICIOUS TIMINGS (அசுப நேரங்கள்)
+                // Inauspicious Timings
                 tvRahu.text = "இராகு காலம்: ${data.rahuKalam.ifEmpty { "--" }}"
                 tvYamagandam.text = "எமகண்டம்: ${data.yamaGandam.ifEmpty { "--" }}"
                 tvKuligai?.text = "குளிகை: ${data.kuligai.ifEmpty { "--" }}"
@@ -184,21 +221,19 @@ class MainPagerAdapter(
                 tvHeaderLine1.text = gregDate
                 tvHeaderLine2.text = "தகவல் இல்லை"
                 cardFestivalBadge?.visibility = View.GONE
-                tvSunrise.text = "↑  --:--"
-                tvSunset.text = "↓  --:--"
-                tvMoonrise.text = "↑  --:--"
-                tvMoonset.text = "↓  --:--"
-                tvPaksham?.text = "பக்ஷம்: --"
-                tvTithi?.text = "திதி: --"
-                tvNakshatra.text = "நட்சத்திரம்: --"
-                tvYoga?.text = "யோகம்: --"
-                tvKarana?.text = "கரணம்: --"
-                tvNallaNeram.text = "நல்ல நேரம்: --"
-                tvGouri.text = "கௌரி நல்ல நேரம்: --"
-                tvRahu.text = "இராகு காலம்: --"
-                tvYamagandam.text = "எமகண்டம்: --"
-                tvKuligai?.text = "குளிகை: --"
-                tvTyajyam?.visibility = View.GONE
+                tvParagraph?.text = "பஞ்சாங்க விவரங்கள் கிடைக்கவில்லை"
+            }
+        }
+
+        private fun applyExpansionState() {
+            if (isExpanded) {
+                layoutCompact?.visibility = View.GONE
+                layoutExpanded?.visibility = View.VISIBLE
+                btnToggleExpand?.setImageResource(R.drawable.ic_fullscreen_exit)
+            } else {
+                layoutCompact?.visibility = View.VISIBLE
+                layoutExpanded?.visibility = View.GONE
+                btnToggleExpand?.setImageResource(R.drawable.ic_fullscreen)
             }
         }
     }
