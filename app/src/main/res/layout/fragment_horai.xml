@@ -1,95 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView 
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="?attr/themeCanvasBackground">
+    android:background="#1E1E24">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="14dp"
-        android:paddingTop="12dp"
+        android:paddingHorizontal="10dp"
+        android:paddingTop="10dp"
         android:paddingBottom="24dp">
 
-        <!-- 1. Day / Night Pill Segmented Toggle -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_widget_card"
-            android:padding="3dp">
-
-            <TextView
-                android:id="@+id/btn_toggle_day_horai"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:text="பகல் ஹோரை"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#000000" />
-
-            <TextView
-                android:id="@+id/btn_toggle_night_horai"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="இரவு ஹோரை"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#3C3C43" />
-        </LinearLayout>
-
-        <!-- 2. Section Heading -->
-        <LinearLayout
+        <!-- Title Banner -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="10dp"
+            app:cardCornerRadius="14dp"
+            app:cardBackgroundColor="#5D0A14"
+            app:strokeColor="#FFDF00"
+            app:strokeWidth="1.5dp">
 
             <TextView
-                android:id="@+id/tv_horai_section_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="பகல் ஹோரை நேரங்கள்"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#5D0A14" />
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:text="தினசரி ஹோரை கால அட்டவணை"
+                android:textColor="#FFDF00"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/tv_horai_section_subtitle"
-                android:layout_width="wrap_content"
+        <!-- Horai List Container Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#2A2A32"
+            app:strokeColor="#C5A059"
+            app:strokeWidth="1.2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="(சூரிய உதயம் - சூரிய அஸ்தமனம்)"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#1C1C1E" />
-        </LinearLayout>
+                android:orientation="vertical">
 
-        <!-- 3. Day Horai Container -->
-        <LinearLayout
-            android:id="@+id/layout_day_horai_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
+                <TextView
+                    android:id="@+id/tv_horai_day_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#800000"
+                    android:paddingVertical="6dp"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    tools:text="ஞாயிறு ஹோரை நேரங்கள்" />
 
-        <!-- 4. Night Horai Container -->
-        <LinearLayout
-            android:id="@+id/layout_night_horai_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone" />
+                <!-- Container referenced by Kotlin code -->
+                <LinearLayout
+                    android:id="@+id/container_horai_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
