@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -88,17 +87,13 @@ class MainActivity : AppCompatActivity() {
                 updateWidgets()
             },
             onMonthCalendarClick = {
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
-                    displayedMonthCalendar.time = selectedCalendar.time
-                    refreshMonthCalendarGrid()
-                    calendarMonthAdapter.setClassicMode(false)
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                } else {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                }
+                displayedMonthCalendar.time = selectedCalendar.time
+                refreshMonthCalendarGrid()
+                calendarMonthAdapter.setClassicMode(true)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             },
             onHoraiClick = {
-                // Instantly flip to Horai Tab (Page index 2)
+                // ஹோரை டேப்பிற்கு நேரடியாகச் செல்ல (Tab Index 2)
                 viewPager.currentItem = 2
             },
             onSettingsClick = {
