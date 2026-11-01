@@ -1,65 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_2x1_root"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="@drawable/bg_widget_pill"
-    android:padding="6dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:padding="8dp"
+    android:background="@drawable/widget_surface_bg">
 
+    <!-- Clock Container (1x1) Left -->
     <FrameLayout
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="4dp">
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_vertical">
 
         <AnalogClock
-            android:id="@+id/clock_analog_2x1"
+            android:id="@+id/analog_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:dial="@drawable/clock_dial_classic"
             android:visibility="visible" />
 
         <TextClock
-            android:id="@+id/clock_digital_2x1"
+            android:id="@+id/digital_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:format12Hour="hh:mm"
-            android:format24Hour="HH:mm"
-            android:textSize="12sp"
+            android:format12Hour="hh:mm a"
+            android:format23Hour="HH:mm"
+            android:textColor="#FFDF00"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
             android:visibility="gone" />
     </FrameLayout>
 
+    <!-- Date & Tamil Details Right -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="6dp"
+        android:layout_marginStart="10dp"
         android:gravity="center_vertical">
 
+        <!-- Top Right: dd: mm: yyyy -->
         <TextView
-            android:id="@+id/tv_2x1_greg_date"
+            android:id="@+id/tv_widget_greg_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="24-10-2026"
-            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF" />
+            android:text="01: 11: 2026" />
 
+        <!-- Bottom Right: Tamil month + tamil date -->
         <TextView
-            android:id="@+id/tv_2x1_tamil_date"
+            android:id="@+id/tv_widget_tamil_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:text="ஐப்பசி 4 சனி"
-            android:textSize="11sp"
+            android:layout_marginTop="2dp"
+            android:textColor="#FFDF00"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:textColor="#FFDF00" />
+            android:text="ஐப்பசி 15" />
     </LinearLayout>
 </LinearLayout>
