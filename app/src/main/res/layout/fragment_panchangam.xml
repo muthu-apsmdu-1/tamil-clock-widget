@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:paddingHorizontal="10dp"
         android:paddingTop="8dp"
-        android:paddingBottom="20dp">
+        android:paddingBottom="24dp">
 
         <!-- ======================================================== -->
         <!-- 1. APP TITLE BANNER                                      -->
@@ -226,7 +226,7 @@
                         android:textColor="#C2185B"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        tools:text="மார்கழி" />
+                        tools:text="ஐப்பசி" />
                 </LinearLayout>
 
                 <View android:layout_width="1.5dp" android:layout_height="match_parent" android:background="#D4AF37" />
@@ -246,7 +246,7 @@
                         android:textColor="#800000"
                         android:textSize="22sp"
                         android:textStyle="bold"
-                        tools:text="17" />
+                        tools:text="15" />
 
                     <TextView
                         android:id="@+id/tv_banner_tamil_weekday"
@@ -255,7 +255,7 @@
                         android:textColor="#800000"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        tools:text="செவ்வாய்" />
+                        tools:text="ஞாயிறு" />
                 </LinearLayout>
 
                 <View android:layout_width="1.5dp" android:layout_height="match_parent" android:background="#D4AF37" />
@@ -275,7 +275,7 @@
                         android:textColor="#800000"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        tools:text="January" />
+                        tools:text="November" />
 
                     <TextView
                         android:id="@+id/tv_banner_eng_weekday"
@@ -284,7 +284,7 @@
                         android:textColor="#800000"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        tools:text="Tuesday" />
+                        tools:text="Sunday" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -334,7 +334,7 @@
                         android:lineSpacingExtra="3dp"
                         android:textColor="#0B2545"
                         android:textSize="13.5sp"
-                        tools:text="சித்திரை - இரவு 10.20 வரை, திதி : நவமி - மாலை 6.13 வரை, யோகம் : சித்த யோகம், தியாஜ்யம் : 18:09. தைப்பூசம், குடும்பத்தில் நன்மைகள் உண்டாகும் நாள்." />
+                        tools:text="புனர்பூசம் - 10:37 வரை, திதி : சப்தமி - 19:24 வரை, யோகம் : சித்த யோகம், தியாஜ்யம் : 18:09." />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -399,7 +399,7 @@
                             android:id="@+id/tv_simple_nalla_neram_morning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="3dp"
                             android:textColor="#2E7D32"
                             android:textSize="12sp"
                             tools:text="காலை : 7.30 - 8.30" />
@@ -415,7 +415,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Right: Gowri Nalla Neram -->
+                <!-- Right: Gowri Nalla Neram (Height-aligned) -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -435,7 +435,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="கௌரி நல்ல நேரம்"
+                            android:text="கௌரி ந. நேரம்"
                             android:textColor="#1B5E20"
                             android:textSize="13.5sp"
                             android:textStyle="bold" />
@@ -444,7 +444,7 @@
                             android:id="@+id/tv_simple_gowri_morning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="3dp"
                             android:textColor="#2E7D32"
                             android:textSize="12sp"
                             tools:text="காலை : 10.30 - 11.30" />
@@ -482,16 +482,17 @@
                         android:layout_height="wrap_content"
                         android:background="#800000"
                         android:orientation="horizontal"
-                        android:paddingVertical="4dp">
+                        android:paddingVertical="5dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:text="ராகு காலம்"
+                            android:singleLine="true"
+                            android:text="இராகு"
                             android:textColor="#FFFFFF"
-                            android:textSize="11.5sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -499,9 +500,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
+                            android:singleLine="true"
                             android:text="எமகண்டம்"
                             android:textColor="#FFFFFF"
-                            android:textSize="11.5sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -509,9 +511,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
+                            android:singleLine="true"
                             android:text="குளிகை"
                             android:textColor="#FFFFFF"
-                            android:textSize="11.5sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -519,9 +522,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
+                            android:singleLine="true"
                             android:text="சூலம்"
                             android:textColor="#FFFFFF"
-                            android:textSize="11.5sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -529,9 +533,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
+                            android:singleLine="true"
                             android:text="பரிகாரம்"
                             android:textColor="#FFFFFF"
-                            android:textSize="11.5sp"
+                            android:textSize="11sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -549,7 +554,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="11sp"
+                            android:textSize="10.5sp"
                             android:textStyle="bold"
                             tools:text="1.30 - 3.00" />
 
@@ -560,7 +565,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="11sp"
+                            android:textSize="10.5sp"
                             android:textStyle="bold"
                             tools:text="6.30 - 8.00" />
 
@@ -571,7 +576,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="11sp"
+                            android:textSize="10.5sp"
                             android:textStyle="bold"
                             tools:text="12.00 - 1.30" />
 
@@ -582,7 +587,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             tools:text="மேற்கு" />
 
@@ -593,7 +598,7 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             tools:text="வெல்லம்" />
                     </LinearLayout>
@@ -676,7 +681,7 @@
                             android:textColor="#5D0A14"
                             android:textSize="13sp"
                             android:textStyle="bold"
-                            tools:text="சூரிய உதயம்: 06:08 AM • மறைவு: 05:55 PM" />
+                            tools:text="சூரிய உதயம்: 06:08 • மறைவு: 17:55" />
 
                         <TextView
                             android:id="@+id/tv_exp_moon_timings"
@@ -686,7 +691,7 @@
                             android:textColor="#1A237E"
                             android:textSize="13sp"
                             android:textStyle="bold"
-                            tools:text="சந்திர உதயம்: 08:56 PM • மறைவு: 09:06 AM" />
+                            tools:text="சந்திர உதயம்: 08:56 PM • மறைவு: 12:07" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -728,7 +733,7 @@
                             android:textColor="#0B2545"
                             android:textSize="13.5sp"
                             android:textStyle="bold"
-                            tools:text="திதி: கிருஷ்ண பக்ஷ சப்தமி" />
+                            tools:text="திதி: கிருஷ்ண பக்ஷம் சப்தமி" />
 
                         <TextView
                             android:id="@+id/tv_exp_tithi_time"
@@ -877,7 +882,7 @@
                             android:textColor="#BF360C"
                             android:textSize="13.5sp"
                             android:textStyle="bold"
-                            tools:text="சந்திராஷ்டமம்: விருச்சிகம்" />
+                            tools:text="சந்திராஷ்டமம்: தனுசு" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -933,7 +938,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="#2E7D32"
                             android:textSize="12.5sp"
-                            tools:text="காலை: 07:45 - 08:45 | மாலை: 03:15 - 04:15" />
+                            tools:text="காலை: 07:30 - 08:30 | மாலை: 03:30 - 04:30" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -971,7 +976,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="கௌரி நல்ல நேரம்"
+                            android:text="கௌரி ந. நேரம்"
                             android:textColor="#1B5E20"
                             android:textSize="13.5sp"
                             android:textStyle="bold" />
@@ -982,7 +987,7 @@
                             android:layout_height="wrap_content"
                             android:textColor="#2E7D32"
                             android:textSize="12.5sp"
-                            tools:text="காலை: 10:45 - 11:45 | மாலை: 01:30 - 02:30" />
+                            tools:text="காலை: 10:30 - 11:30 | மாலை: 07:30 - 08:30" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -1330,7 +1335,7 @@
                             android:layout_marginTop="2dp"
                             android:textColor="#333333"
                             android:textSize="12.5sp"
-                            tools:text="சங்கடஹர சதுர்த்தி" />
+                            tools:text="சிறப்பு நிகழ்வுகள் ஏதுமில்லை" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -1338,7 +1343,7 @@
         </LinearLayout>
 
         <!-- ######################################################## -->
-        <!-- 5. 4x3 DAILY RASI PALAN TABLE (ALWAYS VISIBLE AT BOTTOM) -->
+        <!-- 5. 4x3 DAILY RASI PALAN TABLE (RESPONSIVE FIT)           -->
         <!-- ######################################################## -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_rasi_palan_table"
@@ -1366,40 +1371,39 @@
                         android:gravity="center"
                         android:text="இன்றைய ராசிபலன்"
                         android:textColor="#FFDF00"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         android:textStyle="bold" />
                 </TableRow>
 
                 <!-- Row 1: மேஷம் | கடகம் | துலாம் | மகரம் -->
                 <TableRow
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="4dp">
+                    android:paddingVertical="4dp">
                     <TextView
                         android:id="@+id/tv_rasi_mesham"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="மேஷம் - உற்சாகம்" />
+                        tools:text="மேஷம் - நன்மை" />
                     <TextView
                         android:id="@+id/tv_rasi_kadagam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="கடகம் - சுகம்" />
+                        tools:text="கடகம் - மகிழ்ச்சி" />
                     <TextView
                         android:id="@+id/tv_rasi_thulaam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="துலாம் - முயற்சி" />
                     <TextView
                         android:id="@+id/tv_rasi_magaram"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="மகரம் - மேன்மை" />
                 </TableRow>
@@ -1408,34 +1412,33 @@
 
                 <!-- Row 2: ரிஷபம் | சிம்மம் | விருச்சிகம் | கும்பம் -->
                 <TableRow
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="4dp">
+                    android:paddingVertical="4dp">
                     <TextView
                         android:id="@+id/tv_rasi_rishabam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="ரிஷபம் - இன்பம்" />
+                        tools:text="ரிஷபம் - வெற்றி" />
                     <TextView
                         android:id="@+id/tv_rasi_simmam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="சிம்மம் - பக்தி" />
+                        tools:text="சிம்மம் - செலவு" />
                     <TextView
                         android:id="@+id/tv_rasi_viruchigam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="விருச்சி - வரவு" />
                     <TextView
                         android:id="@+id/tv_rasi_kumbam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="கும்பம் - தனம்" />
                 </TableRow>
@@ -1444,34 +1447,33 @@
 
                 <!-- Row 3: மிதுனம் | கன்னி | தனுசு | மீனம் -->
                 <TableRow
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="4dp">
+                    android:paddingVertical="4dp">
                     <TextView
                         android:id="@+id/tv_rasi_mithunam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="மிதுனம் - பொறுமை" />
+                        tools:text="மிதுனம் - வரவு" />
                     <TextView
                         android:id="@+id/tv_rasi_kanni"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
-                        tools:text="கன்னி - ஆக்கம்" />
+                        tools:text="கன்னி - லாபம்" />
                     <TextView
                         android:id="@+id/tv_rasi_dhanusu"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="தனுசு - சாந்தம்" />
                     <TextView
                         android:id="@+id/tv_rasi_meenam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="11.5sp"
+                        android:textSize="10.5sp"
                         android:textStyle="bold"
                         tools:text="மீனம் - புகழ்" />
                 </TableRow>
