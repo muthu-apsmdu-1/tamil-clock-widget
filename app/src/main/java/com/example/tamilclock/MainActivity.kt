@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             },
             onHoraiClick = {
-                // ஹோரை டேப்பிற்கு நேரடியாகச் செல்ல (Tab Index 2)
+                // Instantly flip to Horai Tab (Page index 2)
                 viewPager.currentItem = 2
             },
             onSettingsClick = {
@@ -198,6 +198,19 @@ class MainActivity : AppCompatActivity() {
         val sheetView = layoutInflater.inflate(R.layout.dialog_theme_customization, null)
         dialog.setContentView(sheetView)
 
+        // Clock Style Toggles (Analog / Digital)
+        sheetView.findViewById<View>(R.id.btn_style_analog)?.setOnClickListener {
+            ThemeManager.saveClockStyle(this, ThemeManager.CLOCK_ANALOG)
+            updateWidgets()
+            dialog.dismiss()
+        }
+        sheetView.findViewById<View>(R.id.btn_style_digital)?.setOnClickListener {
+            ThemeManager.saveClockStyle(this, ThemeManager.CLOCK_DIGITAL)
+            updateWidgets()
+            dialog.dismiss()
+        }
+
+        // Color Theme Options
         sheetView.findViewById<View>(R.id.option_theme_white)?.setOnClickListener {
             changeTheme(ThemeManager.THEME_WHITE, dialog)
         }
@@ -223,6 +236,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
+        // 1. 2x1 Capsule Widget
         val c2x1 = ComponentName(this, WidgetProvider2x1::class.java)
         val ids2x1 = appWidgetManager.getAppWidgetIds(c2x1)
         if (ids2x1.isNotEmpty()) {
@@ -230,6 +244,7 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider2x1::class.java, ids2x1)
         }
 
+        // 2. 4x1 Ribbon Widget
         val c4x1 = ComponentName(this, WidgetProvider4x1::class.java)
         val ids4x1 = appWidgetManager.getAppWidgetIds(c4x1)
         if (ids4x1.isNotEmpty()) {
@@ -237,6 +252,7 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x1::class.java, ids4x1)
         }
 
+        // 3. 4x2 Panoramic Widget
         val c4x2 = ComponentName(this, WidgetProvider4x2::class.java)
         val ids4x2 = appWidgetManager.getAppWidgetIds(c4x2)
         if (ids4x2.isNotEmpty()) {
@@ -244,6 +260,7 @@ class MainActivity : AppCompatActivity() {
             sendWidgetBroadcast(WidgetProvider4x2::class.java, ids4x2)
         }
 
+        // 4. 4x4 Heritage Wall Widget
         val c4x4 = ComponentName(this, WidgetProvider4x4::class.java)
         val ids4x4 = appWidgetManager.getAppWidgetIds(c4x4)
         if (ids4x4.isNotEmpty()) {
