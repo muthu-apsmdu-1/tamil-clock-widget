@@ -39,7 +39,10 @@ data class TamilDateInfo(
     val sunset: String = "",
     val moonrise: String = "",
     val moonset: String = "",
-    val festivalsEvents: String = ""
+    val festivalsEvents: String = "",
+    val soolam: String = "",
+    val parikaram: String = "",
+    val amritadiYoga: String = ""
 )
 
 data class WeekdayTiming(
@@ -59,7 +62,7 @@ data class SunMoonTiming(
     val moonset: String = ""
 )
 
-class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 2) {
+class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 4) {
 
     companion object {
         const val DB_PAN = "panchang_clcon.db"
@@ -103,133 +106,195 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         } catch (_: Exception) {}
     }
 
-    private fun openDatabase(dbName: String): SQLiteDatabase {
+    private fun openDatabase(dbName: String): SQLiteDatabase? {
         copyDatabase(dbName, false)
-        return SQLiteDatabase.openDatabase(
-            context.getDatabasePath(dbName).path,
-            null,
-            SQLiteDatabase.OPEN_READONLY
-        )
+        return try {
+            val path = context.getDatabasePath(dbName).path
+            if (File(path).exists()) {
+                SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY)
+            } else null
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun getDayDetails(dateStr: String): TamilDateInfo? {
-        val panDb = openDatabase(DB_PAN)
-        val panCursor: Cursor = panDb.rawQuery(
-            """
-            SELECT gregorian_date, tamil_year, tamil_month, tamil_date, 
-                   weekday_ta, paksha, tithi_name, tithi_nazhikai, 
-                   nakshatra_name, nakshatra_nazhikai, yoga_name, yoga_nazhikai, 
-                   karana_name, karana_nazhikai, tyajyam_nazhikai, festivals_events 
-            FROM panchangam_daily 
-            WHERE gregorian_date = ? LIMIT 1
-            """.trimIndent(),
-            arrayOf(dateStr)
-        )
-
         var result: TamilDateInfo? = null
+        var panDb: SQLiteDatabase? = null
+        var panCursor: Cursor? = null
 
-        if (panCursor.moveToFirst()) {
-            val tamilYear = panCursor.getString(panCursor.getColumnIndexOrThrow("tamil_year")) ?: "பராபவ"
-            val weekdayTa = panCursor.getString(panCursor.getColumnIndexOrThrow("weekday_ta")) ?: ""
-            val tamilMonth = panCursor.getString(panCursor.getColumnIndexOrThrow("tamil_month")) ?: ""
-            val tamilDate = panCursor.getInt(panCursor.getColumnIndexOrThrow("tamil_date"))
-            val paksha = panCursor.getString(panCursor.getColumnIndexOrThrow("paksha")) ?: ""
-            val tithi = panCursor.getString(panCursor.getColumnIndexOrThrow("tithi_name")) ?: ""
-            val tithiTime = panCursor.getString(panCursor.getColumnIndexOrThrow("tithi_nazhikai")) ?: ""
-            val nakshatra = panCursor.getString(panCursor.getColumnIndexOrThrow("nakshatra_name")) ?: ""
-            val nakshatraTime = panCursor.getString(panCursor.getColumnIndexOrThrow("nakshatra_nazhikai")) ?: ""
-            val yoga = panCursor.getString(panCursor.getColumnIndexOrThrow("yoga_name")) ?: ""
-            val yogaTime = panCursor.getString(panCursor.getColumnIndexOrThrow("yoga_nazhikai")) ?: ""
-            val karana = panCursor.getString(panCursor.getColumnIndexOrThrow("karana_name")) ?: ""
-            val karanaTime = panCursor.getString(panCursor.getColumnIndexOrThrow("karana_nazhikai")) ?: ""
-            val tyajyam = panCursor.getString(panCursor.getColumnIndexOrThrow("tyajyam_nazhikai")) ?: ""
-            val festivals = panCursor.getString(panCursor.getColumnIndexOrThrow("festivals_events")) ?: ""
-
-            panCursor.close()
-            panDb.close()
-
-            val timings = getWeekdayTimingSummary(weekdayTa)
-            val sunMoon = getSunMoonTiming(dateStr)
-
-            val nnMorning = timings.nallaNeramMorning
-            val nnEvening = timings.nallaNeramEvening
-            val gnMorning = timings.gowriDay
-            val gnEvening = timings.gowriNight
-
-            val nallaNeramCombined = listOf(nnMorning, nnEvening).filter { it.isNotBlank() && it != "--:--" }.joinToString(" / ")
-            val gouriCombined = listOf(gnMorning, gnEvening).filter { it.isNotBlank() && it != "--:--" }.joinToString(" / ")
-
-            result = TamilDateInfo(
-                gregorianDate = dateStr,
-                tamilYear = tamilYear,
-                dayName = weekdayTa,
-                dayNameTa = weekdayTa,
-                tamilMonth = tamilMonth,
-                tamilDay = tamilDate,
-                paksham = paksha,
-                tithi = tithi,
-                tithiTime = tithiTime,
-                nakshatra = nakshatra,
-                nakshatraTime = nakshatraTime,
-                yogaName = yoga,
-                yogaTime = yogaTime,
-                karanaName = karana,
-                karanaTime = karanaTime,
-                tyajyamTime = tyajyam,
-                nallaNeram = nallaNeramCombined,
-                nallaNeramMorning = nnMorning,
-                nallaNeramEvening = nnEvening,
-                gouriNallaNeram = gouriCombined,
-                gouriNallaMorning = gnMorning,
-                gouriNallaEvening = gnEvening,
-                rahuKalam = timings.rahuKalam,
-                yamaGandam = timings.yamaGandam,
-                kuligai = timings.kuligai,
-                sunrise = sunMoon.sunrise,
-                sunset = sunMoon.sunset,
-                moonrise = sunMoon.moonrise,
-                moonset = sunMoon.moonset,
-                festivalsEvents = festivals
+        try {
+            panDb = openDatabase(DB_PAN) ?: return null
+            panCursor = panDb.rawQuery(
+                """
+                SELECT id, gregorian_date, tamil_year, tamil_month, tamil_date, 
+                       weekday_ta, paksha, tithi_name, tithi_time, 
+                       nakshatra_name, nakshatra_time, yoga_name, yoga_time, 
+                       karana_name, karana_time, tyajyam_time, festivals_events,
+                       soolam, parikaram, amritadi_yoga
+                FROM panchangam_daily 
+                WHERE gregorian_date = ? LIMIT 1
+                """.trimIndent(),
+                arrayOf(dateStr)
             )
-        } else {
-            panCursor.close()
-            panDb.close()
+
+            if (panCursor.moveToFirst()) {
+                fun getSafeString(colName: String): String {
+                    val idx = panCursor.getColumnIndex(colName)
+                    return if (idx >= 0 && !panCursor.isNull(idx)) panCursor.getString(idx).trim() else ""
+                }
+
+                fun getSafeInt(colName: String): Int {
+                    val idx = panCursor.getColumnIndex(colName)
+                    return if (idx >= 0 && !panCursor.isNull(idx)) panCursor.getInt(idx) else 1
+                }
+
+                val tamilYear = getSafeString("tamil_year").ifEmpty { "பராபவ" }
+                val weekdayTa = getSafeString("weekday_ta")
+                val tamilMonth = getSafeString("tamil_month")
+                val tamilDate = getSafeInt("tamil_date")
+                val paksha = getSafeString("paksha")
+                val tithi = getSafeString("tithi_name")
+                val tithiTime = getSafeString("tithi_time")
+                val nakshatra = getSafeString("nakshatra_name")
+                val nakshatraTime = getSafeString("nakshatra_time")
+                val yoga = getSafeString("yoga_name")
+                val yogaTime = getSafeString("yoga_time")
+                val karana = getSafeString("karana_name")
+                val karanaTime = getSafeString("karana_time")
+                val tyajyam = getSafeString("tyajyam_time")
+                val festivals = getSafeString("festivals_events")
+                val soolam = getSafeString("soolam")
+                val parikaram = getSafeString("parikaram")
+                val amritadiYoga = getSafeString("amritadi_yoga")
+
+                val timings = getWeekdayTimingSummary(weekdayTa)
+                val sunMoon = getSunMoonTiming(dateStr)
+
+                val nnMorning = timings.nallaNeramMorning
+                val nnEvening = timings.nallaNeramEvening
+                val gnMorning = timings.gowriDay
+                val gnEvening = timings.gowriNight
+
+                val nallaNeramCombined = listOf(nnMorning, nnEvening).filter { it.isNotBlank() && it != "--:--" }.joinToString(" / ")
+                val gouriCombined = listOf(gnMorning, gnEvening).filter { it.isNotBlank() && it != "--:--" }.joinToString(" / ")
+
+                result = TamilDateInfo(
+                    gregorianDate = dateStr,
+                    tamilYear = tamilYear,
+                    dayName = weekdayTa,
+                    dayNameTa = weekdayTa,
+                    tamilMonth = tamilMonth,
+                    tamilDay = tamilDate,
+                    paksham = paksha,
+                    tithi = tithi,
+                    tithiTime = tithiTime,
+                    nakshatra = nakshatra,
+                    nakshatraTime = nakshatraTime,
+                    yogaName = yoga,
+                    yogaTime = yogaTime,
+                    karanaName = karana,
+                    karanaTime = karanaTime,
+                    tyajyamTime = tyajyam,
+                    nallaNeram = nallaNeramCombined,
+                    nallaNeramMorning = nnMorning,
+                    nallaNeramEvening = nnEvening,
+                    gouriNallaNeram = gouriCombined,
+                    gouriNallaMorning = gnMorning,
+                    gouriNallaEvening = gnEvening,
+                    rahuKalam = timings.rahuKalam,
+                    yamaGandam = timings.yamaGandam,
+                    kuligai = timings.kuligai,
+                    sunrise = sunMoon.sunrise,
+                    sunset = sunMoon.sunset,
+                    moonrise = sunMoon.moonrise,
+                    moonset = sunMoon.moonset,
+                    festivalsEvents = festivals,
+                    soolam = soolam,
+                    parikaram = parikaram,
+                    amritadiYoga = amritadiYoga
+                )
+            }
+        } catch (_: Exception) {
+        } finally {
+            try { panCursor?.close() } catch (_: Exception) {}
+            try { panDb?.close() } catch (_: Exception) {}
         }
         return result
     }
 
     private fun getWeekdayTimingSummary(weekdayTa: String): WeekdayTiming {
-        val map = mapOf(
-            "ஞாயிறு" to WeekdayTiming("07:30 - 08:30", "03:30 - 04:30", "10:30 - 11:30", "09:30 - 10:30", "04:30 - 06:00", "12:00 - 01:30", "03:00 - 04:30"),
-            "திங்கள்" to WeekdayTiming("06:30 - 07:30", "04:30 - 05:30", "09:30 - 10:30", "07:30 - 08:30", "07:30 - 09:00", "01:30 - 03:00", "12:00 - 01:30"),
-            "செவ்வாய்" to WeekdayTiming("07:30 - 08:30", "04:30 - 05:30", "10:30 - 11:30", "06:30 - 07:30", "03:00 - 04:30", "09:00 - 10:30", "12:00 - 01:30"),
-            "புதன்" to WeekdayTiming("09:15 - 10:15", "04:45 - 05:45", "10:45 - 11:45", "06:30 - 07:30", "12:00 - 01:30", "07:30 - 09:00", "10:30 - 12:00"),
-            "வியாழன்" to WeekdayTiming("10:45 - 11:45", "12:15 - 01:15", "06:30 - 07:30", "08:00 - 09:00", "01:30 - 03:00", "06:00 - 07:30", "09:00 - 10:30"),
-            "வெள்ளி" to WeekdayTiming("09:15 - 10:15", "04:45 - 05:45", "10:45 - 11:45", "08:00 - 09:00", "10:30 - 12:00", "03:00 - 04:30", "07:30 - 09:00"),
-            "சனி" to WeekdayTiming("07:30 - 08:30", "05:00 - 06:00", "10:45 - 11:45", "09:30 - 10:30", "09:00 - 10:30", "01:30 - 03:00", "06:00 - 07:30")
-        )
-        return map[weekdayTa] ?: WeekdayTiming()
+        var timing = WeekdayTiming()
+        var db: SQLiteDatabase? = null
+        var cursor: Cursor? = null
+        try {
+            db = openDatabase(DB_AUSPICIOUS)
+            if (db != null) {
+                cursor = db.rawQuery(
+                    """
+                    SELECT nalla_neram_morning_start, nalla_neram_morning_end,
+                           nalla_neram_evening_start, nalla_neram_evening_end,
+                           gowri_day_start, gowri_day_end,
+                           gowri_night_start, gowri_night_end,
+                           raghu_start, raghu_end,
+                           emagandam_start, emagandam_end,
+                           kuligai_start, kuligai_end
+                    FROM weekday_timings_summary
+                    WHERE weekday_ta = ? LIMIT 1
+                    """.trimIndent(),
+                    arrayOf(weekdayTa)
+                )
+                if (cursor.moveToFirst()) {
+                    fun fmt(sIdx: Int, eIdx: Int): String {
+                        val s = cursor.getString(sIdx)?.trim() ?: ""
+                        val e = cursor.getString(eIdx)?.trim() ?: ""
+                        return if (s.isNotEmpty() && e.isNotEmpty()) "$s - $e" else ""
+                    }
+
+                    timing = WeekdayTiming(
+                        nallaNeramMorning = fmt(0, 1),
+                        nallaNeramEvening = fmt(2, 3),
+                        gowriDay = fmt(4, 5),
+                        gowriNight = fmt(6, 7),
+                        rahuKalam = fmt(8, 9),
+                        yamaGandam = fmt(10, 11),
+                        kuligai = fmt(12, 13)
+                    )
+                }
+            }
+        } catch (_: Exception) {
+        } finally {
+            try { cursor?.close() } catch (_: Exception) {}
+            try { db?.close() } catch (_: Exception) {}
+        }
+        return timing
     }
 
     private fun getSunMoonTiming(dateStr: String): SunMoonTiming {
         var timing = SunMoonTiming("06:07 AM", "05:55 PM", "08:56 PM", "09:06 AM")
+        var db: SQLiteDatabase? = null
+        var cursor: Cursor? = null
         try {
-            val db = openDatabase(DB_SUN_MOON)
-            val cursor = db.rawQuery(
-                "SELECT sunrise, sunset, moonrise, moonset FROM sun_moon WHERE date = ? LIMIT 1",
-                arrayOf(dateStr)
-            )
-            if (cursor.moveToFirst()) {
-                timing = SunMoonTiming(
-                    cursor.getString(0) ?: "06:07 AM",
-                    cursor.getString(1) ?: "05:55 PM",
-                    cursor.getString(2) ?: "08:56 PM",
-                    cursor.getString(3) ?: "09:06 AM"
+            db = openDatabase(DB_SUN_MOON)
+            if (db != null) {
+                cursor = db.rawQuery(
+                    "SELECT sunrise, sunset, moonrise, moonset FROM sun_moon_timings WHERE date_gregorian = ? LIMIT 1",
+                    arrayOf(dateStr)
                 )
+                if (cursor.moveToFirst()) {
+                    timing = SunMoonTiming(
+                        sunrise = cursor.getString(0) ?: "06:07 AM",
+                        sunset = cursor.getString(1) ?: "05:55 PM",
+                        moonrise = cursor.getString(2) ?: "08:56 PM",
+                        moonset = cursor.getString(3) ?: "09:06 AM"
+                    )
+                }
             }
-            cursor.close()
-            db.close()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        } finally {
+            try { cursor?.close() } catch (_: Exception) {}
+            try { db?.close() } catch (_: Exception) {}
+        }
         return timing
     }
 }
