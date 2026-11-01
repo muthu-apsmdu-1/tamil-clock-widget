@@ -9,16 +9,15 @@
     android:padding="8dp"
     android:background="@drawable/widget_surface_bg">
 
-    <!-- Clock Container (1x1) Left -->
     <FrameLayout
-        android:layout_width="68dp"
-        android:layout_height="68dp"
-        android:layout_gravity="center_vertical">
+        android:layout_width="66dp"
+        android:layout_height="66dp">
 
         <AnalogClock
             android:id="@+id/analog_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:dial="@drawable/classic_clock_dial"
             android:visibility="visible" />
 
         <TextClock
@@ -34,14 +33,14 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <!-- Date & Tamil Details Right -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="10dp"
-        android:gravity="center_vertical">
+        android:gravity="end|center_vertical"
+        android:layout_marginStart="8dp">
 
+        <!-- 6. Text wrap ஆகாமல் இருக்க dd - MM - yy -->
         <TextView
             android:id="@+id/tv_widget_greg_date"
             android:layout_width="wrap_content"
@@ -49,7 +48,8 @@
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:text="01: 11: 2026" />
+            android:singleLine="true"
+            android:text="08 - 11 - 26" />
 
         <TextView
             android:id="@+id/tv_widget_tamil_date"
@@ -59,6 +59,7 @@
             android:textColor="#FFDF00"
             android:textSize="13sp"
             android:textStyle="bold"
-            android:text="ஐப்பசி 15" />
+            android:singleLine="true"
+            android:text="ஐப்பசி 22" />
     </LinearLayout>
 </LinearLayout>
