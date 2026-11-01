@@ -28,7 +28,8 @@ class CalendarMonthAdapter(
 ) : RecyclerView.Adapter<CalendarMonthAdapter.DayViewHolder>() {
 
     private val dayList = mutableListOf<MonthDayModel?>()
-    private var isClassicMode: Boolean = false
+    // Default to true so Tamil dates are visible immediately upon opening
+    private var isClassicMode: Boolean = true
 
     fun setClassicMode(enabled: Boolean) {
         if (this.isClassicMode != enabled) {
@@ -64,7 +65,14 @@ class CalendarMonthAdapter(
             val dateKey = ymdFormat.format(workCal.time)
             val info = dbHelper.getDayDetails(dateKey)
 
-            val tamilText = if (info != null) "${info.tamilMonth} ${info.tamilDay}" else ""
+            val tamilText = if (info != null && info.tamilMonth.isNotEmpty()) {
+                "${info.tamilMonth} ${info.tamilDay}"
+            } else if (info != null && info.tamilDay > 0) {
+                "${info.tamilDay}"
+            } else {
+                ""
+            }
+
             val badge = when {
                 info?.tithi?.contains("அமாவாசை") == true -> "அமா"
                 info?.tithi?.contains("பௌர்ணமி") == true -> "பௌ"
@@ -129,7 +137,6 @@ class CalendarMonthAdapter(
 
             itemView.visibility = View.VISIBLE
 
-            // Click listener works in BOTH simple and classic modes
             itemView.setOnClickListener {
                 onSelect(model.dateKey)
             }
@@ -150,7 +157,6 @@ class CalendarMonthAdapter(
 
                 tvClassicExtra.text = model.extraNote
 
-                // Styling for selected and today's date
                 when {
                     model.isSelected -> {
                         card.strokeColor = Color.parseColor("#5D0A14")
