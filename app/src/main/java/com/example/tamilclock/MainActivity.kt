@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         viewPager = findViewById(R.id.view_pager_main)
 
         pagerAdapter = MainPagerAdapter(
+            dbHelper = dbHelper,
             onPrevDayClick = {
                 selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
                 displayedMonthCalendar.time = selectedCalendar.time
