@@ -6,40 +6,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:padding="12dp"
+    android:padding="10dp"
     android:background="@drawable/widget_surface_bg">
 
-    <!-- Horizontally Centered Clock Dial Area with Date & Day Inside -->
+    <!-- 9. பெரிய கடிகார டயல் (220dp) -->
     <RelativeLayout
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp">
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center_horizontal">
 
         <AnalogClock
             android:id="@+id/analog_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:dial="@drawable/classic_clock_dial"
             android:visibility="visible" />
 
+        <!-- பெரிய டிஜிட்டல் கடிகாரம் -->
         <TextClock
             android:id="@+id/digital_clock"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="50dp"
             android:gravity="center"
             android:format12Hour="hh:mm:ss a"
             android:format24Hour="HH:mm:ss"
             android:textColor="#FFDF00"
-            android:textSize="20sp"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:visibility="gone" />
 
-        <!-- Date & Day Inside Dial -->
+        <!-- 11. டயலின் மையப்புள்ளிக்குக் கீழ் (bottom half) தேதி & கிழமை -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="35dp"
             android:orientation="vertical"
             android:gravity="center">
 
@@ -47,39 +51,38 @@
                 android:id="@+id/tv_widget_dial_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textColor="#1E1E24"
+                android:textSize="12.5sp"
                 android:textStyle="bold"
-                android:shadowColor="#000000"
+                android:shadowColor="#FFFFFF"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"
-                android:text="01: 11: 2026" />
+                android:shadowRadius="1"
+                android:text="08: 11: 2026" />
 
             <TextView
                 android:id="@+id/tv_widget_dial_weekday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#FFDF00"
+                android:textColor="#800000"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:shadowColor="#000000"
+                android:shadowColor="#FFFFFF"
                 android:shadowDx="1"
                 android:shadowDy="1"
-                android:shadowRadius="2"
+                android:shadowRadius="1"
                 android:text="Sunday" />
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- Bottom Container Below Clock -->
+    <!-- கடிகாரத்திற்கு கீழே உள்ள வரிகள் -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:paddingTop="2dp">
+        android:layout_marginTop="6dp">
 
-        <!-- Bottom Row 1: Tamil month + tamil date + paksham + Thithi + timing -->
         <TextView
             android:id="@+id/tv_widget_4x4_row1"
             android:layout_width="wrap_content"
@@ -87,11 +90,9 @@
             android:gravity="center"
             android:singleLine="true"
             android:textColor="#FFDF00"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:text="ஐப்பசி 15 • கிருஷ்ண பக்ஷம் • சப்தமி 19:24" />
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
 
-        <!-- Bottom Row 2: nakshatra + timing + Aspecius time ந.நே : + timing -->
         <TextView
             android:id="@+id/tv_widget_4x4_row2"
             android:layout_width="wrap_content"
@@ -100,7 +101,6 @@
             android:gravity="center"
             android:singleLine="true"
             android:textColor="#E0E0E0"
-            android:textSize="11sp"
-            android:text="புனர்பூசம் 10:37 | ந.நே : 07:45 - 08:45" />
+            android:textSize="11.5sp" />
     </LinearLayout>
 </LinearLayout>
