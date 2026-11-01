@@ -24,7 +24,8 @@ object WidgetUpdateHelper {
         )
     }
 
-    private fun applyClockStyle(views: RemoteViews, context: Context) {
+    private fun applyStyleAndBackground(views: RemoteViews, context: Context) {
+        // 1. Clock style (Analog vs Digital)
         val clockStyle = ThemeManager.getClockStyle(context)
         if (clockStyle == ThemeManager.CLOCK_DIGITAL) {
             views.setViewVisibility(R.id.analog_clock, View.GONE)
@@ -33,6 +34,10 @@ object WidgetUpdateHelper {
             views.setViewVisibility(R.id.analog_clock, View.VISIBLE)
             views.setViewVisibility(R.id.digital_clock, View.GONE)
         }
+
+        // 2. Dynamic Opacity Background
+        val bgColor = ThemeManager.getWidgetBackgroundColor(context)
+        views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
     }
 
     fun update2x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -45,7 +50,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_2x1)
-            applyClockStyle(views, context)
+            applyStyleAndBackground(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_greg_date, gregDate)
@@ -65,7 +70,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x1)
-            applyClockStyle(views, context)
+            applyStyleAndBackground(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_greg_date_weekday, gregWeekday)
@@ -86,7 +91,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x2)
-            applyClockStyle(views, context)
+            applyStyleAndBackground(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_row1, gregWeekday)
@@ -116,7 +121,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
-            applyClockStyle(views, context)
+            applyStyleAndBackground(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_dial_date, gregDate)
