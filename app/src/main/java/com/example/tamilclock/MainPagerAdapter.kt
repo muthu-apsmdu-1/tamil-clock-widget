@@ -362,34 +362,50 @@ class MainPagerAdapter(
     // 3. HORAI VIEW HOLDER
     // =========================================================================
     class HoraiViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val container: LinearLayout? = itemView.findViewById(R.id.container_horai_list)
+        private val tvHeader: TextView? = itemView.findViewById(R.id.tv_horai_day_header)
+
         fun bind(weekdayTa: String) {
-            val container = itemView.findViewById<LinearLayout?>(R.id.container_horai_list)
+            tvHeader?.text = "$weekdayTa ஹோரை நேரங்கள் (சூரிய உதயம் முதல்)"
             if (container != null) {
                 container.removeAllViews()
                 val horais = listOf(
-                    "06:00 - 07:00" to "சூரியன்",
-                    "07:00 - 08:00" to "சுக்கிரன்",
-                    "08:00 - 09:00" to "புதன்",
-                    "09:00 - 10:00" to "சந்திரன்",
-                    "10:00 - 11:00" to "சனி",
-                    "11:00 - 12:00" to "குரு",
-                    "12:00 - 01:00" to "செவ்வாய்",
-                    "01:00 - 02:00" to "சூரியன்",
-                    "02:00 - 03:00" to "சுக்கிரன்",
-                    "03:00 - 04:00" to "புதன்",
-                    "04:00 - 05:00" to "சந்திரன்",
-                    "05:00 - 06:00" to "சனி"
+                    "காலை 06:00 - 07:00" to "சூரியன்",
+                    "காலை 07:00 - 08:00" to "சுக்கிரன்",
+                    "காலை 08:00 - 09:00" to "புதன்",
+                    "காலை 09:00 - 10:00" to "சந்திரன்",
+                    "காலை 10:00 - 11:00" to "சனி",
+                    "காலை 11:00 - 12:00" to "குரு",
+                    "மதியம் 12:00 - 01:00" to "செவ்வாய்",
+                    "மதியம் 01:00 - 02:00" to "சூரியன்",
+                    "மதியம் 02:00 - 03:00" to "சுக்கிரன்",
+                    "மாலை 03:00 - 04:00" to "புதன்",
+                    "மாலை 04:00 - 05:00" to "சந்திரன்",
+                    "மாலை 05:00 - 06:00" to "சனி"
                 )
                 for ((time, planet) in horais) {
-                    val tv = TextView(itemView.context).apply {
-                        text = "$time   •   $planet ஹோரை"
-                        textSize = 13.5f
-                        setTextColor(Color.WHITE)
-                        setPadding(16, 12, 16, 12)
+                    val row = LinearLayout(itemView.context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        setPadding(12, 10, 12, 10)
                     }
-                    container.addView(tv)
+                    val tvTime = TextView(itemView.context).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.3f)
+                        text = time
+                        setTextColor(Color.parseColor("#E0E0E0"))
+                        textSize = 13f
+                    }
+                    val tvPlanet = TextView(itemView.context).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        text = "$planet ஹோரை"
+                        gravity = android.view.Gravity.END
+                        setTextColor(Color.parseColor("#FFDF00"))
+                        textSize = 13.5f
+                        paint.isFakeBoldText = true
+                    }
+                    row.addView(tvTime)
+                    row.addView(tvPlanet)
+                    container.addView(row)
                 }
             }
         }
     }
-}
