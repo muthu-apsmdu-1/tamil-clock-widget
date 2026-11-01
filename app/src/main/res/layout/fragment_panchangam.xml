@@ -16,9 +16,7 @@
         android:paddingTop="10dp"
         android:paddingBottom="24dp">
 
-        <!-- ========================================== -->
-        <!-- 1. TOP CRIMSON DATE NAVIGATOR CARD         -->
-        <!-- ========================================== -->
+        <!-- 1. TOP CRIMSON DATE NAVIGATOR CARD -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_header_date"
             android:layout_width="match_parent"
@@ -33,7 +31,6 @@
                 android:paddingVertical="14dp"
                 android:paddingHorizontal="12dp">
 
-                <!-- Previous Day Button (<) -->
                 <ImageButton
                     android:id="@+id/btn_prev_day"
                     android:layout_width="40dp"
@@ -45,7 +42,6 @@
                     android:src="@drawable/ic_nav_circle_prev"
                     android:contentDescription="முந்தைய நாள்" />
 
-                <!-- Center Date Details -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -53,7 +49,6 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <!-- Line 1: Gregorian Date & Day (e.g., 29 - 10 - 2026 வியாழன்) -->
                     <TextView
                         android:id="@+id/tv_gregorian_header"
                         android:layout_width="wrap_content"
@@ -63,7 +58,6 @@
                         android:textStyle="bold"
                         tools:text="29 - 10 - 2026 வியாழன்" />
 
-                    <!-- Line 2: Tamil Year - Month Date (e.g., பராபவ - ஐப்பசி 12) -->
                     <TextView
                         android:id="@+id/tv_tamil_date_full"
                         android:layout_width="wrap_content"
@@ -75,7 +69,6 @@
                         tools:text="பராபவ - ஐப்பசி 12" />
                 </LinearLayout>
 
-                <!-- Next Day Button (>) -->
                 <ImageButton
                     android:id="@+id/btn_next_day"
                     android:layout_width="40dp"
@@ -90,9 +83,7 @@
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ========================================== -->
-        <!-- 2. FESTIVAL / EVENT BADGE (Visible if set) -->
-        <!-- ========================================== -->
+        <!-- 2. FESTIVAL / EVENT BADGE -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_festival_badge"
             android:layout_width="match_parent"
@@ -119,16 +110,13 @@
                 tools:text="🎉 சங்கடஹர சதுர்த்தி" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ========================================== -->
-        <!-- 3. DUAL CARDS: SUN & MOON TIMES            -->
-        <!-- ========================================== -->
+        <!-- 3. DUAL CARDS: SUN & MOON TIMES -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="10dp">
 
-            <!-- Sun Card (Left) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -187,7 +175,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Moon Card (Right) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -247,9 +234,7 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- ======================================================== -->
-        <!-- 4. EXPANDABLE / COLLAPSIBLE PANCHANGAM CARD              -->
-        <!-- ======================================================== -->
+        <!-- 4. EXPANDABLE / COLLAPSIBLE PANCHANGAM CARD -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_panchangam"
             android:layout_width="match_parent"
@@ -267,7 +252,6 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <!-- Header Row: Title & Toggle Button -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -293,7 +277,7 @@
                         android:src="@drawable/ic_fullscreen" />
                 </RelativeLayout>
 
-                <!-- 4A. COMPACT VIEW (Paragraph Style) -->
+                <!-- Compact View -->
                 <LinearLayout
                     android:id="@+id/layout_compact_view"
                     android:layout_width="match_parent"
@@ -309,10 +293,10 @@
                         android:lineSpacingExtra="4dp"
                         android:textColor="#263238"
                         android:textSize="14sp"
-                        tools:text="நட்சத்திரம் : ரோகிணி - 15:27 வரை, திதி : சதுர்த்தி - 02:21* வரை, யோகம் : பரிகம் - 03:02* வரை, கரணம் : பவ - 15:07 வரை, தியாஜ்யம் : 07:58." />
+                        tools:text="நட்சத்திரம் : ரோகிணி - 15:27 வரை, திதி : சதுர்த்தி - 02:21* வரை..." />
                 </LinearLayout>
 
-                <!-- 4B. EXPANDED VIEW (List Item Style) -->
+                <!-- Expanded View -->
                 <LinearLayout
                     android:id="@+id/layout_expanded_view"
                     android:layout_width="match_parent"
@@ -389,9 +373,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ========================================== -->
-        <!-- 5. AUSPICIOUS TIMINGS (சுப நேரங்கள் Card) -->
-        <!-- ========================================== -->
+        <!-- 5. AUSPICIOUS TIMINGS -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -436,9 +418,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ========================================== -->
-        <!-- 6. INAUSPICIOUS TIMINGS (அசுப நேரங்கள்)    -->
-        <!-- ========================================== -->
+        <!-- 6. INAUSPICIOUS TIMINGS -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -468,4 +448,40 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:
+                    android:textColor="#C62828"
+                    android:textSize="14sp"
+                    tools:text="இராகு காலம்: 01:30 - 03:00" />
+
+                <TextView
+                    android:id="@+id/tv_yamagandam_val"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#C62828"
+                    android:textSize="14sp"
+                    tools:text="எமகண்டம்: 06:00 - 07:30" />
+
+                <TextView
+                    android:id="@+id/tv_kuligai_val"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#C62828"
+                    android:textSize="14sp"
+                    tools:text="குளிகை: 09:00 - 10:30" />
+
+                <TextView
+                    android:id="@+id/tv_tyajyam_val"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#C62828"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    tools:text="தியாஜ்யம்: 07:58"
+                    tools:visibility="visible" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
