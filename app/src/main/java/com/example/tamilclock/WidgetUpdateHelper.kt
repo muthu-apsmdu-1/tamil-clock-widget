@@ -4,6 +4,8 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.view.View
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
@@ -24,8 +26,8 @@ object WidgetUpdateHelper {
         )
     }
 
+    // 12. சரியான ColorFilter மற்றும் Clock Style அப்ளை செய்யும் முறை
     private fun applyStyleAndBackground(views: RemoteViews, context: Context) {
-        // 1. Clock style (Analog vs Digital)
         val clockStyle = ThemeManager.getClockStyle(context)
         if (clockStyle == ThemeManager.CLOCK_DIGITAL) {
             views.setViewVisibility(R.id.analog_clock, View.GONE)
@@ -35,15 +37,19 @@ object WidgetUpdateHelper {
             views.setViewVisibility(R.id.digital_clock, View.GONE)
         }
 
-        // 2. Dynamic Opacity Background
-        val bgColor = ThemeManager.getWidgetBackgroundColor(context)
-        views.setInt(R.id.widget_root, "setBackgroundColor", bgColor)
+        // விட்ஜெட் வெளிப்படைத்தன்மை நிறம் (Opacity Color Filter)
+        val opacity = ThemeManager.getWidgetOpacity(context)
+        val alpha = (opacity * 255 / 100).coerceIn(0, 255)
+        val tintColor = Color.argb(alpha, 0x1E, 0x1E, 0x24)
+
+        views.setInt(R.id.widget_root, "setColorFilter", tintColor)
+        views.setInt(R.id.widget_root, "setImageAlpha", alpha)
     }
 
     fun update2x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
-        val gregDate = SimpleDateFormat("dd: MM: yyyy", Locale.ENGLISH).format(cal.time)
+        val gregDate = SimpleDateFormat("dd - MM - yy", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
         val data = dbHelper.getDayDetails(queryDate)
@@ -95,7 +101,6 @@ object WidgetUpdateHelper {
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_row1, gregWeekday)
-
             val pakshaStr = if (data.paksham.isNotEmpty()) " • ${data.paksham}" else ""
             views.setTextViewText(R.id.tv_widget_row2, "${data.tamilMonth} ${data.tamilDay}$pakshaStr")
 
