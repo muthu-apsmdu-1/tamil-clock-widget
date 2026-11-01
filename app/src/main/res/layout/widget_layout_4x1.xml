@@ -11,8 +11,9 @@
 
     <!-- Clock Container (1x1) Left -->
     <FrameLayout
-        android:layout_width="72dp"
-        android:layout_height="72dp">
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_vertical">
 
         <AnalogClock
             android:id="@+id/analog_clock"
@@ -26,7 +27,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:format12Hour="hh:mm a"
-            android:format23Hour="HH:mm"
+            android:format24Hour="HH:mm"
             android:textColor="#FFDF00"
             android:textSize="15sp"
             android:textStyle="bold"
@@ -41,7 +42,6 @@
         android:layout_marginStart="12dp"
         android:gravity="center_vertical">
 
-        <!-- Top Right: dd: mm: yyyy + weekday in english -->
         <TextView
             android:id="@+id/tv_widget_greg_date_weekday"
             android:layout_width="wrap_content"
@@ -52,7 +52,6 @@
             android:singleLine="true"
             android:text="01: 11: 2026 Sunday" />
 
-        <!-- Bottom Right: Tamil month + tamil date + thithi -->
         <TextView
             android:id="@+id/tv_widget_tamil_month_date_tithi"
             android:layout_width="wrap_content"
