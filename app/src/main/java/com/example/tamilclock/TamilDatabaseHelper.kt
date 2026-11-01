@@ -42,7 +42,9 @@ data class TamilDateInfo(
     val festivalsEvents: String = "",
     val soolam: String = "",
     val parikaram: String = "",
-    val amritadiYoga: String = ""
+    val amritadiYoga: String = "",
+    val chandrashtamamRasi: String = "",
+    val rasiPalanMap: Map<String, String> = emptyMap()
 )
 
 data class WeekdayTiming(
@@ -62,12 +64,13 @@ data class SunMoonTiming(
     val moonset: String = ""
 )
 
-class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 4) {
+class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 5) {
 
     companion object {
         const val DB_PAN = "panchang_clcon.db"
         const val DB_AUSPICIOUS = "auspicious_periods.db"
         const val DB_SUN_MOON = "sun_moon_timings.db"
+        const val DB_RASIPALAN = "rasipalan_daily.db"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {}
@@ -79,12 +82,14 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         copyDatabase(DB_PAN, false)
         copyDatabase(DB_AUSPICIOUS, false)
         copyDatabase(DB_SUN_MOON, false)
+        copyDatabase(DB_RASIPALAN, false)
     }
 
     private fun copyAllDatabases(force: Boolean) {
         copyDatabase(DB_PAN, force)
         copyDatabase(DB_AUSPICIOUS, force)
         copyDatabase(DB_SUN_MOON, force)
+        copyDatabase(DB_RASIPALAN, force)
     }
 
     private fun copyDatabase(dbName: String, force: Boolean) {
@@ -131,7 +136,7 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                        weekday_ta, paksha, tithi_name, tithi_time, 
                        nakshatra_name, nakshatra_time, yoga_name, yoga_time, 
                        karana_name, karana_time, tyajyam_time, festivals_events,
-                       soolam, parikaram, amritadi_yoga
+                       chandrashtaman_rasi, soolam, parikaram, amritadi_yoga
                 FROM panchangam_daily 
                 WHERE gregorian_date = ? LIMIT 1
                 """.trimIndent(),
@@ -164,12 +169,14 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                 val karanaTime = getSafeString("karana_time")
                 val tyajyam = getSafeString("tyajyam_time")
                 val festivals = getSafeString("festivals_events")
+                val chandrashtamam = getSafeString("chandrashtaman_rasi")
                 val soolam = getSafeString("soolam")
                 val parikaram = getSafeString("parikaram")
                 val amritadiYoga = getSafeString("amritadi_yoga")
 
                 val timings = getWeekdayTimingSummary(weekdayTa)
                 val sunMoon = getSunMoonTiming(dateStr)
+                val rasiPalan = getDailyRasiPalan(dateStr)
 
                 val nnMorning = timings.nallaNeramMorning
                 val nnEvening = timings.nallaNeramEvening
@@ -212,7 +219,9 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                     festivalsEvents = festivals,
                     soolam = soolam,
                     parikaram = parikaram,
-                    amritadiYoga = amritadiYoga
+                    amritadiYoga = amritadiYoga,
+                    chandrashtamamRasi = chandrashtamam,
+                    rasiPalanMap = rasiPalan
                 )
             }
         } catch (_: Exception) {
@@ -221,6 +230,45 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
             try { panDb?.close() } catch (_: Exception) {}
         }
         return result
+    }
+
+    private fun getDailyRasiPalan(dateStr: String): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        var db: SQLiteDatabase? = null
+        var cursor: Cursor? = null
+        try {
+            db = openDatabase(DB_RASIPALAN)
+            if (db != null) {
+                cursor = db.rawQuery(
+                    """
+                    SELECT mesham, rishabam, mithunam, katakam, simmam, kanni,
+                           thulaam, viruchigam, dhanusu, makaram, kumbam, meenam
+                    FROM rasipalan_daily
+                    WHERE gregorian_date = ? LIMIT 1
+                    """.trimIndent(),
+                    arrayOf(dateStr)
+                )
+                if (cursor.moveToFirst()) {
+                    map["mesham"] = cursor.getString(0) ?: ""
+                    map["rishabam"] = cursor.getString(1) ?: ""
+                    map["mithunam"] = cursor.getString(2) ?: ""
+                    map["kadagam"] = cursor.getString(3) ?: ""
+                    map["simmam"] = cursor.getString(4) ?: ""
+                    map["kanni"] = cursor.getString(5) ?: ""
+                    map["thulaam"] = cursor.getString(6) ?: ""
+                    map["viruchigam"] = cursor.getString(7) ?: ""
+                    map["dhanusu"] = cursor.getString(8) ?: ""
+                    map["magaram"] = cursor.getString(9) ?: ""
+                    map["kumbam"] = cursor.getString(10) ?: ""
+                    map["meenam"] = cursor.getString(11) ?: ""
+                }
+            }
+        } catch (_: Exception) {
+        } finally {
+            try { cursor?.close() } catch (_: Exception) {}
+            try { db?.close() } catch (_: Exception) {}
+        }
+        return map
     }
 
     private fun getWeekdayTimingSummary(weekdayTa: String): WeekdayTiming {
