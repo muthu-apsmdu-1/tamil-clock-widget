@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@drawable/bg_widget_card">
+    android:background="#24242C"
+    android:padding="20dp">
 
-    <!-- Drag Handle -->
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="#D1D1D6" />
+        android:background="#888888" />
 
-    <!-- Sheet Title -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="பின்னணி நிற அமைப்பு"
+        android:textColor="#FFDF00"
         android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#5D0A14"
-        android:layout_marginBottom="16dp" />
+        android:textStyle="bold" />
 
-    <!-- Theme 1: Classic White -->
+    <!-- 1. White Theme -->
     <LinearLayout
         android:id="@+id/option_theme_white"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="?android:attr/selectableItemBackground"
-        android:paddingHorizontal="12dp">
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground">
 
         <View
             android:layout_width="28dp"
@@ -41,74 +38,68 @@
             android:background="#FFFFFF" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
             android:text="தூய வெள்ளை (Classic White)"
-            android:textSize="16sp"
-            android:textColor="#1C1C1E" />
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
     </LinearLayout>
 
-    <!-- Theme 2: Sandalwood Yellow -->
+    <!-- 2. Yellow Theme -->
     <LinearLayout
         android:id="@+id/option_theme_yellow"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="?android:attr/selectableItemBackground"
-        android:paddingHorizontal="12dp">
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground">
 
         <View
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:background="#FAF3E0" />
+            android:background="#FFF9E6" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="சந்தன மஞ்சள் (Warm Yellow)"
-            android:textSize="16sp"
-            android:textColor="#1C1C1E" />
+            android:text="மங்கள மஞ்சள் (Warm Yellow)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
     </LinearLayout>
 
-    <!-- Theme 3: Light Green -->
+    <!-- 3. Green Theme -->
     <LinearLayout
         android:id="@+id/option_theme_green"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="?android:attr/selectableItemBackground"
-        android:paddingHorizontal="12dp">
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground">
 
         <View
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:background="#EBF3ED" />
+            android:background="#E8F5E9" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="மென் பச்சை (Temple Green)"
-            android:textSize="16sp"
-            android:textColor="#1C1C1E" />
+            android:text="மென் பச்சை (Soft Green)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
     </LinearLayout>
 
-    <!-- Theme 4: Charcoal Dark -->
+    <!-- 4. Charcoal Theme -->
     <LinearLayout
         android:id="@+id/option_theme_charcoal"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="?android:attr/selectableItemBackground"
-        android:paddingHorizontal="12dp">
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground">
 
         <View
             android:layout_width="28dp"
@@ -116,13 +107,12 @@
             android:background="#1E1E24" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="கரிவண்ணம் (Charcoal Dark)"
-            android:textSize="16sp"
-            android:textColor="#1C1C1E" />
+            android:text="கரிம கருப்பு (Charcoal Dark)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
     </LinearLayout>
 
 </LinearLayout>
