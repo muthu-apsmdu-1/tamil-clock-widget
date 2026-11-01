@@ -4,14 +4,13 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 
 data class TamilDateInfo(
     val gregorianDate: String = "",
-    val tamilYear: String = "பராபவ",
+    val tamilYear: String = "",
     val dayName: String = "",
     val dayNameTa: String = "",
     val tamilMonth: String = "",
@@ -48,29 +47,42 @@ data class TamilDateInfo(
 )
 
 data class WeekdayTiming(
-    val nallaNeramMorning: String = "07:30 - 08:30",
-    val nallaNeramEvening: String = "03:30 - 04:30",
-    val gowriDay: String = "10:30 - 11:30",
-    val gowriNight: String = "07:30 - 08:30",
-    val rahuKalam: String = "04:30 - 06:00",
-    val yamaGandam: String = "12:00 - 01:30",
-    val kuligai: String = "03:00 - 04:30"
+    val nallaNeramMorning: String = "",
+    val nallaNeramEvening: String = "",
+    val gowriDay: String = "",
+    val gowriNight: String = "",
+    val rahuKalam: String = "",
+    val yamaGandam: String = "",
+    val kuligai: String = ""
 )
 
 data class SunMoonTiming(
-    val sunrise: String = "06:08 AM",
-    val sunset: String = "05:55 PM",
-    val moonrise: String = "08:56 PM",
-    val moonset: String = "09:06 AM"
+    val sunrise: String = "",
+    val sunset: String = "",
+    val moonrise: String = "",
+    val moonset: String = ""
 )
 
-class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 6) {
+data class GowriSlotItem(
+    val timeSlot: String,
+    val gowriName: String,
+    val isGood: Boolean
+)
+
+data class HoraiSlotItem(
+    val timeSlot: String,
+    val planetName: String
+)
+
+class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, "panchang_clcon.db", null, 7) {
 
     companion object {
         const val DB_PAN = "panchang_clcon.db"
         const val DB_AUSPICIOUS = "auspicious_periods.db"
         const val DB_SUN_MOON = "sun_moon_timings.db"
         const val DB_RASIPALAN = "rasipalan_daily.db"
+        const val DB_GOWRI = "gowri.db"
+        const val DB_HORAI = "horai.db"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {}
@@ -87,6 +99,8 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         copyDatabase(DB_AUSPICIOUS, force)
         copyDatabase(DB_SUN_MOON, force)
         copyDatabase(DB_RASIPALAN, force)
+        copyDatabase(DB_GOWRI, force)
+        copyDatabase(DB_HORAI, force)
     }
 
     private fun copyDatabase(dbName: String, force: Boolean) {
@@ -122,29 +136,30 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         }
     }
 
+    // 1. PANCHANGAM & DAILY DATA
     fun getDayDetails(dateStr: String): TamilDateInfo {
         var panDb: SQLiteDatabase? = null
         var panCursor: Cursor? = null
 
-        var tamilYear = "பராபவ"
-        var weekdayTa = "ஞாயிறு"
-        var tamilMonth = "ஐப்பசி"
-        var tamilDate = 15
-        var paksha = "கிருஷ்ண பக்ஷம்"
-        var tithi = "சப்தமி"
-        var tithiTime = "19:24"
-        var nakshatra = "புனர்பூசம்"
-        var nakshatraTime = "10:37"
-        var yoga = "சாத்தியம்"
-        var yogaTime = "19:48"
-        var karana = "பத்திரை"
-        var karanaTime = "08:28"
-        var tyajyam = "18:09"
+        var tamilYear = ""
+        var weekdayTa = ""
+        var tamilMonth = ""
+        var tamilDate = 1
+        var paksha = ""
+        var tithi = ""
+        var tithiTime = ""
+        var nakshatra = ""
+        var nakshatraTime = ""
+        var yoga = ""
+        var yogaTime = ""
+        var karana = ""
+        var karanaTime = ""
+        var tyajyam = ""
         var festivals = ""
         var chandrashtamam = ""
-        var soolam = "மேற்கு"
-        var parikaram = "வெல்லம்"
-        var amritadiYoga = "சித்த யோகம்"
+        var soolam = ""
+        var parikaram = ""
+        var amritadiYoga = ""
 
         try {
             panDb = openDatabase(DB_PAN)
@@ -176,10 +191,10 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                         return defaultVal
                     }
 
-                    tamilYear = getCol("tamil_year").ifEmpty { "பராபவ" }
+                    tamilYear = getCol("tamil_year")
                     weekdayTa = getCol("weekday_ta")
                     tamilMonth = getCol("tamil_month")
-                    tamilDate = getIntCol("tamil_date", defaultVal = 15)
+                    tamilDate = getIntCol("tamil_date", defaultVal = 1)
                     paksha = getCol("paksha")
                     tithi = getCol("tithi_name", "tithi")
                     tithiTime = getCol("tithi_time", "tithi_nazhikai")
@@ -192,9 +207,9 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                     tyajyam = getCol("tyajyam_time", "tyajyam_nazhikai")
                     festivals = getCol("festivals_events", "festivals")
                     chandrashtamam = getCol("chandrashtaman_rasi", "chandrashtamam_rasi", "chandrashtama_rasi")
-                    soolam = getCol("soolam").ifEmpty { "மேற்கு" }
-                    parikaram = getCol("parikaram").ifEmpty { "வெல்லம்" }
-                    amritadiYoga = getCol("amritadi_yoga").ifEmpty { "சித்த யோகம்" }
+                    soolam = getCol("soolam")
+                    parikaram = getCol("parikaram")
+                    amritadiYoga = getCol("amritadi_yoga")
                 }
             }
         } catch (_: Exception) {
@@ -254,34 +269,44 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         )
     }
 
-    private fun getDailyRasiPalan(dateStr: String): Map<String, String> {
-        val map = mutableMapOf<String, String>()
+    // 2. GOWRI PANCHANGAM (Queried 100% from gowri.db)
+    fun getGowriPanchangam(weekdayTa: String): Pair<List<GowriSlotItem>, List<GowriSlotItem>> {
+        val dayList = mutableListOf<GowriSlotItem>()
+        val nightList = mutableListOf<GowriSlotItem>()
+
         var db: SQLiteDatabase? = null
         var cursor: Cursor? = null
+
         try {
-            db = openDatabase(DB_RASIPALAN)
+            db = openDatabase(DB_GOWRI)
             if (db != null) {
-                cursor = db.rawQuery(
-                    "SELECT * FROM rasipalan_daily WHERE gregorian_date = ? LIMIT 1",
-                    arrayOf(dateStr)
-                )
-                if (cursor.moveToFirst()) {
-                    fun getRasi(col: String, fallback: String): String {
-                        val idx = cursor.getColumnIndex(col)
-                        return if (idx >= 0 && !cursor.isNull(idx)) cursor.getString(idx).trim() else fallback
+                // Find table name dynamically
+                val tableCur = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1", null)
+                val tableName = if (tableCur.moveToFirst()) tableCur.getString(0) else ""
+                tableCur.close()
+
+                if (tableName.isNotEmpty()) {
+                    cursor = db.rawQuery("SELECT * FROM $tableName WHERE weekday_ta = ? OR weekday = ?", arrayOf(weekdayTa, weekdayTa))
+                    
+                    val periodCol = cursor.getColumnIndex("period")
+                    val timeCol = cursor.getColumnIndex("time_slot")
+                    val nameCol = cursor.getColumnIndex("gowri_name")
+                    val typeCol = cursor.getColumnIndex("status_type")
+
+                    while (cursor.moveToNext()) {
+                        val period = if (periodCol >= 0) cursor.getString(periodCol) else ""
+                        val slot = if (timeCol >= 0) cursor.getString(timeCol) else ""
+                        val name = if (nameCol >= 0) cursor.getString(nameCol) else ""
+                        val status = if (typeCol >= 0) cursor.getString(typeCol) else ""
+                        val isGood = status.contains("GOOD", ignoreCase = true) || name in listOf("அமிர்தம்", "சுபம்", "லாபம்", "தனம்", "உத்தி")
+
+                        val item = GowriSlotItem(slot, name, isGood)
+                        if (period.contains("NIGHT", ignoreCase = true) || period.contains("இரவு")) {
+                            nightList.add(item)
+                        } else {
+                            dayList.add(item)
+                        }
                     }
-                    map["mesham"] = getRasi("mesham", "உற்சாகம்")
-                    map["rishabam"] = getRasi("rishabam", "இன்பம்")
-                    map["mithunam"] = getRasi("mithunam", "பொறுமை")
-                    map["kadagam"] = getRasi("katakam", "சுகம்").ifEmpty { getRasi("kadagam", "சுகம்") }
-                    map["simmam"] = getRasi("simmam", "பக்தி")
-                    map["kanni"] = getRasi("kanni", "ஆக்கம்")
-                    map["thulaam"] = getRasi("thulaam", "முயற்சி")
-                    map["viruchigam"] = getRasi("viruchigam", "வரவு")
-                    map["dhanusu"] = getRasi("dhanusu", "சாந்தம்")
-                    map["magaram"] = getRasi("makaram", "மேன்மை").ifEmpty { getRasi("magaram", "மேன்மை") }
-                    map["kumbam"] = getRasi("kumbam", "தனம்")
-                    map["meenam"] = getRasi("meenam", "புகழ்")
                 }
             }
         } catch (_: Exception) {
@@ -289,23 +314,50 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
             try { cursor?.close() } catch (_: Exception) {}
             try { db?.close() } catch (_: Exception) {}
         }
-        return map
+
+        return Pair(dayList, nightList)
     }
 
-    private fun getWeekdayTimingSummary(weekdayTa: String): WeekdayTiming {
-        val staticMap = mapOf(
-            "ஞாயிறு" to WeekdayTiming("07:30 - 08:30", "03:30 - 04:30", "10:30 - 11:30", "09:30 - 10:30", "04:30 - 06:00", "12:00 - 01:30", "03:00 - 04:30"),
-            "திங்கள்" to WeekdayTiming("06:30 - 07:30", "04:30 - 05:30", "09:30 - 10:30", "07:30 - 08:30", "07:30 - 09:00", "01:30 - 03:00", "12:00 - 01:30"),
-            "செவ்வாய்" to WeekdayTiming("07:30 - 08:30", "04:30 - 05:30", "10:30 - 11:30", "06:30 - 07:30", "03:00 - 04:30", "09:00 - 10:30", "12:00 - 01:30"),
-            "புதன்" to WeekdayTiming("09:15 - 10:15", "04:45 - 05:45", "10:45 - 11:45", "06:30 - 07:30", "12:00 - 01:30", "07:30 - 09:00", "10:30 - 12:00"),
-            "வியாழன்" to WeekdayTiming("10:45 - 11:45", "12:15 - 01:15", "06:30 - 07:30", "08:00 - 09:00", "01:30 - 03:00", "06:00 - 07:30", "09:00 - 10:30"),
-            "வெள்ளி" to WeekdayTiming("09:15 - 10:15", "04:45 - 05:45", "10:45 - 11:45", "08:00 - 09:00", "10:30 - 12:00", "03:00 - 04:30", "07:30 - 09:00"),
-            "சனி" to WeekdayTiming("07:30 - 08:30", "05:00 - 06:00", "10:45 - 11:45", "09:30 - 10:30", "09:00 - 10:30", "01:30 - 03:00", "06:00 - 07:30")
-        )
-
-        var timing = staticMap[weekdayTa] ?: WeekdayTiming()
+    // 3. HORAI TIMINGS (Queried 100% from horai.db)
+    fun getHoraiTimings(weekdayTa: String): List<HoraiSlotItem> {
+        val list = mutableListOf<HoraiSlotItem>()
         var db: SQLiteDatabase? = null
         var cursor: Cursor? = null
+
+        try {
+            db = openDatabase(DB_HORAI)
+            if (db != null) {
+                val tableCur = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' LIMIT 1", null)
+                val tableName = if (tableCur.moveToFirst()) tableCur.getString(0) else ""
+                tableCur.close()
+
+                if (tableName.isNotEmpty()) {
+                    cursor = db.rawQuery("SELECT * FROM $tableName WHERE weekday_ta = ? OR weekday = ?", arrayOf(weekdayTa, weekdayTa))
+                    
+                    val timeCol = cursor.getColumnIndex("time_slot")
+                    val planetCol = cursor.getColumnIndex("planet_name")
+
+                    while (cursor.moveToNext()) {
+                        val slot = if (timeCol >= 0) cursor.getString(timeCol) else ""
+                        val planet = if (planetCol >= 0) cursor.getString(planetCol) else ""
+                        list.add(HoraiSlotItem(slot, planet))
+                    }
+                }
+            }
+        } catch (_: Exception) {
+        } finally {
+            try { cursor?.close() } catch (_: Exception) {}
+            try { db?.close() } catch (_: Exception) {}
+        }
+
+        return list
+    }
+
+    // 4. AUSPICIOUS TIMINGS
+    private fun getWeekdayTimingSummary(weekdayTa: String): WeekdayTiming {
+        var db: SQLiteDatabase? = null
+        var cursor: Cursor? = null
+        var timing = WeekdayTiming()
         try {
             db = openDatabase(DB_AUSPICIOUS)
             if (db != null) {
@@ -322,22 +374,14 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                         return if (s.isNotEmpty() && e.isNotEmpty()) "$s - $e" else ""
                     }
 
-                    val nnM = fmt("nalla_neram_morning_start", "nalla_neram_morning_end")
-                    val nnE = fmt("nalla_neram_evening_start", "nalla_neram_evening_end")
-                    val gd = fmt("gowri_day_start", "gowri_day_end")
-                    val gn = fmt("gowri_night_start", "gowri_night_end")
-                    val rk = fmt("raghu_start", "raghu_end")
-                    val yg = fmt("emagandam_start", "emagandam_end")
-                    val kg = fmt("kuligai_start", "kuligai_end")
-
                     timing = WeekdayTiming(
-                        nallaNeramMorning = nnM.ifEmpty { timing.nallaNeramMorning },
-                        nallaNeramEvening = nnE.ifEmpty { timing.nallaNeramEvening },
-                        gowriDay = gd.ifEmpty { timing.gowriDay },
-                        gowriNight = gn.ifEmpty { timing.gowriNight },
-                        rahuKalam = rk.ifEmpty { timing.rahuKalam },
-                        yamaGandam = yg.ifEmpty { timing.yamaGandam },
-                        kuligai = kg.ifEmpty { timing.kuligai }
+                        nallaNeramMorning = fmt("nalla_neram_morning_start", "nalla_neram_morning_end"),
+                        nallaNeramEvening = fmt("nalla_neram_evening_start", "nalla_neram_evening_end"),
+                        gowriDay = fmt("gowri_day_start", "gowri_day_end"),
+                        gowriNight = fmt("gowri_night_start", "gowri_night_end"),
+                        rahuKalam = fmt("raghu_start", "raghu_end"),
+                        yamaGandam = fmt("emagandam_start", "emagandam_end"),
+                        kuligai = fmt("kuligai_start", "kuligai_end")
                     )
                 }
             }
@@ -349,8 +393,9 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
         return timing
     }
 
+    // 5. SUN & MOON TIMINGS
     private fun getSunMoonTiming(dateStr: String): SunMoonTiming {
-        var timing = SunMoonTiming("06:08 AM", "05:55 PM", "08:56 PM", "09:06 AM")
+        var timing = SunMoonTiming()
         var db: SQLiteDatabase? = null
         var cursor: Cursor? = null
         try {
@@ -362,10 +407,10 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
                 )
                 if (cursor.moveToFirst()) {
                     timing = SunMoonTiming(
-                        sunrise = cursor.getString(0) ?: "06:08 AM",
-                        sunset = cursor.getString(1) ?: "05:55 PM",
-                        moonrise = cursor.getString(2) ?: "08:56 PM",
-                        moonset = cursor.getString(3) ?: "09:06 AM"
+                        sunrise = cursor.getString(0) ?: "",
+                        sunset = cursor.getString(1) ?: "",
+                        moonrise = cursor.getString(2) ?: "",
+                        moonset = cursor.getString(3) ?: ""
                     )
                 }
             }
@@ -375,5 +420,44 @@ class TamilDatabaseHelper(private val context: Context) : SQLiteOpenHelper(conte
             try { db?.close() } catch (_: Exception) {}
         }
         return timing
+    }
+
+    // 6. RASI PALAN
+    private fun getDailyRasiPalan(dateStr: String): Map<String, String> {
+        val map = mutableMapOf<String, String>()
+        var db: SQLiteDatabase? = null
+        var cursor: Cursor? = null
+        try {
+            db = openDatabase(DB_RASIPALAN)
+            if (db != null) {
+                cursor = db.rawQuery(
+                    "SELECT * FROM rasipalan_daily WHERE gregorian_date = ? LIMIT 1",
+                    arrayOf(dateStr)
+                )
+                if (cursor.moveToFirst()) {
+                    fun getRasi(col: String): String {
+                        val idx = cursor.getColumnIndex(col)
+                        return if (idx >= 0 && !cursor.isNull(idx)) cursor.getString(idx).trim() else ""
+                    }
+                    map["mesham"] = getRasi("mesham")
+                    map["rishabam"] = getRasi("rishabam")
+                    map["mithunam"] = getRasi("mithunam")
+                    map["kadagam"] = getRasi("katakam").ifEmpty { getRasi("kadagam") }
+                    map["simmam"] = getRasi("simmam")
+                    map["kanni"] = getRasi("kanni")
+                    map["thulaam"] = getRasi("thulaam")
+                    map["viruchigam"] = getRasi("viruchigam")
+                    map["dhanusu"] = getRasi("dhanusu")
+                    map["magaram"] = getRasi("makaram").ifEmpty { getRasi("magaram") }
+                    map["kumbam"] = getRasi("kumbam")
+                    map["meenam"] = getRasi("meenam")
+                }
+            }
+        } catch (_: Exception) {
+        } finally {
+            try { cursor?.close() } catch (_: Exception) {}
+            try { db?.close() } catch (_: Exception) {}
+        }
+        return map
     }
 }
