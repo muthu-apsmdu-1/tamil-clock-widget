@@ -12,9 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="10dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="24dp">
+        android:paddingHorizontal="8dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="16dp">
 
         <!-- ======================================================== -->
         <!-- 1. APP TITLE BANNER                                      -->
@@ -22,21 +22,21 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            app:cardCornerRadius="20dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="18dp"
             app:cardBackgroundColor="#5D0A14"
             app:strokeColor="#FFDF00"
             app:strokeWidth="1.5dp"
-            app:cardElevation="3dp">
+            app:cardElevation="2dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingVertical="6dp"
+                android:paddingVertical="5dp"
                 android:text="தமிழ் நாட்காட்டி"
                 android:textColor="#FFDF00"
-                android:textSize="20sp"
+                android:textSize="19sp"
                 android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -45,8 +45,8 @@
         <!-- ======================================================== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginBottom="8dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="4dp"
             app:cardCornerRadius="10dp"
             app:cardBackgroundColor="#1A6B75"
             app:strokeColor="#4EB5C2"
@@ -59,7 +59,6 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- 1. Prev Day -->
                 <TextView
                     android:id="@+id/btn_action_prev"
                     android:layout_width="0dp"
@@ -68,13 +67,12 @@
                     android:gravity="center"
                     android:text="❮❮"
                     android:textColor="#FFFFFF"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 2. Date Picker -->
                 <TextView
                     android:id="@+id/btn_action_datepicker"
                     android:layout_width="0dp"
@@ -82,12 +80,11 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="📅"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 3. Month View -->
                 <TextView
                     android:id="@+id/btn_action_menu"
                     android:layout_width="0dp"
@@ -96,13 +93,12 @@
                     android:gravity="center"
                     android:text="☰"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp"
+                    android:textSize="19sp"
                     android:textStyle="bold"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 4. Today -->
                 <TextView
                     android:id="@+id/btn_action_today"
                     android:layout_width="0dp"
@@ -110,12 +106,11 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="🏠"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 5. Horai / Astro -->
                 <TextView
                     android:id="@+id/btn_action_horai"
                     android:layout_width="0dp"
@@ -124,12 +119,11 @@
                     android:gravity="center"
                     android:text="☸"
                     android:textColor="#FFFFFF"
-                    android:textSize="20sp"
+                    android:textSize="19sp"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 6. Settings -->
                 <TextView
                     android:id="@+id/btn_action_settings"
                     android:layout_width="0dp"
@@ -138,12 +132,11 @@
                     android:gravity="center"
                     android:text="⚙"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:background="?attr/selectableItemBackground" />
 
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="#4EB5C2" />
+                <View android:layout_width="1dp" android:layout_height="20dp" android:background="#4EB5C2" />
 
-                <!-- 7. Next Day -->
                 <TextView
                     android:id="@+id/btn_action_next"
                     android:layout_width="0dp"
@@ -152,7 +145,7 @@
                     android:gravity="center"
                     android:text="❯❯"
                     android:textColor="#FFFFFF"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:background="?attr/selectableItemBackground" />
             </LinearLayout>
@@ -164,21 +157,21 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            app:cardCornerRadius="12dp"
+            android:layout_marginBottom="3dp"
+            app:cardCornerRadius="10dp"
             app:cardBackgroundColor="#FFFDF2"
             app:strokeColor="#C5A059"
-            app:strokeWidth="1.5dp"
-            app:cardElevation="2dp">
+            app:strokeWidth="1.2dp"
+            app:cardElevation="1dp">
 
             <TextView
                 android:id="@+id/tv_big_gregorian_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingVertical="4dp"
+                android:paddingVertical="3dp"
                 android:textColor="#1A237E"
-                android:textSize="44sp"
+                android:textSize="40sp"
                 android:textStyle="bold"
                 tools:text="1-1-2027" />
         </com.google.android.material.card.MaterialCardView>
@@ -189,18 +182,18 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardCornerRadius="12dp"
+            android:layout_marginBottom="4dp"
+            app:cardCornerRadius="10dp"
             app:cardBackgroundColor="#FFF8E7"
             app:strokeColor="#C5A059"
-            app:strokeWidth="1.5dp"
-            app:cardElevation="2dp">
+            app:strokeWidth="1.2dp"
+            app:cardElevation="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingVertical="6dp">
+                android:paddingVertical="4dp">
 
                 <!-- Left: Tamil Year & Month -->
                 <LinearLayout
@@ -215,7 +208,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#C2185B"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:text="பராபவ" />
 
@@ -224,12 +217,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#C2185B"
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         tools:text="ஐப்பசி" />
                 </LinearLayout>
 
-                <View android:layout_width="1.5dp" android:layout_height="match_parent" android:background="#D4AF37" />
+                <View android:layout_width="1.2dp" android:layout_height="match_parent" android:background="#D4AF37" />
 
                 <!-- Center: Tamil Date & Weekday -->
                 <LinearLayout
@@ -244,7 +237,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#800000"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         tools:text="15" />
 
@@ -253,12 +246,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#800000"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:text="ஞாயிறு" />
                 </LinearLayout>
 
-                <View android:layout_width="1.5dp" android:layout_height="match_parent" android:background="#D4AF37" />
+                <View android:layout_width="1.2dp" android:layout_height="match_parent" android:background="#D4AF37" />
 
                 <!-- Right: English Month & Weekday -->
                 <LinearLayout
@@ -273,7 +266,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#800000"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:text="November" />
 
@@ -282,7 +275,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#800000"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         tools:text="Sunday" />
                 </LinearLayout>
@@ -303,22 +296,21 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                app:cardCornerRadius="12dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFFDF2"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.5dp"
-                app:cardElevation="2dp">
+                app:strokeWidth="1.2dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp">
+                    android:padding="8dp">
 
                     <ImageButton
                         android:id="@+id/btn_toggle_expand"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentTop="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
@@ -331,9 +323,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_toStartOf="@id/btn_toggle_expand"
-                        android:lineSpacingExtra="3dp"
+                        android:lineSpacingExtra="2dp"
                         android:textColor="#0B2545"
-                        android:textSize="13.5sp"
+                        android:textSize="13sp"
                         tools:text="புனர்பூசம் - 10:37 வரை, திதி : சப்தமி - 19:24 வரை, யோகம் : சித்த யோகம், தியாஜ்யம் : 18:09." />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -343,120 +335,119 @@
                 android:id="@+id/card_simple_chandrashtamam"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                app:cardCornerRadius="10dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="8dp"
                 app:cardBackgroundColor="#FFF3E0"
                 app:strokeColor="#FFB74D"
-                app:strokeWidth="1dp"
-                app:cardElevation="1dp">
+                app:strokeWidth="1dp">
 
                 <TextView
                     android:id="@+id/tv_simple_chandrashtamam"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="6dp"
-                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="8dp"
                     android:gravity="center"
                     android:textColor="#BF360C"
-                    android:textSize="13.5sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    tools:text="சந்திராஷ்டமம் : விருச்சிகம்" />
+                    tools:text="சந்திராஷ்டமம் : தனுசு" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 3. Auspicious Timings Dual Box (Nalla Neram & Gowri) -->
+            <!-- 3. Auspicious Timings Dual Box -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="6dp">
+                android:layout_marginBottom="3dp">
 
                 <!-- Left: Nalla Neram -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="3dp"
-                    app:cardCornerRadius="12dp"
+                    android:layout_marginEnd="2dp"
+                    app:cardCornerRadius="10dp"
                     app:cardBackgroundColor="#FFFDF2"
                     app:strokeColor="#66BB6A"
-                    app:strokeWidth="1.5dp">
+                    app:strokeWidth="1.2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="⬇ நல்ல நேரம்"
                             android:textColor="#1B5E20"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_simple_nalla_neram_morning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="2dp"
                             android:textColor="#2E7D32"
-                            android:textSize="12sp"
-                            tools:text="காலை : 7.30 - 8.30" />
+                            android:textSize="11.5sp"
+                            tools:text="காலை : 07:45 - 08:45" />
 
                         <TextView
                             android:id="@+id/tv_simple_nalla_neram_evening"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#2E7D32"
-                            android:textSize="12sp"
-                            tools:text="மாலை : 4.45 - 5.45" />
+                            android:textSize="11.5sp"
+                            tools:text="மாலை : 03:15 - 04:15" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Right: Gowri Nalla Neram (Height-aligned) -->
+                <!-- Right: Gowri Nalla Neram -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="3dp"
-                    app:cardCornerRadius="12dp"
+                    android:layout_marginStart="2dp"
+                    app:cardCornerRadius="10dp"
                     app:cardBackgroundColor="#FFFDF2"
                     app:strokeColor="#66BB6A"
-                    app:strokeWidth="1.5dp">
+                    app:strokeWidth="1.2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="கௌரி ந. நேரம்"
                             android:textColor="#1B5E20"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_simple_gowri_morning"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
+                            android:layout_marginTop="2dp"
                             android:textColor="#2E7D32"
-                            android:textSize="12sp"
-                            tools:text="காலை : 10.30 - 11.30" />
+                            android:textSize="11.5sp"
+                            tools:text="காலை : 10:45 - 11:45" />
 
                         <TextView
                             android:id="@+id/tv_simple_gowri_evening"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#2E7D32"
-                            android:textSize="12sp"
-                            tools:text="மாலை : 7.30 - 8.30" />
+                            android:textSize="11.5sp"
+                            tools:text="மாலை : 01:30 - 02:30" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -465,24 +456,23 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="12dp"
+                android:layout_marginBottom="4dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFFDF2"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.5dp">
+                app:strokeWidth="1.2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- Header Row: Crimson -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="#800000"
                         android:orientation="horizontal"
-                        android:paddingVertical="5dp">
+                        android:paddingVertical="4dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -503,7 +493,7 @@
                             android:singleLine="true"
                             android:text="எமகண்டம்"
                             android:textColor="#FFFFFF"
-                            android:textSize="11sp"
+                            android:textSize="10.5sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -540,12 +530,11 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <!-- Content Row: Values -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:paddingVertical="6dp">
+                        android:paddingVertical="5dp">
 
                         <TextView
                             android:id="@+id/tv_simple_rahu"
@@ -554,9 +543,9 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="10.5sp"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            tools:text="1.30 - 3.00" />
+                            tools:text="04:30 -\n06:00" />
 
                         <TextView
                             android:id="@+id/tv_simple_yamagandam"
@@ -565,9 +554,9 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="10.5sp"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            tools:text="6.30 - 8.00" />
+                            tools:text="12:00 -\n01:30" />
 
                         <TextView
                             android:id="@+id/tv_simple_kuligai"
@@ -576,9 +565,9 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textColor="#800000"
-                            android:textSize="10.5sp"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            tools:text="12.00 - 1.30" />
+                            tools:text="03:00 -\n04:30" />
 
                         <TextView
                             android:id="@+id/tv_simple_soolam"
@@ -621,8 +610,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="4dp"
-                android:layout_marginBottom="4dp">
+                android:paddingVertical="2dp"
+                android:layout_marginBottom="2dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -630,13 +619,13 @@
                     android:layout_centerVertical="true"
                     android:text="விரிவான பஞ்சாங்கம்"
                     android:textColor="#FFDF00"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <ImageButton
                     android:id="@+id/btn_toggle_collapse"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_alignParentEnd="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Minimize"
@@ -648,38 +637,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="☀️"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_sun_timings"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#5D0A14"
-                            android:textSize="13sp"
+                            android:textSize="12.5sp"
                             android:textStyle="bold"
                             tools:text="சூரிய உதயம்: 06:08 • மறைவு: 17:55" />
 
@@ -687,9 +676,9 @@
                             android:id="@+id/tv_exp_moon_timings"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#1A237E"
-                            android:textSize="13sp"
+                            android:textSize="12.5sp"
                             android:textStyle="bold"
                             tools:text="சந்திர உதயம்: 08:56 PM • மறைவு: 12:07" />
                     </LinearLayout>
@@ -700,38 +689,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🌙"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_tithi_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#0B2545"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="திதி: கிருஷ்ண பக்ஷம் சப்தமி" />
 
@@ -740,7 +729,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#333333"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="19:24 வரை" />
                     </LinearLayout>
                 </LinearLayout>
@@ -750,38 +739,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⭐"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_nakshatra_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#0B2545"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="நட்சத்திரம்: புனர்பூசம்" />
 
@@ -790,7 +779,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#333333"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="10:37 வரை" />
                     </LinearLayout>
                 </LinearLayout>
@@ -800,38 +789,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🔱"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_amritadi_yoga"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#0B2545"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="யோகம்: சித்த யோகம்" />
 
@@ -840,47 +829,47 @@
                             android:layout_height="wrap_content"
                             android:text="அமிர்தாதி யோகம்"
                             android:textColor="#555555"
-                            android:textSize="12sp" />
+                            android:textSize="11.5sp" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 5: Chandrashtamam (Highlighted) -->
+            <!-- Card 5: Chandrashtamam -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF3E0"
                 app:strokeColor="#FFB74D"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⚠️"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_chandrashtamam"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#BF360C"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="சந்திராஷ்டமம்: தனுசு" />
 
@@ -889,7 +878,7 @@
                             android:layout_height="wrap_content"
                             android:text="எச்சரிக்கை தேவைப்படும் ராசி"
                             android:textColor="#D84315"
-                            android:textSize="12sp" />
+                            android:textSize="11.5sp" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -898,38 +887,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🕐"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="நல்ல நேரம்"
                             android:textColor="#1B5E20"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -937,8 +926,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#2E7D32"
-                            android:textSize="12.5sp"
-                            tools:text="காலை: 07:30 - 08:30 | மாலை: 03:30 - 04:30" />
+                            android:textSize="12sp"
+                            tools:text="காலை: 07:45 - 08:45 | மாலை: 03:15 - 04:15" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -947,38 +936,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🪔"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="கௌரி ந. நேரம்"
                             android:textColor="#1B5E20"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -986,8 +975,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#2E7D32"
-                            android:textSize="12.5sp"
-                            tools:text="காலை: 10:30 - 11:30 | மாலை: 07:30 - 08:30" />
+                            android:textSize="12sp"
+                            tools:text="காலை: 10:45 - 11:45 | மாலை: 01:30 - 02:30" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -996,38 +985,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⌛"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="இராகு காலம்"
                             android:textColor="#B71C1C"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -1035,7 +1024,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#C62828"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="04:30 - 06:00" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1045,38 +1034,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⏱️"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="எமகண்டம்"
                             android:textColor="#B71C1C"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -1084,7 +1073,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#C62828"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="12:00 - 01:30" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1094,38 +1083,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⏳"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="குளிகை"
                             android:textColor="#B71C1C"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -1133,48 +1122,48 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#C62828"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="03:00 - 04:30" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 11: Nitya Yoga & Karana (Combined) -->
+            <!-- Card 11: Nitya Yoga & Karana -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🧭"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_nitya_yoga"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#0B2545"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="நித்திய யோகம்: சாத்தியம் (19:48 வரை)" />
 
@@ -1182,9 +1171,9 @@
                             android:id="@+id/tv_exp_karana"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#333333"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="கரணம்: பத்திரா (08:28 வரை)" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1194,38 +1183,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="⚠️"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="தியாஜ்யம்"
                             android:textColor="#B71C1C"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -1233,7 +1222,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#C62828"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="18:09" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1243,38 +1232,38 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="3dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🚩"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:id="@+id/tv_exp_soolam"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#800000"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="சூலம்: மேற்கு" />
 
@@ -1282,9 +1271,9 @@
                             android:id="@+id/tv_exp_parikaram"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#333333"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="பரிகாரம்: வெல்லம்" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1294,47 +1283,47 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="14dp"
+                android:layout_marginBottom="4dp"
+                app:cardCornerRadius="10dp"
                 app:cardBackgroundColor="#FFF8E7"
                 app:strokeColor="#C5A059"
-                app:strokeWidth="1.2dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="8dp">
+                    android:padding="6dp">
 
                     <TextView
-                        android:layout_width="32dp"
+                        android:layout_width="28dp"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="🎉"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:layout_marginStart="8dp">
+                        android:layout_marginStart="6dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="சிறப்பு நிகழ்வுகள் / பண்டிகைகள்"
                             android:textColor="#1B5E20"
-                            android:textSize="13.5sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_exp_festivals"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#333333"
-                            android:textSize="12.5sp"
+                            android:textSize="12sp"
                             tools:text="சிறப்பு நிகழ்வுகள் ஏதுமில்லை" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1349,12 +1338,12 @@
             android:id="@+id/card_rasi_palan_table"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:cardCornerRadius="12dp"
+            android:layout_marginTop="2dp"
+            app:cardCornerRadius="10dp"
             app:cardBackgroundColor="#FFFDF2"
             app:strokeColor="#C5A059"
-            app:strokeWidth="1.5dp"
-            app:cardElevation="2dp">
+            app:strokeWidth="1.2dp"
+            app:cardElevation="1dp">
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -1364,46 +1353,46 @@
                 <!-- Table Header Ribbon -->
                 <TableRow
                     android:background="#5D0A14"
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="3dp">
                     <TextView
                         android:layout_column="0"
                         android:layout_span="4"
                         android:gravity="center"
                         android:text="இன்றைய ராசிபலன்"
                         android:textColor="#FFDF00"
-                        android:textSize="12.5sp"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
                 </TableRow>
 
                 <!-- Row 1: மேஷம் | கடகம் | துலாம் | மகரம் -->
                 <TableRow
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="3dp">
                     <TextView
                         android:id="@+id/tv_rasi_mesham"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="மேஷம் - நன்மை" />
                     <TextView
                         android:id="@+id/tv_rasi_kadagam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="கடகம் - மகிழ்ச்சி" />
                     <TextView
                         android:id="@+id/tv_rasi_thulaam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
-                        tools:text="துலாம் - முயற்சி" />
+                        tools:text="துலாம் - உழைப்பு" />
                     <TextView
                         android:id="@+id/tv_rasi_magaram"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="மகரம் - மேன்மை" />
                 </TableRow>
@@ -1412,33 +1401,33 @@
 
                 <!-- Row 2: ரிஷபம் | சிம்மம் | விருச்சிகம் | கும்பம் -->
                 <TableRow
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="3dp">
                     <TextView
                         android:id="@+id/tv_rasi_rishabam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="ரிஷபம் - வெற்றி" />
                     <TextView
                         android:id="@+id/tv_rasi_simmam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="சிம்மம் - செலவு" />
                     <TextView
                         android:id="@+id/tv_rasi_viruchigam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
-                        tools:text="விருச்சி - வரவு" />
+                        tools:text="விருச்சி - ஆதாயம்" />
                     <TextView
                         android:id="@+id/tv_rasi_kumbam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="கும்பம் - தனம்" />
                 </TableRow>
@@ -1447,33 +1436,33 @@
 
                 <!-- Row 3: மிதுனம் | கன்னி | தனுசு | மீனம் -->
                 <TableRow
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="3dp">
                     <TextView
                         android:id="@+id/tv_rasi_mithunam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="மிதுனம் - வரவு" />
                     <TextView
                         android:id="@+id/tv_rasi_kanni"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="கன்னி - லாபம்" />
                     <TextView
                         android:id="@+id/tv_rasi_dhanusu"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
-                        tools:text="தனுசு - சாந்தம்" />
+                        tools:text="தனுசு - எச்சரிக்கை" />
                     <TextView
                         android:id="@+id/tv_rasi_meenam"
                         android:gravity="center"
                         android:textColor="#800000"
-                        android:textSize="10.5sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
                         tools:text="மீனம் - புகழ்" />
                 </TableRow>
