@@ -44,7 +44,7 @@ object WidgetUpdateHelper {
         val data = dbHelper.getDayDetails(queryDate)
 
         for (id in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_2x1)
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_2x1)
             applyClockStyle(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
@@ -64,7 +64,7 @@ object WidgetUpdateHelper {
         val data = dbHelper.getDayDetails(queryDate)
 
         for (id in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_4x1)
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_4x1)
             applyClockStyle(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
@@ -85,23 +85,19 @@ object WidgetUpdateHelper {
         val data = dbHelper.getDayDetails(queryDate)
 
         for (id in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_4x2)
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_4x2)
             applyClockStyle(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
-            // Row 1: dd: mm: yyyy + week day in english
             views.setTextViewText(R.id.tv_widget_row1, gregWeekday)
 
-            // Row 2: Tamil month + tamil date + paksham
             val pakshaStr = if (data.paksham.isNotEmpty()) " • ${data.paksham}" else ""
             views.setTextViewText(R.id.tv_widget_row2, "${data.tamilMonth} ${data.tamilDay}$pakshaStr")
 
-            // Row 3: Thithi + timing + nakshatra + timing
             val tTime = if (data.tithiTime.isNotEmpty()) " ${data.tithiTime}" else ""
             val nTime = if (data.nakshatraTime.isNotEmpty()) " ${data.nakshatraTime}" else ""
             views.setTextViewText(R.id.tv_widget_row3, "${data.tithi}$tTime • ${data.nakshatra}$nTime")
 
-            // Row 4: Aspecius time ந.நே : + timing
             val nn = data.nallaNeram.ifEmpty { "${data.nallaNeramMorning} / ${data.nallaNeramEvening}" }
             views.setTextViewText(R.id.tv_widget_row4, "ந.நே : $nn")
 
@@ -119,22 +115,19 @@ object WidgetUpdateHelper {
         val data = dbHelper.getDayDetails(queryDate)
 
         for (id in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_4x4)
+            val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
             applyClockStyle(views, context)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
-            // Inside dial date & weekday
             views.setTextViewText(R.id.tv_widget_dial_date, gregDate)
             views.setTextViewText(R.id.tv_widget_dial_weekday, weekday)
 
-            // Bottom Row 1: Tamil month + tamil date + paksham + Thithi + timing
             val tTime = if (data.tithiTime.isNotEmpty()) " ${data.tithiTime}" else ""
             views.setTextViewText(
                 R.id.tv_widget_4x4_row1,
                 "${data.tamilMonth} ${data.tamilDay} • ${data.paksham} • ${data.tithi}$tTime"
             )
 
-            // Bottom Row 2: nakshatra + timing + Aspecius time ந.நே : + timing
             val nTime = if (data.nakshatraTime.isNotEmpty()) " ${data.nakshatraTime}" else ""
             val nn = data.nallaNeram.ifEmpty { data.nallaNeramMorning }
             views.setTextViewText(
