@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.view.View
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
@@ -26,7 +25,6 @@ object WidgetUpdateHelper {
         )
     }
 
-    // 12. சரியான ColorFilter மற்றும் Clock Style அப்ளை செய்யும் முறை
     private fun applyStyleAndBackground(views: RemoteViews, context: Context) {
         val clockStyle = ThemeManager.getClockStyle(context)
         if (clockStyle == ThemeManager.CLOCK_DIGITAL) {
@@ -37,13 +35,12 @@ object WidgetUpdateHelper {
             views.setViewVisibility(R.id.digital_clock, View.GONE)
         }
 
-        // விட்ஜெட் வெளிப்படைத்தன்மை நிறம் (Opacity Color Filter)
+        // விட்ஜெட் பின்னணி வெளிப்படைத்தன்மை (Launcher Safe ARGB)
         val opacity = ThemeManager.getWidgetOpacity(context)
         val alpha = (opacity * 255 / 100).coerceIn(0, 255)
         val tintColor = Color.argb(alpha, 0x1E, 0x1E, 0x24)
 
-        views.setInt(R.id.widget_root, "setColorFilter", tintColor)
-        views.setInt(R.id.widget_root, "setImageAlpha", alpha)
+        views.setInt(R.id.widget_root, "setBackgroundColor", tintColor)
     }
 
     fun update2x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
