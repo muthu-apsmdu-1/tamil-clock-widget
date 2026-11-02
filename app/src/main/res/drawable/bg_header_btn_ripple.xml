@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#33FFFFFF">
-    <item android:id="@android:id/mask">
-        <shape android:shape="oval">
-            <solid android:color="#FFFFFF" />
+    android:color="#40FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Teal gradient matching sample -->
+            <gradient
+                android:startColor="#1E8B98"
+                android:endColor="#105C66"
+                android:angle="270" />
+            <!-- Inner accent border -->
+            <stroke
+                android:width="1.2dp"
+                android:color="#4AD6E2" />
+            <corners android:radius="8dp" />
         </shape>
     </item>
 </ripple>
