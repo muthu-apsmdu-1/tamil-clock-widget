@@ -10,27 +10,53 @@
     android:background="@drawable/widget_surface_bg">
 
     <FrameLayout
-        android:layout_width="66dp"
-        android:layout_height="66dp">
+        android:layout_width="85dp"
+        android:layout_height="match_parent">
 
         <AnalogClock
             android:id="@+id/analog_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:dial="@drawable/classic_clock_dial"
+            android:hand_hour="@drawable/classic_clock_hour"
+            android:hand_minute="@drawable/classic_clock_minute"
             android:visibility="visible" />
 
-        <TextClock
+        <LinearLayout
             android:id="@+id/digital_clock"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:format12Hour="hh:mm a"
-            android:format24Hour="HH:mm"
-            android:textColor="#FFDF00"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom">
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="hh:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#FFDF00"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textColor="#FFDF00"
+                    android:textSize="10sp"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+        </LinearLayout>
     </FrameLayout>
 
     <LinearLayout
@@ -40,16 +66,14 @@
         android:gravity="end|center_vertical"
         android:layout_marginStart="8dp">
 
-        <!-- 6. Text wrap ஆகாமல் இருக்க dd - MM - yy -->
         <TextView
             android:id="@+id/tv_widget_greg_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:singleLine="true"
-            android:text="08 - 11 - 26" />
+            android:singleLine="true" />
 
         <TextView
             android:id="@+id/tv_widget_tamil_date"
@@ -57,9 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="#FFDF00"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
-            android:singleLine="true"
-            android:text="ஐப்பசி 22" />
+            android:singleLine="true" />
     </LinearLayout>
 </LinearLayout>
