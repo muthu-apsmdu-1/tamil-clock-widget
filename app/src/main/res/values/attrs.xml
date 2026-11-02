@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Background of Cards (Tamil strip, Panchangam info, Nalla neram, Rasi) -->
+    <!-- Card Backgrounds -->
+    <attr name="themeCardBackground" format="color" />
     <attr name="themeCardBg" format="color" />
     <attr name="themeCardStroke" format="color" />
 
     <!-- Text Colors -->
-    <attr name="themeTextTamilPrimary" format="color" />   <!-- Tamil Year, Month, Date, Day -->
-    <attr name="themeTextEnglishPrimary" format="color" /> <!-- English Month, Day, Dates -->
-    <attr name="themeTextGreenAccent" format="color" />    <!-- Nalla Neram & Subam headings -->
-    <attr name="themeTextBody" format="color" />           <!-- Paragraph details & timings -->
-    <attr name="themeTextSub" format="color" />            <!-- Rasi values, minor headers -->
+    <attr name="themeTextTamilPrimary" format="color" />
+    <attr name="themeTextEnglishPrimary" format="color" />
+    <attr name="themeTextGreenAccent" format="color" />
+    <attr name="themeTextBody" format="color" />
+    <attr name="themeTextSub" format="color" />
 </resources>
