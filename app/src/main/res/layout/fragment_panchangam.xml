@@ -642,55 +642,20 @@
                 android:textSize="13.5sp"
                 android:textStyle="bold" />
 
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- Theme-derived background -->
+    <solid android:color="?attr/themeCardBackground" />
+    
+    <!-- Grey outer border -->
+    <stroke
+        android:width="1.5dp"
+        android:color="#8E8E93" />
+        
+    <corners android:radius="10dp" />
+</shape>
 
-            <!-- 2. இன்றைய ராசிபலன்: 4 வரிசைகள் x வரிசைக்கு 3 ராசிகள் (4 Rows x 3 Rasi) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="#FFFDF5"
-                android:layout_marginTop="3dp"
-                android:padding="3dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="22dp"
-                    android:gravity="center"
-                    android:background="#800000"
-                    android:text="இன்றைய ராசிபலன்"
-                    android:textColor="#FFDF00"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <!-- Row 1: மேஷம், ரிஷபம், மிதுனம் -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="3" android:paddingVertical="2dp">
-                    <TextView android:id="@+id/tv_rasi_mesham" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_rishabam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_mithunam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Row 2: கடகம், சிம்மம், கன்னி -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="3" android:paddingVertical="2dp">
-                    <TextView android:id="@+id/tv_rasi_kadagam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_simmam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_kanni" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Row 3: துலாம், விருச்சிகம், தனுசு -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="3" android:paddingVertical="2dp">
-                    <TextView android:id="@+id/tv_rasi_thulaam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_viruchigam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_dhanusu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Row 4: மகரம், கும்பம், மீனம் -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="3" android:paddingVertical="2dp">
-                    <TextView android:id="@+id/tv_rasi_magaram" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_kumbam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tv_rasi_meenam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10.5sp" android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
 
         <!-- Expanded Mode Layout (அப்படியே இருக்கும்) -->
         <LinearLayout
