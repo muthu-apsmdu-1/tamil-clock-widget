@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         calendarMonthAdapter.setMonthData(displayedMonthCalendar, selectedCalendar, dbHelper)
     }
 
-    // Settings Customization: Supports all 5 themes with safe view ID fallback
+    // Settings Customization: Uses verified layout IDs, updates widgets, avoids unresolved references
     private fun showThemeCustomizationSheet() {
         val dialog = BottomSheetDialog(this)
         val sheetView = layoutInflater.inflate(R.layout.dialog_theme_customization, null)
@@ -189,9 +189,8 @@ class MainActivity : AppCompatActivity() {
         val btnAnalog = sheetView.findViewById<Button>(R.id.btn_style_analog)
         val btnDigital = sheetView.findViewById<Button>(R.id.btn_style_digital)
 
-        // Handles either check_theme_ivory or check_theme_maroon in XML
-        val checkDefault = sheetView.findViewById<TextView>(R.id.check_theme_ivory)
-            ?: sheetView.findViewById(R.id.check_theme_maroon)
+        // Points directly to existing R.id.check_theme_maroon without missing identifier errors
+        val checkMaroon = sheetView.findViewById<TextView>(R.id.check_theme_maroon)
         val checkWhite = sheetView.findViewById<TextView>(R.id.check_theme_white)
         val checkYellow = sheetView.findViewById<TextView>(R.id.check_theme_yellow)
         val checkGreen = sheetView.findViewById<TextView>(R.id.check_theme_green)
@@ -208,8 +207,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val curTheme = ThemeManager.getSavedTheme(this)
-            // THEME_IVORY and THEME_MAROON evaluate to 0
-            checkDefault?.visibility = if (curTheme == ThemeManager.THEME_IVORY || curTheme == ThemeManager.THEME_MAROON) View.VISIBLE else View.GONE
+            checkMaroon?.visibility = if (curTheme == ThemeManager.THEME_IVORY || curTheme == ThemeManager.THEME_MAROON) View.VISIBLE else View.GONE
             checkWhite?.visibility = if (curTheme == ThemeManager.THEME_WHITE) View.VISIBLE else View.GONE
             checkYellow?.visibility = if (curTheme == ThemeManager.THEME_YELLOW) View.VISIBLE else View.GONE
             checkGreen?.visibility = if (curTheme == ThemeManager.THEME_GREEN) View.VISIBLE else View.GONE
@@ -254,11 +252,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // 3. Theme Selections: Supports both option_theme_ivory and option_theme_maroon safely
-        val optionDefault = sheetView.findViewById<View>(R.id.option_theme_ivory)
-            ?: sheetView.findViewById(R.id.option_theme_maroon)
-
-        optionDefault?.setOnClickListener {
+        // 3. Theme Selections: Updates settings & triggers immediate widget updates
+        sheetView.findViewById<View>(R.id.option_theme_maroon)?.setOnClickListener {
             ThemeManager.saveTheme(this, ThemeManager.THEME_IVORY)
             updateIndicators()
             updateWidgets()
