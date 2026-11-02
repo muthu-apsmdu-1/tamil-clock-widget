@@ -689,8 +689,8 @@
                 android:textSize="13.5sp"
                 android:textStyle="bold" />
 
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
+
+                <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!-- Theme-derived background -->
     <solid android:color="?attr/themeCardBackground" />
