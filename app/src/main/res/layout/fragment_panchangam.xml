@@ -425,18 +425,6 @@
                     android:src="@android:drawable/ic_menu_crop" />
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tv_simple_chandrashtamam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:background="#FFF9E6"
-                android:textColor="#B71C1C"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:paddingVertical="3dp"
-                android:layout_marginTop="3dp"
-                android:text="சந்திராஷ்டமம் : மீனம்" />
 
             <!-- நல்ல நேரம் & கௌரி நேரம் -->
             <LinearLayout
@@ -640,6 +628,19 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+                            <!-- சந்திராஷ்டமம் (Placed Below Soolam Set) -->
+            <TextView
+                android:id="@+id/tv_simple_chandrashtamam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_chandrashtamam_card"
+                android:gravity="center"
+                android:paddingVertical="6dp"
+                android:text="சந்திராஷ்டமம் : மீனம்"
+                android:textColor="#B71C1C"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
 
 
             <!-- 2. இன்றைய ராசிபலன்: 4 வரிசைகள் x வரிசைக்கு 3 ராசிகள் (4 Rows x 3 Rasi) -->
