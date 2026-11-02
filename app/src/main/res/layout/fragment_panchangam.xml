@@ -472,31 +472,175 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- ராகு, எமகண்டம், குளிகை, சூலம், பரிகாரம் -->
+            <!-- 1. இராகு, எமகண்டம், குளிகை (Row 1: 3 Individual Boxes) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="#FFFDF5"
-                android:layout_marginTop="3dp"
-                android:padding="4dp">
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_marginTop="4dp">
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="22dp" android:background="#B71C1C" android:weightSum="5">
-                    <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="இராகு" android:textColor="#FFFFFF" android:textSize="10.5sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="எமகண்டம்" android:textColor="#FFFFFF" android:textSize="10.5sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="குளிகை" android:textColor="#FFFFFF" android:textSize="10.5sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="சூலம்" android:textColor="#FFFFFF" android:textSize="10.5sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center" android:text="பரிகாரம்" android:textColor="#FFFFFF" android:textSize="10.5sp" />
+                <!-- இராகு காலம் -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="2dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="2dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="இராகு"
+                        android:textColor="#B71C1C"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_simple_rahu"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:textColor="#222222"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="5" android:paddingTop="3dp">
-                    <TextView android:id="@+id/tv_simple_rahu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="9.5sp" />
-                    <TextView android:id="@+id/tv_simple_yamagandam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="9.5sp" />
-                    <TextView android:id="@+id/tv_simple_kuligai" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="9.5sp" />
-                    <TextView android:id="@+id/tv_simple_soolam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10sp" />
-                    <TextView android:id="@+id/tv_simple_parikaram" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textColor="#222" android:textSize="10sp" />
+                <!-- எமகண்டம் -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="2dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="2dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="எமகண்டம்"
+                        android:textColor="#B71C1C"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_simple_yamagandam"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:textColor="#222222"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- குளிகை -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="5dp"
+                    android:paddingHorizontal="2dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="குளிகை"
+                        android:textColor="#B71C1C"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_simple_kuligai"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:gravity="center"
+                        android:textColor="#222222"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- 2. சூலம், பரிகாரம் (Row 2: 2 Individual Boxes Below Rahu Kalam) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_marginTop="4dp">
+
+                <!-- சூலம் -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="2.5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingVertical="6dp"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="சூலம் : "
+                        android:textColor="#B71C1C"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_simple_soolam"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#222222"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- பரிகாரம் -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="2.5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingVertical="6dp"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="பரிகாரம் : "
+                        android:textColor="#B71C1C"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_simple_parikaram"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#222222"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
 
             <!-- 2. இன்றைய ராசிபலன்: 4 வரிசைகள் x வரிசைக்கு 3 ராசிகள் (4 Rows x 3 Rasi) -->
             <LinearLayout
