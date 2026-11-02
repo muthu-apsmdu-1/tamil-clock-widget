@@ -5,7 +5,7 @@
     <attr name="themeCardBg" format="color" />
     <attr name="themeCardStroke" format="color" />
 
-    <!-- Text Colors -->
+    <!-- Dynamic Text Colors -->
     <attr name="themeTextTamilPrimary" format="color" />
     <attr name="themeTextEnglishPrimary" format="color" />
     <attr name="themeTextGreenAccent" format="color" />
