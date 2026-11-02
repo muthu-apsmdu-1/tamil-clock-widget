@@ -7,6 +7,7 @@
     android:background="#24242C"
     android:padding="20dp">
 
+    <!-- Bottom Sheet Drag Handle -->
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"
@@ -14,12 +15,12 @@
         android:layout_marginBottom="16dp"
         android:background="#888888" />
 
-    <!-- 1. கடிகார முறை -->
+    <!-- 1. கடிகார முறை (Clock Style) -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:text="கடிகார வடிவம் (Clock Style)"
+        android:text="Clock Style"
         android:textColor="#FFDF00"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -36,7 +37,7 @@
             android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginEnd="6dp"
-            android:text="முள் கடிகாரம்"
+            android:text="Classic"
             android:textColor="#FFFFFF"
             android:textSize="12.5sp"
             android:backgroundTint="#1A6B75" />
@@ -47,7 +48,7 @@
             android:layout_height="44dp"
             android:layout_weight="1"
             android:layout_marginStart="6dp"
-            android:text="எண் கடிகாரம்"
+            android:text="Digital"
             android:textColor="#FFFFFF"
             android:textSize="12.5sp"
             android:backgroundTint="#1A6B75" />
@@ -68,7 +69,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="விட்ஜெட் ஒளிபுகாமை (Opacity)"
+            android:text="Opacity"
             android:textColor="#FFDF00"
             android:textSize="15sp"
             android:textStyle="bold" />
@@ -99,57 +100,189 @@
         android:layout_marginBottom="14dp"
         android:background="#444450" />
 
-    <!-- 3. தீம் தேர்வு - டிக் மார்க்குடன் -->
+    <!-- 3. தீம் தேர்வு (Default Maroon + 4 Themes) -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:text="செயலி பின்னணி நிற அமைப்பு"
+        android:text="Background colours"
         android:textColor="#FFDF00"
         android:textSize="15sp"
         android:textStyle="bold" />
 
+    <!-- 0. Default: பாரம்பர்ய மெரூன் (Heritage Maroon) -->
+    <RelativeLayout
+        android:id="@+id/option_theme_maroon"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground">
+        <View
+            android:id="@+id/v_maroon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="#78000C" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/v_maroon"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:text="Maroon (default)"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp" />
+        <TextView
+            android:id="@+id/check_theme_maroon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="✓"
+            android:textColor="#00E676"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <!-- 1. தூய வெள்ளை (Classic White) -->
     <RelativeLayout
         android:id="@+id/option_theme_white"
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground">
-        <View android:id="@+id/v_white" android:layout_width="24dp" android:layout_height="24dp" android:layout_centerVertical="true" android:background="#FFFFFF" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/v_white" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:text="தூய வெள்ளை (Classic White)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
-        <TextView android:id="@+id/check_theme_white" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="✓" android:textColor="#00E676" android:textSize="18sp" android:textStyle="bold" android:visibility="gone" />
+        <View
+            android:id="@+id/v_white"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="#FFFFFF" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/v_white"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:text="White"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp" />
+        <TextView
+            android:id="@+id/check_theme_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="✓"
+            android:textColor="#00E676"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </RelativeLayout>
 
+    <!-- 2. மங்கள மஞ்சள் (Warm Yellow) -->
     <RelativeLayout
         android:id="@+id/option_theme_yellow"
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground">
-        <View android:id="@+id/v_yellow" android:layout_width="24dp" android:layout_height="24dp" android:layout_centerVertical="true" android:background="#FFF9E6" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/v_yellow" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:text="மங்கள மஞ்சள் (Warm Yellow)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
-        <TextView android:id="@+id/check_theme_yellow" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="✓" android:textColor="#00E676" android:textSize="18sp" android:textStyle="bold" android:visibility="gone" />
+        <View
+            android:id="@+id/v_yellow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="#FFF9E6" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/v_yellow"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:text="Yellow"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp" />
+        <TextView
+            android:id="@+id/check_theme_yellow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="✓"
+            android:textColor="#00E676"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </RelativeLayout>
 
+    <!-- 3. மென் பச்சை (Soft Green) -->
     <RelativeLayout
         android:id="@+id/option_theme_green"
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground">
-        <View android:id="@+id/v_green" android:layout_width="24dp" android:layout_height="24dp" android:layout_centerVertical="true" android:background="#E8F5E9" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/v_green" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:text="மென் பச்சை (Soft Green)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
-        <TextView android:id="@+id/check_theme_green" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="✓" android:textColor="#00E676" android:textSize="18sp" android:textStyle="bold" android:visibility="gone" />
+        <View
+            android:id="@+id/v_green"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="#1B4D3E" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/v_green"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:text="Green"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp" />
+        <TextView
+            android:id="@+id/check_theme_green"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="✓"
+            android:textColor="#00E676"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </RelativeLayout>
 
+    <!-- 4. கரிம கருப்பு (Charcoal Dark) -->
     <RelativeLayout
         android:id="@+id/option_theme_charcoal"
         android:layout_width="match_parent"
         android:layout_height="44dp"
         android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground">
-        <View android:id="@+id/v_dark" android:layout_width="24dp" android:layout_height="24dp" android:layout_centerVertical="true" android:background="#1E1E24" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/v_dark" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:text="கரிம கருப்பு (Charcoal Dark)" android:textColor="#FFFFFF" android:textSize="13.5sp" />
-        <TextView android:id="@+id/check_theme_charcoal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="✓" android:textColor="#00E676" android:textSize="18sp" android:textStyle="bold" android:visibility="gone" />
+        <View
+            android:id="@+id/v_dark"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerVertical="true"
+            android:background="#1E1E24" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/v_dark"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:text="Black"
+            android:textColor="#FFFFFF"
+            android:textSize="13.5sp" />
+        <TextView
+            android:id="@+id/check_theme_charcoal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="✓"
+            android:textColor="#00E676"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </RelativeLayout>
+
 </LinearLayout>
