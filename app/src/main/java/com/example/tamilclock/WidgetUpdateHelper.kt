@@ -4,7 +4,11 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.view.View
 import android.widget.RemoteViews
 import java.text.SimpleDateFormat
@@ -25,7 +29,54 @@ object WidgetUpdateHelper {
         )
     }
 
-    private fun applyStyleAndBackground(views: RemoteViews, context: Context) {
+    /**
+     * Creates a rounded rectangle bitmap with user-selected background color,
+     * exact opacity, and a crisp gold border. 100% safe for Android RemoteViews.
+     */
+    private fun createWidgetBackgroundBitmap(context: Context, width: Int, height: Int): Bitmap {
+        val w = if (width > 0) width else 400
+        val h = if (height > 0) height else 200
+
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // 1. Fetch user theme color
+        val baseColor = when (ThemeManager.getSavedTheme(context)) {
+            ThemeManager.THEME_WHITE -> Color.parseColor("#FFFFFF")
+            ThemeManager.THEME_YELLOW -> Color.parseColor("#FFF9E6")
+            ThemeManager.THEME_GREEN -> Color.parseColor("#1B4D3E")
+            ThemeManager.THEME_CHARCOAL -> Color.parseColor("#1E1E24")
+            else -> Color.parseColor("#78000C") // Default Maroon
+        }
+
+        // 2. Calculate Alpha
+        val opacity = ThemeManager.getWidgetOpacity(context)
+        val alpha = (opacity * 255 / 100).coerceIn(0, 255)
+        val finalFillColor = Color.argb(alpha, Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor))
+
+        val strokeWidth = 6f
+        val cornerRadius = 36f
+        val rect = RectF(strokeWidth / 2, strokeWidth / 2, w - strokeWidth / 2, h - strokeWidth / 2)
+
+        // Draw Fill
+        val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = finalFillColor
+            style = Paint.Style.FILL
+        }
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, fillPaint)
+
+        // Draw Gold Border
+        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#FFDF00")
+            style = Paint.Style.STROKE
+            this.strokeWidth = strokeWidth
+        }
+        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, borderPaint)
+
+        return bitmap
+    }
+
+    private fun applyStyleAndBackground(views: RemoteViews, context: Context, width: Int, height: Int) {
         val clockStyle = ThemeManager.getClockStyle(context)
         if (clockStyle == ThemeManager.CLOCK_DIGITAL) {
             views.setViewVisibility(R.id.analog_clock, View.GONE)
@@ -35,29 +86,29 @@ object WidgetUpdateHelper {
             views.setViewVisibility(R.id.digital_clock, View.GONE)
         }
 
-        // விட்ஜெட் பின்னணி வெளிப்படைத்தன்மை (Launcher Safe ARGB)
-        val opacity = ThemeManager.getWidgetOpacity(context)
-        val alpha = (opacity * 255 / 100).coerceIn(0, 255)
-        val tintColor = Color.argb(alpha, 0x1E, 0x1E, 0x24)
-
-        views.setInt(R.id.widget_root, "setBackgroundColor", tintColor)
+        // Apply dynamically generated background bitmap safely
+        val bgBitmap = createWidgetBackgroundBitmap(context, width, height)
+        views.setImageViewBitmap(R.id.widget_bg_image, bgBitmap)
     }
 
     fun update2x1(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.time)
-        val gregDate = SimpleDateFormat("dd - MM - yy", Locale.ENGLISH).format(cal.time)
+        val gregDate = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
         val data = dbHelper.getDayDetails(queryDate)
 
+        val weekdayTa = data.dayNameTa.ifEmpty { "திங்கள்" }
+        val tamilDateText = "$weekdayTa - ${data.tamilMonth} ${data.tamilDay}"
+
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_2x1)
-            applyStyleAndBackground(views, context)
+            applyStyleAndBackground(views, context, 500, 240)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_greg_date, gregDate)
-            views.setTextViewText(R.id.tv_widget_tamil_date, "${data.tamilMonth} ${data.tamilDay}")
+            views.setTextViewText(R.id.tv_widget_tamil_date, tamilDateText)
 
             appWidgetManager.updateAppWidget(id, views)
         }
@@ -73,7 +124,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x1)
-            applyStyleAndBackground(views, context)
+            applyStyleAndBackground(views, context, 900, 240)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_greg_date_weekday, gregWeekday)
@@ -94,7 +145,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x2)
-            applyStyleAndBackground(views, context)
+            applyStyleAndBackground(views, context, 900, 450)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_row1, gregWeekday)
@@ -123,7 +174,7 @@ object WidgetUpdateHelper {
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
-            applyStyleAndBackground(views, context)
+            applyStyleAndBackground(views, context, 900, 900)
             views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
 
             views.setTextViewText(R.id.tv_widget_dial_date, gregDate)
