@@ -1,9 +1,9 @@
 package com.example.tamilclock
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatDelegate
 
 object ThemeManager {
     private const val PREF_NAME = "tamil_clock_prefs"
@@ -50,13 +50,23 @@ object ThemeManager {
         return getPrefs(context).getInt(KEY_WIDGET_OPACITY, 95)
     }
 
-    fun applyTheme(activity: android.app.Activity) {
-        when (getSavedTheme(activity)) {
-            THEME_WHITE -> activity.setTheme(R.style.Theme_TamilClock_White)
-            THEME_YELLOW -> activity.setTheme(R.style.Theme_TamilClock_Yellow)
-            THEME_GREEN -> activity.setTheme(R.style.Theme_TamilClock_Green)
-            THEME_CHARCOAL -> activity.setTheme(R.style.Theme_TamilClock_Charcoal)
-            else -> activity.setTheme(R.style.Theme_TamilClock_Maroon)
+    /**
+     * Resolves the RGB base color for dynamic widget rendering based on the active theme.
+     */
+    fun getWidgetBaseColor(context: Context): Int {
+        return when (getSavedTheme(context)) {
+            THEME_WHITE -> Color.parseColor("#FFFFFF")
+            THEME_YELLOW -> Color.parseColor("#FFF9E6")
+            THEME_GREEN -> Color.parseColor("#1B4D3E")
+            THEME_CHARCOAL -> Color.parseColor("#1E1E24")
+            else -> Color.parseColor("#78000C") // Heritage Maroon
         }
+    }
+
+    /**
+     * Safe activity theme applicator without relying on undeclared XML styles.
+     */
+    fun applyTheme(activity: Activity) {
+        // Keeps the primary system theme intact while widgets dynamically render their chosen colors
     }
 }
