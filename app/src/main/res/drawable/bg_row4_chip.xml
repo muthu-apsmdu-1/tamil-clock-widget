@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <!-- மென்மையான கிரீம் பின்னணி -->
-    <solid android:color="#FFFDF5" />
-    
-    <!-- மரபு மெரூன்/தங்க பார்டர் -->
+    <!-- Follows active theme card background -->
+    <solid android:color="?attr/themeCardBg" />
     <stroke
-        android:width="2dp"
-        android:color="#8A0B1A" />
-        
+        android:width="1.8dp"
+        android:color="?attr/themeCardStroke" />
     <corners android:radius="10dp" />
 </shape>
