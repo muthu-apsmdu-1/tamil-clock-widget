@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#2A2A2A" />
-    <corners android:radius="14dp" />
+    <!-- மென்மையான கிரீம் பின்னணி -->
+    <solid android:color="#FFFDF5" />
+    
+    <!-- மரபு மெரூன்/தங்க பார்டர் -->
+    <stroke
+        android:width="2dp"
+        android:color="#8A0B1A" />
+        
+    <corners android:radius="10dp" />
 </shape>
