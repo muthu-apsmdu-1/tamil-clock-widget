@@ -6,6 +6,7 @@ import android.graphics.Color
 
 object ThemeManager {
     const val THEME_IVORY = 0      // Default
+    const val THEME_MAROON = 0     // Backward compatibility alias
     const val THEME_WHITE = 1
     const val THEME_YELLOW = 2
     const val THEME_GREEN = 3
@@ -42,14 +43,13 @@ object ThemeManager {
             .getInt(KEY_THEME, THEME_IVORY)
     }
 
-    // Colors used for Home Screen Widgets
     fun getWidgetBaseColor(context: Context): Int {
         return when (getSavedTheme(context)) {
             THEME_WHITE -> Color.parseColor("#FFFFFF")
             THEME_YELLOW -> Color.parseColor("#FFF8DC")
             THEME_GREEN -> Color.parseColor("#EBF7EE")
             THEME_CHARCOAL -> Color.parseColor("#1E1E24")
-            else -> Color.parseColor("#FFFDF2") // Ivory Cream Default
+            else -> Color.parseColor("#FFFDF2")
         }
     }
 
