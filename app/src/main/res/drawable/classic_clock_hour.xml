@@ -5,8 +5,11 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
-    <!-- Tapered Hour Pointer (Pivot point at 100, 100) -->
     <path
-        android:pathData="M 97.5,100 L 98.5,45 L 100,40 L 101.5,45 L 102.5,100 L 101,114 L 99,114 Z"
-        android:fillColor="#FFFFFFFF" />
+        android:pathData="M 97,110 L 98,52 L 100,46 L 102,52 L 103,110 Z"
+        android:fillColor="#111111" />
+
+    <path
+        android:pathData="M 100,94 A 6,6 0 1,1 99.9,94 Z"
+        android:fillColor="#FFDF00" />
 </vector>
