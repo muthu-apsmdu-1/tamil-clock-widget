@@ -540,7 +540,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:gravity="center"
-                        android:textColor="#222222"
+                        android:textColor="?attr/themeTextBody"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -571,7 +571,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:gravity="center"
-                        android:textColor="#222222"
+                        android:textColor="?attr/themeTextBody"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -602,11 +602,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:gravity="center"
-                        android:textColor="#222222"
+                        android:textColor="?attr/themeTextBody"
                         android:textSize="11sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+
 
             <!-- 2. சூலம், பரிகாரம் (Row 2: 2 Individual Boxes Below Rahu Kalam) -->
             <LinearLayout
