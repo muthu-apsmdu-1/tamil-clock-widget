@@ -1,7 +1,8 @@
 <resources>
 
-    <!-- 1. Ivory Cream (Default) - Warm Authentic Panchangam Look -->
+    <!-- 1. Ivory Cream (Default) -->
     <style name="Theme.TamilClock.IvoryCream" parent="Theme.AppCompat.NoActionBar">
+        <item name="themeCardBackground">#FFFDF2</item>
         <item name="themeCardBg">#FFFDF2</item>
         <item name="themeCardStroke">#8A0B1A</item>
 
@@ -9,12 +10,13 @@
         <item name="themeTextTamilPrimary">#8A0B1A</item>   <!-- Deep Maroon -->
         <item name="themeTextEnglishPrimary">#081E7D</item> <!-- Royal Navy -->
         <item name="themeTextGreenAccent">#1B5E20</item>    <!-- Dark Green -->
-        <item name="themeTextBody">#1A1A1A</item>           <!-- Sharp Charcoal Black -->
+        <item name="themeTextBody">#1A1A1A</item>
         <item name="themeTextSub">#333333</item>
     </style>
 
     <!-- 2. Pure White -->
     <style name="Theme.TamilClock.White" parent="Theme.AppCompat.NoActionBar">
+        <item name="themeCardBackground">#FFFFFF</item>
         <item name="themeCardBg">#FFFFFF</item>
         <item name="themeCardStroke">#C89218</item>
 
@@ -26,8 +28,9 @@
         <item name="themeTextSub">#333333</item>
     </style>
 
-    <!-- 3. Light Yellow (Sandalwood / Chandanam) -->
+    <!-- 3. Light Yellow (Sandalwood) -->
     <style name="Theme.TamilClock.LightYellow" parent="Theme.AppCompat.NoActionBar">
+        <item name="themeCardBackground">#FFF8DC</item>
         <item name="themeCardBg">#FFF8DC</item>
         <item name="themeCardStroke">#B87333</item>
 
@@ -39,8 +42,9 @@
         <item name="themeTextSub">#333333</item>
     </style>
 
-    <!-- 4. Light Green (Fresh Tender Leaf) -->
+    <!-- 4. Light Green -->
     <style name="Theme.TamilClock.LightGreen" parent="Theme.AppCompat.NoActionBar">
+        <item name="themeCardBackground">#EBF7EE</item>
         <item name="themeCardBg">#EBF7EE</item>
         <item name="themeCardStroke">#2E7D32</item>
 
@@ -52,17 +56,18 @@
         <item name="themeTextSub">#2E3830</item>
     </style>
 
-    <!-- 5. Charcoal (Black) - Crisp White Single Color Text -->
+    <!-- 5. Charcoal (Black) - All Text Single White -->
     <style name="Theme.TamilClock.Charcoal" parent="Theme.AppCompat.NoActionBar">
+        <item name="themeCardBackground">#282832</item>
         <item name="themeCardBg">#282832</item>
         <item name="themeCardStroke">#48485A</item>
 
-        <!-- Single White Text Color for Dark Mode -->
+        <!-- Single White Text -->
         <item name="themeTextTamilPrimary">#FFFFFF</item>
         <item name="themeTextEnglishPrimary">#FFFFFF</item>
         <item name="themeTextGreenAccent">#FFFFFF</item>
         <item name="themeTextBody">#FFFFFF</item>
-        <item name="themeTextSub">#E0E0E0</item>
+        <item name="themeTextSub">#FFFFFF</item>
     </style>
 
 </resources>
