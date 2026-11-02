@@ -384,8 +384,9 @@
                 android:textColor="?attr/themeTextBody"
                 android:textSize="11.5sp" />
         </LinearLayout>
-
-
+      
+        </LinearLayout>
+        
     </LinearLayout>
 
 
