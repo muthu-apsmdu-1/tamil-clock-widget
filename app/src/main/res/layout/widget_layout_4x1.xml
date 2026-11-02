@@ -1,64 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="8dp"
-    android:background="@drawable/widget_surface_bg">
+    android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_width="68dp"
-        android:layout_height="68dp">
+    <ImageView
+        android:id="@+id/widget_bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
 
-        <AnalogClock
-            android:id="@+id/analog_clock"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:dial="@drawable/classic_clock_dial"
-            android:visibility="visible" />
-
-        <TextClock
-            android:id="@+id/digital_clock"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:format12Hour="hh:mm a"
-            android:format24Hour="HH:mm"
-            android:textColor="#FFDF00"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <!-- 7. இடைவெளி கூட்டப்பட்டு வலதுபுறம் அலைன் செய்யப்பட்டது -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="16dp"
-        android:gravity="end|center_vertical">
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp">
 
-        <TextView
-            android:id="@+id/tv_widget_greg_date_weekday"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:singleLine="true"
-            android:text="08: 11: 2026 Sunday" />
+        <FrameLayout
+            android:layout_width="95dp"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_widget_tamil_month_date_tithi"
-            android:layout_width="wrap_content"
+            <AnalogClock
+                android:id="@+id/analog_clock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:dial="@drawable/classic_clock_dial"
+                android:hand_hour="@drawable/classic_clock_hour"
+                android:hand_minute="@drawable/classic_clock_minute"
+                android:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/digital_clock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical|start"
+                android:visibility="gone">
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="hh:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#FFDF00"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <TextClock
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textColor="#FFDF00"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#FFDF00"
-            android:textSize="13sp"
-            android:singleLine="true"
-            android:text="ஐப்பசி 22 • சதுர்த்தசி" />
+            android:orientation="vertical"
+            android:layout_marginStart="14dp"
+            android:gravity="end|center_vertical">
+
+            <TextView
+                android:id="@+id/tv_widget_greg_date_weekday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13.5sp"
+                android:textStyle="bold"
+                android:singleLine="true" />
+
+            <TextView
+                android:id="@+id/tv_widget_tamil_month_date_tithi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="#FFDF00"
+                android:textSize="12.5sp"
+                android:singleLine="true" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>
