@@ -426,37 +426,83 @@
             </RelativeLayout>
 
 
-            <!-- நல்ல நேரம் & கௌரி நேரம் -->
+            <!-- 2. நல்ல நேரம் & கௌரி நேரம் -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="3dp">
+                android:layout_marginTop="4dp">
 
+                <!-- நல்ல நேரம் -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:background="#FFFDF5"
-                    android:layout_marginEnd="2dp"
-                    android:padding="4dp">
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="நல்ல நேரம்" android:textColor="#1B5E20" android:textStyle="bold" android:textSize="12sp" />
-                    <TextView android:id="@+id/tv_simple_nalla_neram_morning" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#333333" android:textSize="11sp" />
-                    <TextView android:id="@+id/tv_simple_nalla_neram_evening" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#333333" android:textSize="11sp" />
+                    android:background="@drawable/bg_row4_chip"
+                    android:layout_marginEnd="2.5dp"
+                    android:padding="6dp">
+
+                    <TextView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="wrap_content" 
+                        android:text="நல்ல நேரம்" 
+                        android:textColor="#0D5C2E" 
+                        android:textStyle="bold" 
+                        android:textSize="12sp" />
+
+                    <TextView 
+                        android:id="@+id/tv_simple_nalla_neram_morning" 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:layout_marginTop="2dp"
+                        android:textColor="#0D5C2E" 
+                        android:textSize="11sp" 
+                        android:textStyle="bold" />
+
+                    <TextView 
+                        android:id="@+id/tv_simple_nalla_neram_evening" 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:textColor="#0D5C2E" 
+                        android:textSize="11sp" 
+                        android:textStyle="bold" />
                 </LinearLayout>
 
+                <!-- கௌரி நல்ல நேரம் -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:background="#FFFDF5"
-                    android:layout_marginStart="2dp"
-                    android:padding="4dp">
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="கௌரி ந. நேரம்" android:textColor="#1B5E20" android:textStyle="bold" android:textSize="12sp" />
-                    <TextView android:id="@+id/tv_simple_gowri_morning" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#333333" android:textSize="11sp" />
-                    <TextView android:id="@+id/tv_simple_gowri_evening" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#333333" android:textSize="11sp" />
+                    android:background="@drawable/bg_row4_chip"
+                    android:layout_marginStart="2.5dp"
+                    android:padding="6dp">
+
+                    <TextView 
+                        android:layout_width="match_parent" 
+                        android:layout_height="wrap_content" 
+                        android:text="கௌரி ந. நேரம்" 
+                        android:textColor="#0D5C2E" 
+                        android:textStyle="bold" 
+                        android:textSize="12sp" />
+
+                    <TextView 
+                        android:id="@+id/tv_simple_gowri_morning" 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:layout_marginTop="2dp"
+                        android:textColor="#0D5C2E" 
+                        android:textSize="11sp" 
+                        android:textStyle="bold" />
+
+                    <TextView 
+                        android:id="@+id/tv_simple_gowri_evening" 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:textColor="#0D5C2E" 
+                        android:textSize="11sp" 
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
