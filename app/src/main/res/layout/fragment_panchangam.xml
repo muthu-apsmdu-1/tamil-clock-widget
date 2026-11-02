@@ -199,7 +199,16 @@
         android:orientation="horizontal"
         android:weightSum="3">
 
-        <!-- 1. தமிழ் வருடம் & மாதம் (Left Box) -->
+    <!-- 1. தமிழ் & ஆங்கில விபரம் (Tamil & English Date Strip) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <!-- Left Box: Tamil Year & Month -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -214,9 +223,7 @@
                 android:id="@+id/tv_banner_tamil_year"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:text="பராபவ"
-                android:textColor="#8A0B1A"
+                android:textColor="?attr/themeTextTamilPrimary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -225,14 +232,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:includeFontPadding="false"
-                android:text="ஐப்பசி"
-                android:textColor="#8A0B1A"
+                android:textColor="?attr/themeTextTamilPrimary"
                 android:textSize="19sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 2. தமிழ் தேதி & கிழமை (Center Box - Highlighted) -->
+        <!-- Center Box: Tamil Date Number & Day -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -248,9 +253,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:text="22"
-                android:textColor="#8A0B1A"
+                android:textColor="?attr/themeTextTamilPrimary"
                 android:textSize="32sp"
                 android:textStyle="bold" />
 
@@ -258,14 +261,12 @@
                 android:id="@+id/tv_banner_tamil_weekday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:text="ஞாயிறு"
-                android:textColor="#8A0B1A"
+                android:textColor="?attr/themeTextTamilPrimary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- 3. ஆங்கில மாதம் & கிழமை (Right Box) -->
+        <!-- Right Box: English Month & Day -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -280,9 +281,7 @@
                 android:id="@+id/tv_banner_eng_month"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:text="November"
-                android:textColor="#081E7D"
+                android:textColor="?attr/themeTextEnglishPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -291,12 +290,101 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:includeFontPadding="false"
-                android:text="Sunday"
-                android:textColor="#081E7D"
+                android:textColor="?attr/themeTextEnglishPrimary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- 2. Panchangam Paragraph Card -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_row4_chip"
+        android:padding="8dp">
+
+        <TextView
+            android:id="@+id/tv_simple_panchangam_paragraph"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/themeTextBody"
+            android:textSize="13sp"
+            android:lineSpacingExtra="2dp" />
+
+        <ImageButton
+            android:id="@+id/btn_toggle_expand"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:background="?attr/selectableItemBackground"
+            android:src="@android:drawable/ic_menu_crop" />
+    </RelativeLayout>
+
+    <!-- 3. Nalla Neram Cards -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@drawable/bg_row4_chip"
+            android:layout_marginEnd="3dp"
+            android:padding="6dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="நல்ல நேரம்"
+                android:textColor="?attr/themeTextGreenAccent"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_simple_nalla_neram_morning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/themeTextBody"
+                android:textSize="11.5sp" />
+            <TextView
+                android:id="@+id/tv_simple_nalla_neram_evening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/themeTextBody"
+                android:textSize="11.5sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@drawable/bg_row4_chip"
+            android:layout_marginStart="3dp"
+            android:padding="6dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="கௌரி ந. நேரம்"
+                android:textColor="?attr/themeTextGreenAccent"
+                android:textStyle="bold"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_simple_gowri_morning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/themeTextBody"
+                android:textSize="11.5sp" />
+            <TextView
+                android:id="@+id/tv_simple_gowri_evening"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/themeTextBody"
+                android:textSize="11.5sp" />
+        </LinearLayout>
+
 
     </LinearLayout>
 
