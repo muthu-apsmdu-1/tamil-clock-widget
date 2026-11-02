@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <gradient
-        android:type="linear"
-        android:angle="45"
-        android:startColor="#D89200"
-        android:centerColor="#FFDF00"
-        android:endColor="#E8A200" />
+    <!-- Deep Temple Maroon Background -->
+    <solid android:color="#420006" />
+
+    <!-- Radiant Golden-Amber Border -->
+    <stroke
+        android:width="2.5dp"
+        android:color="#E58A1F" />
+
+    <!-- Curved Capsule Corners -->
+    <corners android:radius="14dp" />
+
+    <padding
+        android:left="20dp"
+        android:top="6dp"
+        android:right="20dp"
+        android:bottom="6dp" />
 </shape>
