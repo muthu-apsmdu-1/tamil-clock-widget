@@ -1,19 +1,19 @@
 package com.example.tamilclock
 
-import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.Calendar
@@ -136,12 +136,13 @@ class FragmentGowriHorai : Fragment() {
     }
 
     private fun renderTablesFromSqlite(cal: Calendar) {
+        // Clear all containers prior to query
         containerGowriDay.removeAllViews()
         containerGowriNight.removeAllViews()
         containerHoraiDay.removeAllViews()
         containerHoraiNight.removeAllViews()
 
-        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) // 1=Sun, 2=Mon...
+        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
         val dayNameEng = when (dayOfWeek) {
             Calendar.SUNDAY -> "Sunday"
             Calendar.MONDAY -> "Monday"
@@ -160,7 +161,8 @@ class FragmentGowriHorai : Fragment() {
             gowriDb.close()
         } catch (e: Exception) {
             e.printStackTrace()
-            fallbackGowri(dayOfWeek)
+            showEmptyPlaceholder(containerGowriDay)
+            showEmptyPlaceholder(containerGowriNight)
         }
 
         // 2. Query horai.db
@@ -170,63 +172,131 @@ class FragmentGowriHorai : Fragment() {
             horaiDb.close()
         } catch (e: Exception) {
             e.printStackTrace()
-            fallbackHorai(dayOfWeek)
+            showEmptyPlaceholder(containerHoraiDay)
+            showEmptyPlaceholder(containerHoraiNight)
         }
     }
 
     private fun loadGowriData(db: SQLiteDatabase, dayNameEng: String, dayOfWeek: Int) {
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM gowri WHERE day = ? OR day_id = ? ORDER BY id ASC",
-            arrayOf(dayNameEng, dayOfWeek.toString())
-        )
-        if (cursor.moveToFirst()) {
-            do {
-                val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
-                val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
-                val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type")) // "day" or "night"
-                val isGood = isGowriGood(name)
+        val dayItems = mutableListOf<SlotItem>()
+        val nightItems = mutableListOf<SlotItem>()
+        var cursor: Cursor? = null
 
-                val (sMin, eMin) = parseTimeRangeToMinutes(time)
-                val item = SlotItem(time, name, sMin, eMin, isGood)
+        try {
+            cursor = db.rawQuery(
+                "SELECT * FROM gowri WHERE day = ? OR day_id = ? ORDER BY id ASC",
+                arrayOf(dayNameEng, dayOfWeek.toString())
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
+                    val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                    val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type"))
+                    val isGood = isGowriGood(name)
 
-                if (periodType.equals("night", ignoreCase = true)) {
-                    containerGowriNight.addView(createSlotRowView(item))
+                    val (sMin, eMin) = parseTimeRangeToMinutes(time)
+                    val item = SlotItem(time, name, sMin, eMin, isGood)
+
+                    if (periodType.equals("night", ignoreCase = true)) {
+                        nightItems.add(item)
+                    } else {
+                        dayItems.add(item)
+                    }
+                } while (cursor.moveToNext())
+
+                if (dayItems.isNotEmpty()) {
+                    for (item in dayItems) containerGowriDay.addView(createSlotRowView(item))
                 } else {
-                    containerGowriDay.addView(createSlotRowView(item))
+                    showEmptyPlaceholder(containerGowriDay)
                 }
-            } while (cursor.moveToNext())
-        } else {
-            fallbackGowri(dayOfWeek)
+
+                if (nightItems.isNotEmpty()) {
+                    for (item in nightItems) containerGowriNight.addView(createSlotRowView(item))
+                } else {
+                    showEmptyPlaceholder(containerGowriNight)
+                }
+            } else {
+                showEmptyPlaceholder(containerGowriDay)
+                showEmptyPlaceholder(containerGowriNight)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            showEmptyPlaceholder(containerGowriDay)
+            showEmptyPlaceholder(containerGowriNight)
+        } finally {
+            cursor?.close()
         }
-        cursor.close()
     }
 
     private fun loadHoraiData(db: SQLiteDatabase, dayNameEng: String, dayOfWeek: Int) {
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM horai WHERE day = ? OR day_id = ? ORDER BY id ASC",
-            arrayOf(dayNameEng, dayOfWeek.toString())
-        )
-        if (cursor.moveToFirst()) {
-            do {
-                val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
-                val planet = cursor.getString(cursor.getColumnIndexOrThrow("planet"))
-                val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type")) // "day" or "night"
-                val isGood = isHoraiGood(planet)
+        val dayItems = mutableListOf<SlotItem>()
+        val nightItems = mutableListOf<SlotItem>()
+        var cursor: Cursor? = null
 
-                val (sMin, eMin) = parseTimeRangeToMinutes(time)
-                val item = SlotItem(time, planet, sMin, eMin, isGood)
+        try {
+            cursor = db.rawQuery(
+                "SELECT * FROM horai WHERE day = ? OR day_id = ? ORDER BY id ASC",
+                arrayOf(dayNameEng, dayOfWeek.toString())
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
+                    val planet = cursor.getString(cursor.getColumnIndexOrThrow("planet"))
+                    val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type"))
+                    val isGood = isHoraiGood(planet)
 
-                if (periodType.equals("night", ignoreCase = true)) {
-                    containerHoraiNight.addView(createSlotRowView(item))
+                    val (sMin, eMin) = parseTimeRangeToMinutes(time)
+                    val item = SlotItem(time, planet, sMin, eMin, isGood)
+
+                    if (periodType.equals("night", ignoreCase = true)) {
+                        nightItems.add(item)
+                    } else {
+                        dayItems.add(item)
+                    }
+                } while (cursor.moveToNext())
+
+                if (dayItems.isNotEmpty()) {
+                    for (item in dayItems) containerHoraiDay.addView(createSlotRowView(item))
                 } else {
-                    containerHoraiDay.addView(createSlotRowView(item))
+                    showEmptyPlaceholder(containerHoraiDay)
                 }
-            } while (cursor.moveToNext())
-        } else {
-            fallbackHorai(dayOfWeek)
+
+                if (nightItems.isNotEmpty()) {
+                    for (item in nightItems) containerHoraiNight.addView(createSlotRowView(item))
+                } else {
+                    showEmptyPlaceholder(containerHoraiNight)
+                }
+            } else {
+                showEmptyPlaceholder(containerHoraiDay)
+                showEmptyPlaceholder(containerHoraiNight)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            showEmptyPlaceholder(containerHoraiDay)
+            showEmptyPlaceholder(containerHoraiNight)
+        } finally {
+            cursor?.close()
         }
-        cursor.close()
     }
+
+    private fun showEmptyPlaceholder(container: LinearLayout) {
+        container.removeAllViews()
+        val tvEmpty = TextView(requireContext()).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 4, 0, 4) }
+            text = "---"
+            gravity = Gravity.CENTER
+            textSize = 14spToFloat()
+            setTextColor(Color.parseColor("#8E8E93"))
+            setPadding(0, 16, 0, 16)
+        }
+        container.addView(tvEmpty)
+    }
+
+    private fun Float.spToPx(): Float = this * resources.displayMetrics.scaledDensity
+    private fun Int.spToFloat(): Float = this.toFloat()
 
     private fun isGowriGood(name: String): Boolean {
         return name.contains("லாபம்") || name.contains("சுகம்") || 
@@ -234,7 +304,6 @@ class FragmentGowriHorai : Fragment() {
     }
 
     private fun isHoraiGood(planet: String): Boolean {
-        // Jupiter, Venus, Mercury, Moon are generally auspicious
         return planet.contains("குரு") || planet.contains("சுக்கிரன்") || 
                planet.contains("புதன்") || planet.contains("சந்திரன்")
     }
@@ -269,7 +338,7 @@ class FragmentGowriHorai : Fragment() {
             text = item.timeRange
             textSize = 12.5f
             setTextColor(Color.parseColor(if (item.isAuspicious) "#0D5C2E" else "#B71C1C"))
-            textStyle = android.graphics.Typeface.BOLD
+            setTypeface(typeface, Typeface.BOLD)
         }
 
         val tvName = TextView(requireContext()).apply {
@@ -278,7 +347,7 @@ class FragmentGowriHorai : Fragment() {
             textSize = 13f
             textAlignment = View.TEXT_ALIGNMENT_VIEW_END
             setTextColor(Color.parseColor(if (item.isAuspicious) "#0D5C2E" else "#B71C1C"))
-            textStyle = android.graphics.Typeface.BOLD
+            setTypeface(typeface, Typeface.BOLD)
         }
 
         row.addView(tvTime)
@@ -302,9 +371,9 @@ class FragmentGowriHorai : Fragment() {
                 val item = row.tag as? SlotItem ?: continue
 
                 if (isSelectedDateToday && currentMinutes in item.startMin until item.endMin) {
-                    row.setBackgroundResource(R.drawable.bg_chandrashtamam_card) // Gold/Border highlight
+                    row.setBackgroundResource(R.drawable.bg_chandrashtamam_card)
                 } else {
-                    row.setBackgroundResource(R.drawable.bg_row4_chip) // Adaptive theme background
+                    row.setBackgroundResource(R.drawable.bg_row4_chip)
                 }
             }
         }
@@ -331,33 +400,6 @@ class FragmentGowriHorai : Fragment() {
             Calendar.SATURDAY -> "சனி"
             else -> ""
         }
-    }
-
-    // Fallbacks if table column names differ
-    private fun fallbackGowri(dayOfWeek: Int) {
-        val defaultDay = listOf(
-            SlotItem("06:00 - 07:30", "லாபம்", 360, 450, true),
-            SlotItem("07:30 - 09:00", "சுகம்", 450, 540, true),
-            SlotItem("09:00 - 10:30", "அமிர்தம்", 540, 630, true),
-            SlotItem("10:30 - 12:00", "உத்தி", 630, 720, true),
-            SlotItem("12:00 - 13:30", "ரோகம்", 720, 810, false),
-            SlotItem("13:30 - 15:00", "லாபம்", 810, 900, true),
-            SlotItem("15:00 - 16:30", "சுகம்", 900, 990, true),
-            SlotItem("16:30 - 18:00", "சோரம்", 990, 1080, false)
-        )
-        for (slot in defaultDay) containerGowriDay.addView(createSlotRowView(slot))
-    }
-
-    private fun fallbackHorai(dayOfWeek: Int) {
-        val defaultHorai = listOf(
-            SlotItem("06:00 - 07:00", "சூரியன்", 360, 420, true),
-            SlotItem("07:00 - 08:00", "சுக்கிரன்", 420, 480, true),
-            SlotItem("08:00 - 09:00", "புதன்", 480, 540, true),
-            SlotItem("09:00 - 10:00", "சந்திரன்", 540, 600, true),
-            SlotItem("10:00 - 11:00", "சனி", 600, 660, false),
-            SlotItem("11:00 - 12:00", "குரு", 660, 720, true)
-        )
-        for (slot in defaultHorai) containerHoraiDay.addView(createSlotRowView(slot))
     }
 
     data class SlotItem(
