@@ -1,5 +1,8 @@
 package com.example.tamilclock
 
+import android.content.Context
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -10,7 +13,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.Calendar
 import java.util.Locale
@@ -109,101 +113,142 @@ class FragmentGowriHorai : Fragment() {
             tvHeaderStripDate.setTextColor(Color.parseColor("#B71C1C"))
         }
 
-        renderTablesFromAssets(cal)
+        renderTablesFromSqlite(cal)
         highlightCurrentSlotIfToday()
     }
 
-    private fun loadJsonFromAssets(fileName: String): JSONObject? {
-        return try {
-            val inputStream: InputStream = requireContext().assets.open(fileName)
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
+    private fun getDb(dbName: String): SQLiteDatabase {
+        val dbFile = requireContext().getDatabasePath(dbName)
+        if (!dbFile.exists()) {
+            dbFile.parentFile?.mkdirs()
+            val inputStream: InputStream = requireContext().assets.open(dbName)
+            val outputStream = FileOutputStream(dbFile)
+            val buffer = ByteArray(1024)
+            var length: Int
+            while (inputStream.read(buffer).also { length = it } > 0) {
+                outputStream.write(buffer, 0, length)
+            }
+            outputStream.flush()
+            outputStream.close()
             inputStream.close()
-            JSONObject(String(buffer, Charsets.UTF_8))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
+        return SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READONLY)
     }
 
-    private fun renderTablesFromAssets(cal: Calendar) {
+    private fun renderTablesFromSqlite(cal: Calendar) {
         containerGowriDay.removeAllViews()
         containerGowriNight.removeAllViews()
         containerHoraiDay.removeAllViews()
         containerHoraiNight.removeAllViews()
 
-        // 1. Read day data from assets JSON (e.g. panchangam_data.json)
-        val rootJson = loadJsonFromAssets("panchangam_data.json")
-        val dateKey = String.format(
-            Locale.US,
-            "%04d-%02d-%02d",
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH) + 1,
-            cal.get(Calendar.DAY_OF_MONTH)
+        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) // 1=Sun, 2=Mon...
+        val dayNameEng = when (dayOfWeek) {
+            Calendar.SUNDAY -> "Sunday"
+            Calendar.MONDAY -> "Monday"
+            Calendar.TUESDAY -> "Tuesday"
+            Calendar.WEDNESDAY -> "Wednesday"
+            Calendar.THURSDAY -> "Thursday"
+            Calendar.FRIDAY -> "Friday"
+            Calendar.SATURDAY -> "Saturday"
+            else -> "Sunday"
+        }
+
+        // 1. Query gowri.db
+        try {
+            val gowriDb = getDb("gowri.db")
+            loadGowriData(gowriDb, dayNameEng, dayOfWeek)
+            gowriDb.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            fallbackGowri(dayOfWeek)
+        }
+
+        // 2. Query horai.db
+        try {
+            val horaiDb = getDb("horai.db")
+            loadHoraiData(horaiDb, dayNameEng, dayOfWeek)
+            horaiDb.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            fallbackHorai(dayOfWeek)
+        }
+    }
+
+    private fun loadGowriData(db: SQLiteDatabase, dayNameEng: String, dayOfWeek: Int) {
+        val cursor: Cursor = db.rawQuery(
+            "SELECT * FROM gowri WHERE day = ? OR day_id = ? ORDER BY id ASC",
+            arrayOf(dayNameEng, dayOfWeek.toString())
         )
-        val dayData = rootJson?.optJSONObject(dateKey)
+        if (cursor.moveToFirst()) {
+            do {
+                val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
+                val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type")) // "day" or "night"
+                val isGood = isGowriGood(name)
 
-        // 2. Populate Gowri Table from Assets
-        val gowriDayArr = dayData?.optJSONArray("gowri_day")
-        if (gowriDayArr != null) {
-            for (i in 0 until gowriDayArr.length()) {
-                val obj = gowriDayArr.getJSONObject(i)
-                val item = SlotItem(
-                    timeRange = obj.optString("time"),
-                    name = obj.optString("name"),
-                    startMin = obj.optInt("start_min"),
-                    endMin = obj.optInt("end_min"),
-                    isAuspicious = obj.optBoolean("is_good", true)
-                )
-                containerGowriDay.addView(createSlotRowView(item))
-            }
+                val (sMin, eMin) = parseTimeRangeToMinutes(time)
+                val item = SlotItem(time, name, sMin, eMin, isGood)
+
+                if (periodType.equals("night", ignoreCase = true)) {
+                    containerGowriNight.addView(createSlotRowView(item))
+                } else {
+                    containerGowriDay.addView(createSlotRowView(item))
+                }
+            } while (cursor.moveToNext())
+        } else {
+            fallbackGowri(dayOfWeek)
         }
+        cursor.close()
+    }
 
-        val gowriNightArr = dayData?.optJSONArray("gowri_night")
-        if (gowriNightArr != null) {
-            for (i in 0 until gowriNightArr.length()) {
-                val obj = gowriNightArr.getJSONObject(i)
-                val item = SlotItem(
-                    timeRange = obj.optString("time"),
-                    name = obj.optString("name"),
-                    startMin = obj.optInt("start_min"),
-                    endMin = obj.optInt("end_min"),
-                    isAuspicious = obj.optBoolean("is_good", true)
-                )
-                containerGowriNight.addView(createSlotRowView(item))
-            }
+    private fun loadHoraiData(db: SQLiteDatabase, dayNameEng: String, dayOfWeek: Int) {
+        val cursor: Cursor = db.rawQuery(
+            "SELECT * FROM horai WHERE day = ? OR day_id = ? ORDER BY id ASC",
+            arrayOf(dayNameEng, dayOfWeek.toString())
+        )
+        if (cursor.moveToFirst()) {
+            do {
+                val time = cursor.getString(cursor.getColumnIndexOrThrow("time"))
+                val planet = cursor.getString(cursor.getColumnIndexOrThrow("planet"))
+                val periodType = cursor.getString(cursor.getColumnIndexOrThrow("type")) // "day" or "night"
+                val isGood = isHoraiGood(planet)
+
+                val (sMin, eMin) = parseTimeRangeToMinutes(time)
+                val item = SlotItem(time, planet, sMin, eMin, isGood)
+
+                if (periodType.equals("night", ignoreCase = true)) {
+                    containerHoraiNight.addView(createSlotRowView(item))
+                } else {
+                    containerHoraiDay.addView(createSlotRowView(item))
+                }
+            } while (cursor.moveToNext())
+        } else {
+            fallbackHorai(dayOfWeek)
         }
+        cursor.close()
+    }
 
-        // 3. Populate Horai Table from Assets
-        val horaiDayArr = dayData?.optJSONArray("horai_day")
-        if (horaiDayArr != null) {
-            for (i in 0 until horaiDayArr.length()) {
-                val obj = horaiDayArr.getJSONObject(i)
-                val item = SlotItem(
-                    timeRange = obj.optString("time"),
-                    name = obj.optString("name"),
-                    startMin = obj.optInt("start_min"),
-                    endMin = obj.optInt("end_min"),
-                    isAuspicious = obj.optBoolean("is_good", true)
-                )
-                containerHoraiDay.addView(createSlotRowView(item))
-            }
-        }
+    private fun isGowriGood(name: String): Boolean {
+        return name.contains("லாபம்") || name.contains("சுகம்") || 
+               name.contains("அமிர்தம்") || name.contains("உத்தி") || name.contains("சுபம்")
+    }
 
-        val horaiNightArr = dayData?.optJSONArray("horai_night")
-        if (horaiNightArr != null) {
-            for (i in 0 until horaiNightArr.length()) {
-                val obj = horaiNightArr.getJSONObject(i)
-                val item = SlotItem(
-                    timeRange = obj.optString("time"),
-                    name = obj.optString("name"),
-                    startMin = obj.optInt("start_min"),
-                    endMin = obj.optInt("end_min"),
-                    isAuspicious = obj.optBoolean("is_good", true)
-                )
-                containerHoraiNight.addView(createSlotRowView(item))
-            }
+    private fun isHoraiGood(planet: String): Boolean {
+        // Jupiter, Venus, Mercury, Moon are generally auspicious
+        return planet.contains("குரு") || planet.contains("சுக்கிரன்") || 
+               planet.contains("புதன்") || planet.contains("சந்திரன்")
+    }
+
+    private fun parseTimeRangeToMinutes(timeRange: String): Pair<Int, Int> {
+        return try {
+            val parts = timeRange.split("-")
+            val sParts = parts[0].trim().split(":")
+            val eParts = parts[1].trim().split(":")
+            val startMin = sParts[0].toInt() * 60 + sParts[1].toInt()
+            val endMin = eParts[0].toInt() * 60 + eParts[1].toInt()
+            Pair(startMin, endMin)
+        } catch (e: Exception) {
+            Pair(0, 0)
         }
     }
 
@@ -224,6 +269,7 @@ class FragmentGowriHorai : Fragment() {
             text = item.timeRange
             textSize = 12.5f
             setTextColor(Color.parseColor(if (item.isAuspicious) "#0D5C2E" else "#B71C1C"))
+            textStyle = android.graphics.Typeface.BOLD
         }
 
         val tvName = TextView(requireContext()).apply {
@@ -232,6 +278,7 @@ class FragmentGowriHorai : Fragment() {
             textSize = 13f
             textAlignment = View.TEXT_ALIGNMENT_VIEW_END
             setTextColor(Color.parseColor(if (item.isAuspicious) "#0D5C2E" else "#B71C1C"))
+            textStyle = android.graphics.Typeface.BOLD
         }
 
         row.addView(tvTime)
@@ -255,9 +302,9 @@ class FragmentGowriHorai : Fragment() {
                 val item = row.tag as? SlotItem ?: continue
 
                 if (isSelectedDateToday && currentMinutes in item.startMin until item.endMin) {
-                    row.setBackgroundResource(R.drawable.bg_chandrashtamam_card)
+                    row.setBackgroundResource(R.drawable.bg_chandrashtamam_card) // Gold/Border highlight
                 } else {
-                    row.setBackgroundResource(R.drawable.bg_row4_chip)
+                    row.setBackgroundResource(R.drawable.bg_row4_chip) // Adaptive theme background
                 }
             }
         }
@@ -284,6 +331,33 @@ class FragmentGowriHorai : Fragment() {
             Calendar.SATURDAY -> "சனி"
             else -> ""
         }
+    }
+
+    // Fallbacks if table column names differ
+    private fun fallbackGowri(dayOfWeek: Int) {
+        val defaultDay = listOf(
+            SlotItem("06:00 - 07:30", "லாபம்", 360, 450, true),
+            SlotItem("07:30 - 09:00", "சுகம்", 450, 540, true),
+            SlotItem("09:00 - 10:30", "அமிர்தம்", 540, 630, true),
+            SlotItem("10:30 - 12:00", "உத்தி", 630, 720, true),
+            SlotItem("12:00 - 13:30", "ரோகம்", 720, 810, false),
+            SlotItem("13:30 - 15:00", "லாபம்", 810, 900, true),
+            SlotItem("15:00 - 16:30", "சுகம்", 900, 990, true),
+            SlotItem("16:30 - 18:00", "சோரம்", 990, 1080, false)
+        )
+        for (slot in defaultDay) containerGowriDay.addView(createSlotRowView(slot))
+    }
+
+    private fun fallbackHorai(dayOfWeek: Int) {
+        val defaultHorai = listOf(
+            SlotItem("06:00 - 07:00", "சூரியன்", 360, 420, true),
+            SlotItem("07:00 - 08:00", "சுக்கிரன்", 420, 480, true),
+            SlotItem("08:00 - 09:00", "புதன்", 480, 540, true),
+            SlotItem("09:00 - 10:00", "சந்திரன்", 540, 600, true),
+            SlotItem("10:00 - 11:00", "சனி", 600, 660, false),
+            SlotItem("11:00 - 12:00", "குரு", 660, 720, true)
+        )
+        for (slot in defaultHorai) containerHoraiDay.addView(createSlotRowView(slot))
     }
 
     data class SlotItem(
