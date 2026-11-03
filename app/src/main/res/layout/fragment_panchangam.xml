@@ -1,1066 +1,1353 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#1E1E24"
-    android:padding="8dp">
+    android:fillViewport="true"
+    android:background="#1E1E24">
 
-    <!-- 1. Centered Curved Banner Badge with Amber-Gold Border -->
-    <TextView
-        android:id="@+id/tv_app_title_banner"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/bg_gold_header_texture"
-        android:text="தமிழ் நாட்காட்டி"
-        android:textColor="#FFD043"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:shadowColor="#1A0000"
-        android:shadowDx="1.5"
-        android:shadowDy="2.0"
-        android:shadowRadius="2.0"
-        android:includeFontPadding="false" />
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <!-- 2. Individual Rounded Teal/Cyan Action Boxes -->
-    <LinearLayout
-        android:id="@+id/layout_nav_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:weightSum="7"
-        android:layout_marginBottom="4dp">
-
+        <!-- 1. Centered Curved Title Banner -->
         <TextView
-            android:id="@+id/btn_action_prev"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="❮❮"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btn_action_datepicker"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="📅"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/btn_action_menu"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="☰"
-            android:textColor="#FFFFFF"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/btn_action_today"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="🏠"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/btn_action_horai"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="☸"
-            android:textColor="#FFFFFF"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/btn_action_settings"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="⚙"
-            android:textColor="#FFFFFF"
-            android:textSize="17sp" />
-
-        <TextView
-            android:id="@+id/btn_action_next"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="2dp"
-            android:background="@drawable/bg_header_btn_ripple"
-            android:gravity="center"
-            android:text="❯❯"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- ஆங்கில தேதி & நேரம் (Date + Time Split Capsule) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_marginHorizontal="6dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:background="@drawable/bg_clock_square_ivory"
-        android:elevation="3dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="14dp"
-        android:paddingVertical="4dp">
-
-        <!-- Left: Bold Gregorian Date -->
-        <TextView
-            android:id="@+id/tv_big_gregorian_date"
-            android:layout_width="0dp"
+            android:id="@+id/tv_app_title_banner"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2.8"
-            android:fontFamily="serif"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="1-1-2027"
-            android:textColor="#081E7D"
-            android:textSize="34sp"
-            android:textStyle="bold" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_gold_header_texture"
+            android:text="தமிழ் நாட்காட்டி"
+            android:textColor="#FFD043"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:shadowColor="#1A0000"
+            android:shadowDx="1.5"
+            android:shadowDy="2.0"
+            android:shadowRadius="2.0"
+            android:includeFontPadding="false" />
 
-        <!-- Center: Gold Vertical Accent Line -->
-        <View
-            android:layout_width="2.5dp"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginVertical="6dp"
-            android:background="#C89218" />
-
-        <!-- Right: Time & AM/PM Stack -->
+        <!-- 2. Individual Rounded Action Boxes -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1.2"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextClock
-                android:id="@+id/tc_banner_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:format12Hour="h:mm"
-                android:format24Hour="HH:mm"
-                android:includeFontPadding="false"
-                android:textColor="#0D7338"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextClock
-                android:id="@+id/tc_banner_ampm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:format12Hour="a"
-                android:format24Hour=""
-                android:includeFontPadding="false"
-                android:textColor="#0D7338"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-
-        <!-- தமிழ் & ஆங்கில விபரம் (3 Individual Rounded Cards) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="76dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:orientation="horizontal"
-        android:weightSum="3">
-
-    <!-- 1. தமிழ் & ஆங்கில விபரம் (Tamil & English Date Strip) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="76dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:orientation="horizontal"
-        android:weightSum="3">
-
-        <!-- Left Box: Tamil Year & Month -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginEnd="3dp"
-            android:background="@drawable/bg_row4_chip"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="4dp">
+            android:id="@+id/layout_nav_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:weightSum="7"
+            android:layout_marginBottom="4dp">
 
             <TextView
-                android:id="@+id/tv_banner_tamil_year"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextTamilPrimary"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_banner_tamil_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="?attr/themeTextTamilPrimary"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Center Box: Tamil Date Number & Day -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginHorizontal="3dp"
-            android:background="@drawable/bg_row4_chip"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="2dp">
-
-            <TextView
-                android:id="@+id/tv_banner_tamil_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="serif"
-                android:textColor="?attr/themeTextTamilPrimary"
-                android:textSize="32sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_banner_tamil_weekday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextTamilPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Right Box: English Month & Day -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="3dp"
-            android:background="@drawable/bg_row4_chip"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="4dp">
-
-            <TextView
-                android:id="@+id/tv_banner_eng_month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextEnglishPrimary"
+                android:id="@+id/btn_action_prev"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="❮❮"
+                android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_banner_eng_weekday"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="?attr/themeTextEnglishPrimary"
-                android:textSize="17sp"
+                android:id="@+id/btn_action_datepicker"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="📅"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_action_menu"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="☰"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_action_today"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="🏠"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_action_horai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="☸"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_action_settings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="⚙"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_action_next"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/bg_header_btn_ripple"
+                android:gravity="center"
+                android:text="❯❯"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- 2. Panchangam Paragraph Card -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_row4_chip"
-        android:padding="8dp">
-
-        <TextView
-            android:id="@+id/tv_simple_panchangam_paragraph"
+        <!-- 3. Gregorian Date & Live Time Capsule -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="?attr/themeTextBody"
-            android:textSize="13sp"
-            android:lineSpacingExtra="2dp" />
+            android:layout_height="64dp"
+            android:layout_marginHorizontal="2dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/bg_clock_square_ivory"
+            android:elevation="3dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="4dp">
 
-        <ImageButton
-            android:id="@+id/btn_toggle_expand"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackground"
-            android:src="@android:drawable/ic_menu_crop" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tv_big_gregorian_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.8"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="08-11-2026"
+                android:textColor="#081E7D"
+                android:textSize="34sp"
+                android:textStyle="bold" />
 
-    <!-- 3. Nalla Neram Cards -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp">
+            <View
+                android:layout_width="2.5dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="6dp"
+                android:background="#C89218" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/bg_row4_chip"
-            android:layout_marginEnd="3dp"
-            android:padding="6dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="நல்ல நேரம்"
-                android:textColor="?attr/themeTextGreenAccent"
-                android:textStyle="bold"
-                android:textSize="12sp" />
-            <TextView
-                android:id="@+id/tv_simple_nalla_neram_morning"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextBody"
-                android:textSize="11.5sp" />
-            <TextView
-                android:id="@+id/tv_simple_nalla_neram_evening"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextBody"
-                android:textSize="11.5sp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.2"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextClock
+                    android:id="@+id/tc_banner_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:includeFontPadding="false"
+                    android:textColor="#0D7338"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextClock
+                    android:id="@+id/tc_banner_ampm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:includeFontPadding="false"
+                    android:textColor="#0D7338"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- 4. Tamil & English Date Strip (3 Individual Cards) -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/bg_row4_chip"
-            android:layout_marginStart="3dp"
-            android:padding="6dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="கௌரி ந. நேரம்"
-                android:textColor="?attr/themeTextGreenAccent"
-                android:textStyle="bold"
-                android:textSize="12sp" />
-            <TextView
-                android:id="@+id/tv_simple_gowri_morning"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextBody"
-                android:textSize="11.5sp" />
-            <TextView
-                android:id="@+id/tv_simple_gowri_evening"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/themeTextBody"
-                android:textSize="11.5sp" />
-        </LinearLayout>
-      
-        </LinearLayout>
-        
-    </LinearLayout>
-
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp">
-
-        <LinearLayout
-            android:id="@+id/layout_simple_mode"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="76dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal"
+            android:weightSum="3">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FFFDF5"
-                android:padding="6dp">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="3dp"
+                android:background="@drawable/bg_row4_chip"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="4dp">
 
                 <TextView
-                    android:id="@+id/tv_simple_panchangam_paragraph"
+                    android:id="@+id/tv_banner_tamil_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="பராபவ"
+                    android:textColor="#8A0B1A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_banner_tamil_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="ஐப்பசி"
+                    android:textColor="#8A0B1A"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_row4_chip"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="2dp">
+
+                <TextView
+                    android:id="@+id/tv_banner_tamil_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:text="22"
+                    android:textColor="#8A0B1A"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_banner_tamil_weekday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="ஞாயிறு"
+                    android:textColor="#8A0B1A"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="3dp"
+                android:background="@drawable/bg_row4_chip"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="4dp">
+
+                <TextView
+                    android:id="@+id/tv_banner_eng_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="November"
+                    android:textColor="#081E7D"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_banner_eng_weekday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="Sunday"
+                    android:textColor="#081E7D"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 5. Content Frames: Simple & Expanded Panchangam -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp">
+
+            <!-- Simple Mode Layout -->
+            <LinearLayout
+                android:id="@+id/layout_simple_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- சித்திரை, திதி விவரப் பட்டை -->
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#1E1E24"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="2dp"
-                    android:text="சித்திரை, திதி..." />
-
-                <ImageButton
-                    android:id="@+id/btn_toggle_expand"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_alignParentEnd="true"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_menu_crop" />
-            </RelativeLayout>
-
-
-            <!-- 2. நல்ல நேரம் & கௌரி நேரம் -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <!-- நல்ல நேரம் -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
                     android:background="@drawable/bg_row4_chip"
-                    android:layout_marginEnd="2.5dp"
                     android:padding="6dp">
 
-                    <TextView 
-                        android:layout_width="match_parent" 
-                        android:layout_height="wrap_content" 
-                        android:text="நல்ல நேரம்" 
-                        android:textColor="#0D5C2E" 
-                        android:textStyle="bold" 
-                        android:textSize="12sp" />
-
-                    <TextView 
-                        android:id="@+id/tv_simple_nalla_neram_morning" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
-                        android:layout_marginTop="2dp"
-                        android:textColor="#0D5C2E" 
-                        android:textSize="11sp" 
-                        android:textStyle="bold" />
-
-                    <TextView 
-                        android:id="@+id/tv_simple_nalla_neram_evening" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
-                        android:textColor="#0D5C2E" 
-                        android:textSize="11sp" 
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- கௌரி நல்ல நேரம் -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_row4_chip"
-                    android:layout_marginStart="2.5dp"
-                    android:padding="6dp">
-
-                    <TextView 
-                        android:layout_width="match_parent" 
-                        android:layout_height="wrap_content" 
-                        android:text="கௌரி ந. நேரம்" 
-                        android:textColor="#0D5C2E" 
-                        android:textStyle="bold" 
-                        android:textSize="12sp" />
-
-                    <TextView 
-                        android:id="@+id/tv_simple_gowri_morning" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
-                        android:layout_marginTop="2dp"
-                        android:textColor="#0D5C2E" 
-                        android:textSize="11sp" 
-                        android:textStyle="bold" />
-
-                    <TextView 
-                        android:id="@+id/tv_simple_gowri_evening" 
-                        android:layout_width="wrap_content" 
-                        android:layout_height="wrap_content" 
-                        android:textColor="#0D5C2E" 
-                        android:textSize="11sp" 
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 1. இராகு, எமகண்டம், குளிகை (Row 1: 3 Individual Boxes) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                android:layout_marginTop="4dp">
-
-                <!-- இராகு காலம் -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="2dp">
-
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tv_simple_panchangam_paragraph"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="இராகு"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_simple_rahu"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:gravity="center"
                         android:textColor="?attr/themeTextBody"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="2dp"
+                        android:text="சித்திரை, திதி..." />
 
-                <!-- எமகண்டம் -->
+                    <ImageButton
+                        android:id="@+id/btn_toggle_expand"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_alignParentEnd="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:src="@android:drawable/ic_menu_crop" />
+                </RelativeLayout>
+
+                <!-- நல்ல நேரம் & கௌரி நேரம் -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginHorizontal="2dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="2dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="எமகண்டம்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_simple_yamagandam"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:gravity="center"
-                        android:textColor="?attr/themeTextBody"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- குளிகை -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingVertical="5dp"
-                    android:paddingHorizontal="2dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="குளிகை"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_simple_kuligai"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:gravity="center"
-                        android:textColor="?attr/themeTextBody"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-
-            <!-- 2. சூலம், பரிகாரம் (Row 2: 2 Individual Boxes Below Rahu Kalam) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginTop="4dp">
-
-                <!-- சூலம் -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="2.5dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
                     android:orientation="horizontal"
-                    android:paddingVertical="6dp"
-                    android:paddingHorizontal="8dp">
+                    android:layout_marginTop="4dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="சூலம் : "
-                        android:textColor="#B71C1C"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_row4_chip"
+                        android:layout_marginEnd="2.5dp"
+                        android:padding="6dp">
 
-                    <TextView
-                        android:id="@+id/tv_simple_soolam"
-                        android:layout_width="wrap_content"
+                        <TextView 
+                            android:layout_width="match_parent" 
+                            android:layout_height="wrap_content" 
+                            android:text="நல்ல நேரம்" 
+                            android:textColor="#0D5C2E" 
+                            android:textStyle="bold" 
+                            android:textSize="12sp" />
+
+                        <TextView 
+                            android:id="@+id/tv_simple_nalla_neram_morning" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content" 
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0D5C2E" 
+                            android:textSize="11sp" 
+                            android:textStyle="bold" />
+
+                        <TextView 
+                            android:id="@+id/tv_simple_nalla_neram_evening" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content" 
+                            android:textColor="#0D5C2E" 
+                            android:textSize="11sp" 
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:textColor="#222222"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_row4_chip"
+                        android:layout_marginStart="2.5dp"
+                        android:padding="6dp">
+
+                        <TextView 
+                            android:layout_width="match_parent" 
+                            android:layout_height="wrap_content" 
+                            android:text="கௌரி ந. நேரம்" 
+                            android:textColor="#0D5C2E" 
+                            android:textStyle="bold" 
+                            android:textSize="12sp" />
+
+                        <TextView 
+                            android:id="@+id/tv_simple_gowri_morning" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content" 
+                            android:layout_marginTop="2dp"
+                            android:textColor="#0D5C2E" 
+                            android:textSize="11sp" 
+                            android:textStyle="bold" />
+
+                        <TextView 
+                            android:id="@+id/tv_simple_gowri_evening" 
+                            android:layout_width="wrap_content" 
+                            android:layout_height="wrap_content" 
+                            android:textColor="#0D5C2E" 
+                            android:textSize="11sp" 
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- பரிகாரம் -->
+                <!-- இராகு, எமகண்டம், குளிகை (3 Boxes) -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="2.5dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
                     android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginTop="4dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="5dp"
+                        android:paddingHorizontal="2dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="இராகு"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_simple_rahu"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:textColor="?attr/themeTextBody"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="5dp"
+                        android:paddingHorizontal="2dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="எமகண்டம்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_simple_yamagandam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:textColor="?attr/themeTextBody"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="2dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingVertical="5dp"
+                        android:paddingHorizontal="2dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="குளிகை"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_simple_kuligai"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:gravity="center"
+                            android:textColor="?attr/themeTextBody"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- சூலம், பரிகாரம் (2 Boxes) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginTop="4dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="2.5dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="6dp"
+                        android:paddingHorizontal="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="சூலம் : "
+                            android:textColor="#B71C1C"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_simple_soolam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/themeTextBody"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="2.5dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="6dp"
+                        android:paddingHorizontal="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="பரிகாரம் : "
+                            android:textColor="#B71C1C"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_simple_parikaram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/themeTextBody"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- சந்திராஷ்டமம் -->
+                <TextView
+                    android:id="@+id/tv_simple_chandrashtamam"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_chandrashtamam_card"
+                    android:gravity="center"
                     android:paddingVertical="6dp"
-                    android:paddingHorizontal="8dp">
+                    android:text="சந்திராஷ்டமம் : மீனம்"
+                    android:textColor="#B71C1C"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <!-- இன்றைய ராசிபலன்: All-Border Grid Chart -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_rasi_grid_card"
+                    android:layout_marginTop="5dp"
+                    android:padding="2dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="பரிகாரம் : "
-                        android:textColor="#B71C1C"
-                        android:textSize="12.5sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:background="#800000"
+                        android:text="இன்றைய ராசிபலன்"
+                        android:textColor="#FFDF00"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tv_simple_parikaram"
-                        android:layout_width="wrap_content"
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#8E8E93" />
+
+                    <!-- Row 1: மேஷம் | ரிஷபம் | மிதுனம் -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#222222"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:paddingVertical="3dp">
+
+                        <TextView
+                            android:id="@+id/tv_rasi_mesham"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_rishabam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_mithunam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#8E8E93" />
+
+                    <!-- Row 2: கடகம் | சிம்மம் | கன்னி -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:paddingVertical="3dp">
+
+                        <TextView
+                            android:id="@+id/tv_rasi_kadagam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_simmam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_kanni"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#8E8E93" />
+
+                    <!-- Row 3: துலாம் | விருச்சிகம் | தனுசு -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:paddingVertical="3dp">
+
+                        <TextView
+                            android:id="@+id/tv_rasi_thulaam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_viruchigam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_dhanusu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#8E8E93" />
+
+                    <!-- Row 4: மகரம் | கும்பம் | மீனம் -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:paddingVertical="3dp">
+
+                        <TextView
+                            android:id="@+id/tv_rasi_magaram"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_kumbam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:background="#8E8E93" />
+
+                        <TextView
+                            android:id="@+id/tv_rasi_meenam"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:textColor="#6C757D"
+                            android:textSize="10.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
                 </LinearLayout>
             </LinearLayout>
-                  <!-- சந்திராஷ்டமம் (Placed Below Soolam Set) -->
-            <TextView
-                android:id="@+id/tv_simple_chandrashtamam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_chandrashtamam_card"
-                android:gravity="center"
-                android:paddingVertical="6dp"
-                android:text="சந்திராஷ்டமம் : மீனம்"
-                android:textColor="#B71C1C"
-                android:textSize="13.5sp"
-                android:textStyle="bold" />
 
-            <!-- இன்றைய ராசிபலன்: All-Border Grid Chart -->
+            <!-- Expanded Mode Layout -->
             <LinearLayout
+                android:id="@+id/layout_expanded_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_rasi_grid_card"
-                android:layout_marginTop="5dp"
-                android:padding="2dp">
+                android:visibility="gone">
 
-                <!-- Header Title Bar -->
-                <TextView
+                <!-- Header / Collapse Button -->
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="26dp"
-                    android:gravity="center"
-                    android:background="#800000"
-                    android:text="இன்றைய ராசிபலன்"
-                    android:textColor="#FFDF00"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <!-- Header Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#8E8E93" />
-
-                <!-- Row 1: மேஷம் | ரிஷபம் | மிதுனம் -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="3"
-                    android:paddingVertical="3dp">
-
-                    <TextView
-                        android:id="@+id/tv_rasi_mesham"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_rishabam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_mithunam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Horizontal Border 1 -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#8E8E93" />
-
-                <!-- Row 2: கடகம் | சிம்மம் | கன்னி -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="3"
-                    android:paddingVertical="3dp">
-
-                    <TextView
-                        android:id="@+id/tv_rasi_kadagam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_simmam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_kanni"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Horizontal Border 2 -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#8E8E93" />
-
-                <!-- Row 3: துலாம் | விருச்சிகம் | தனுசு -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="3"
-                    android:paddingVertical="3dp">
-
-                    <TextView
-                        android:id="@+id/tv_rasi_thulaam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_viruchigam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_dhanusu"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Horizontal Border 3 -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#8E8E93" />
-
-                <!-- Row 4: மகரம் | கும்பம் | மீனம் -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="3"
-                    android:paddingVertical="3dp">
-
-                    <TextView
-                        android:id="@+id/tv_rasi_magaram"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_kumbam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="#8E8E93" />
-
-                    <TextView
-                        android:id="@+id/tv_rasi_meenam"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:textColor="#6C757D"
-                        android:textSize="10.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </LinearLayout> <!-- Closes layout_simple_mode properly -->
-
-        <!-- Expanded Mode Layout (Individual Rounded Cards with Symbols) -->
-        <LinearLayout
-            android:id="@+id/layout_expanded_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <!-- Close / Collapse Button Header -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:layout_marginBottom="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="4dp"
-                    android:text="முழு பஞ்சாங்கம்"
-                    android:textColor="#FFDF00"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/btn_toggle_collapse"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel" />
-            </RelativeLayout>
-
-            <!-- 1. சூரிய உதயம் & மறைவு / சந்திர உதயம் & மறைவு (Single Row Dual Cards) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2"
-                android:layout_marginBottom="5dp">
-
-                <!-- சூரிய உதயம் & மறைவு -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="3dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="6dp">
-
-                    <TextView
-                        android:id="@+id/tv_exp_sun_timings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="☀️ 06:08 • 🌘 17:54"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- சந்திர உதயம் & மறைவு -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="3dp"
-                    android:background="@drawable/bg_row4_chip"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingVertical="8dp"
-                    android:paddingHorizontal="6dp">
-
-                    <TextView
-                        android:id="@+id/tv_exp_moon_timings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="🌙 01:00 • 🌑 13:42"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 2. திதி (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🌔"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
+                    android:layout_height="36dp"
+                    android:layout_marginBottom="4dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="திதி"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="4dp"
+                        android:text="முழு பஞ்சாங்கம்"
+                        android:textColor="#FFDF00"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btn_toggle_collapse"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                </RelativeLayout>
+
+                <!-- 1. Sun & Moon Timings -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginBottom="5dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:layout_marginEnd="3dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp">
 
                         <TextView
-                            android:id="@+id/tv_exp_tithi_name"
+                            android:id="@+id/tv_exp_sun_timings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="☀️ 06:08 • 🌘 17:54"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:background="@drawable/bg_row4_chip"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp"
+                        android:paddingHorizontal="6dp">
+
+                        <TextView
+                            android:id="@+id/tv_exp_moon_timings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="🌙 01:00 • 🌑 13:42"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 2. திதி -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="🌔"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="திதி"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_exp_tithi_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#0D5C2E"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_exp_tithi_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:textColor="#0D5C2E"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 3. நட்சத்திரம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="⭐"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="நட்சத்திரம்"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_exp_nakshatra_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#0D5C2E"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_exp_nakshatra_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:textColor="#0D5C2E"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 4. யோகம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="☸"
+                        android:textColor="#0D5C2E"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="யோகம்"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_amritadi_yoga"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#0D5C2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 5. சந்திராஷ்டமம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_chandrashtamam_card"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="⚠️"
+                        android:textSize="17sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="சந்திராஷ்டமம்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_chandrashtamam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#B71C1C"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 6. நல்ல நேரம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="🌸"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="நல்ல நேரம்"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_nalla_neram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#0D5C2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 7. கௌரி நல்ல நேரம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="🪔"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="கௌரி நல்ல நேரம்"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_gowri_neram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#0D5C2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 8. இராகு காலம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="⏳"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="இராகு காலம்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_rahu"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#B71C1C"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 9. எமகண்டம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="⏱️"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="எமகண்டம்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_yamagandam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#B71C1C"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 10. குளிகை -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="⌛"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="குளிகை"
+                            android:textColor="#0D5C2E"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_kuligai"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#0D5C2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 11. நித்திய யோகம் & கரணம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="🧭"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_exp_nitya_yoga"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="#0D5C2E"
@@ -1068,534 +1355,143 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tv_exp_tithi_time"
+                            android:id="@+id/tv_exp_karana"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#0D5C2E"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp" />
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
-            <!-- 3. நட்சத்திரம் (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⭐"
-                    android:textSize="18sp" />
-
+                <!-- 12. தியாஜ்யம் -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="32dp"
                         android:layout_height="wrap_content"
-                        android:text="நட்சத்திரம்"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:gravity="center"
+                        android:text="⚠️"
+                        android:textSize="18sp" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:orientation="horizontal">
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/tv_exp_nakshatra_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="#0D5C2E"
+                            android:text="தியாக்யம் / தியாஜ்யம்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_tyajyam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#B71C1C"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 13. சூலம் & பரிகாரம் -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="🚩"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_exp_soolam"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="#B71C1C"
                             android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tv_exp_nakshatra_time"
+                            android:id="@+id/tv_exp_parikaram"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="1dp"
                             android:textColor="#0D5C2E"
-                            android:textSize="13sp" />
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
-            <!-- 4. யோகம் (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="☸"
-                    android:textColor="#0D5C2E"
-                    android:textSize="18sp" />
-
+                <!-- 14. சிறப்பு நிகழ்வுகள் / பண்டிகைகள் -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="6dp"
+                    android:background="@drawable/bg_row4_chip"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="32dp"
                         android:layout_height="wrap_content"
-                        android:text="யோகம்"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:gravity="center"
+                        android:text="🎉"
+                        android:textSize="18sp" />
 
-                    <TextView
-                        android:id="@+id/tv_exp_amritadi_yoga"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:layout_marginStart="8dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="சிறப்பு நிகழ்வுகள் / பண்டிகைகள்"
+                            android:textColor="#B71C1C"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_exp_festivals"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:textColor="#0D5C2E"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
+
             </LinearLayout>
+        </FrameLayout>
 
-            <!-- 5. சந்திராஷ்டமம் (Inauspicious Rich Red Border & Text) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_chandrashtamam_card"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⚠️"
-                    android:textSize="17sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சந்திராஷ்டமம்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_chandrashtamam"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#B71C1C"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 6. நல்ல நேரம் (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🌸"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="நல்ல நேரம்"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_nalla_neram"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 7. கௌரி நல்ல நேரம் (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🪔"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="கௌரி நல்ல நேரம்"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_gowri_neram"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 8. இராகு காலம் (Inauspicious Rich Red) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⏳"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="இராகு காலம்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_rahu"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#B71C1C"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 9. எமகண்டம் (Inauspicious Rich Red) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⏱️"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="எமகண்டம்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_yamagandam"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#B71C1C"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 10. குளிகை (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⌛"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="குளிகை"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_kuligai"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 11. நித்திய யோகம் & கரணம் (Auspicious Deep Green) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🧭"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_exp_nitya_yoga"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_karana"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12.5sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 12. தியாஜ்யம் (Inauspicious Rich Red) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="⚠️"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="தியாக்யம் / தியாஜ்யம்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_tyajyam"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#B71C1C"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 13. சூலம் & பரிகாரம் -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🚩"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_exp_soolam"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#B71C1C"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_parikaram"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="12.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- 14. சிறப்பு நிகழ்வுகள் / பண்டிகைகள் -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="6dp"
-                android:background="@drawable/bg_row4_chip"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="🎉"
-                    android:textSize="18sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="சிறப்பு நிகழ்வுகள் / பண்டிகைகள்"
-                        android:textColor="#B71C1C"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_exp_festivals"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="1dp"
-                        android:textColor="#0D5C2E"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-        </LinearLayout>
-
-
+    </LinearLayout>
+</ScrollView>
