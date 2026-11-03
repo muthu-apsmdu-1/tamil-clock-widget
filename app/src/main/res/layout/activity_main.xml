@@ -136,9 +136,58 @@
 
     </LinearLayout>
 
-    <!-- 4. Monthly Calendar Bottom Sheet (Restored) -->
-    <include
+    <!-- 4. Monthly Calendar Bottom Sheet (Inline Definition) -->
+    <LinearLayout
         android:id="@+id/bottom_sheet_calendar"
-        layout="@layout/bottom_sheet_calendar" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="?attr/themeCardBackground"
+        android:padding="8dp"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Top Month Navigation Bar -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:paddingHorizontal="4dp">
+
+            <ImageButton
+                android:id="@+id/btn_prev_month"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackground"
+                android:src="@android:drawable/ic_media_previous" />
+
+            <TextView
+                android:id="@+id/tv_sheet_month_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="?attr/themeTextTitle"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_next_month"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackground"
+                android:src="@android:drawable/ic_media_next" />
+        </RelativeLayout>
+
+        <!-- Calendar Month Content Container -->
+        <FrameLayout
+            android:id="@+id/container_calendar_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
