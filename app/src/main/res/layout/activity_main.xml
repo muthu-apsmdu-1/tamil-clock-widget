@@ -1,79 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1E24">
+    android:background="#1E1E24"
+    android:orientation="vertical">
 
-    <!-- Main Pager Container (Takes Full Screen) -->
+    <!-- 1. Permanent Title Banner (All Pages) -->
+    <TextView
+        android:id="@+id/tv_app_title_banner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/bg_gold_header_texture"
+        android:includeFontPadding="false"
+        android:text="தமிழ் நாட்காட்டி"
+        android:textColor="#FFD043"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:shadowColor="#1A0000"
+        android:shadowDx="1.5"
+        android:shadowDy="2.0"
+        android:shadowRadius="2.0" />
+
+    <!-- 2. Permanent 7-Toolbox Navigation Row (All Pages) -->
+    <LinearLayout
+        android:id="@+id/layout_nav_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginHorizontal="6dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="7">
+
+        <TextView
+            android:id="@+id/btn_action_prev"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="❮❮"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_action_datepicker"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="📅"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btn_action_menu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="☰"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btn_action_today"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="🏠"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btn_action_horai"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="☸"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btn_action_settings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="⚙"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btn_action_next"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="2dp"
+            android:background="@drawable/bg_header_btn_ripple"
+            android:gravity="center"
+            android:text="❯❯"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 3. ViewPager2 Container -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <!-- Hybrid Bottom Sheet Wall Calendar -->
-    <FrameLayout
-        android:id="@+id/bottom_sheet_calendar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_hideable="true"
-        app:behavior_peekHeight="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="#FFFDF2">
-
-            <!-- Month Header Bar -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="#5D0A14"
-                android:paddingHorizontal="16dp">
-
-                <TextView
-                    android:id="@+id/btn_prev_month"
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
-                    android:gravity="center"
-                    android:text="❮"
-                    android:textColor="#FFDF00"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
-
-                <TextView
-                    android:id="@+id/tv_sheet_month_year"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textColor="#FFDF00"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/btn_next_month"
-                    android:layout_width="40dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:gravity="center"
-                    android:text="❯"
-                    android:textColor="#FFDF00"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
-            </RelativeLayout>
-
-            <!-- Calendar Content Frame -->
-            <FrameLayout
-                android:id="@+id/container_calendar_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
-    </FrameLayout>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
