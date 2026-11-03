@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <!-- Small Date Summary Strip (Exclusive to Gowri/Horai Page) -->
+    <LinearLayout
+        android:id="@+id/layout_dynamic_date_strip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/bg_row4_chip"
+        android:gravity="center"
+        android:paddingVertical="5dp"
+        android:paddingHorizontal="8dp">
+
+        <TextView
+            android:id="@+id/tv_header_strip_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="3 - 11 - 26, ஐப்பசி 17, செவ்வாய்" />
+    </LinearLayout>
+
+    <!-- Sub-Tab Switcher: கௌரி பலன் vs ஹோரை -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginBottom="6dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/tab_btn_gowri"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/bg_tab_selected"
+            android:gravity="center"
+            android:text="கௌரி பலன்"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tab_btn_horai"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginStart="3dp"
+            android:background="@drawable/bg_tab_unselected"
+            android:gravity="center"
+            android:text="ஹோரை"
+            android:textColor="#9E9E9E"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Tables Container -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Table 1: Gowri Palan Details -->
+            <LinearLayout
+                android:id="@+id/layout_gowri_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:background="#800000"
+                    android:gravity="center"
+                    android:text="பகல் கௌரி நேரம்"
+                    android:textColor="#FFDF00"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_gowri_day_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="6dp"
+                    android:background="#1B3A57"
+                    android:gravity="center"
+                    android:text="இரவு கௌரி நேரம்"
+                    android:textColor="#FFDF00"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_gowri_night_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- Table 2: Horai Details -->
+            <LinearLayout
+                android:id="@+id/layout_horai_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:background="#800000"
+                    android:gravity="center"
+                    android:text="பகல் கிரக ஹோரை"
+                    android:textColor="#FFDF00"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_horai_day_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="6dp"
+                    android:background="#1B3A57"
+                    android:gravity="center"
+                    android:text="இரவு கிரக ஹோரை"
+                    android:textColor="#FFDF00"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/container_horai_night_slots"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+        </FrameLayout>
+    </ScrollView>
+
+</LinearLayout>
