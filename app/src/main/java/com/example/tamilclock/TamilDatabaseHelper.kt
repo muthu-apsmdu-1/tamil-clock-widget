@@ -45,6 +45,7 @@ class TamilDatabaseHelper(private val context: Context) :
         val tamilMonth: String,
         val tamilDate: Int,
         val weekdayTa: String,
+        val paksha: String,
         val tithiName: String,
         val tithiTime: String,
         val nakshatraName: String,
@@ -80,7 +81,25 @@ class TamilDatabaseHelper(private val context: Context) :
         val rasiMagaram: String,
         val rasiKumbam: String,
         val rasiMeenam: String
-    )
+    ) {
+        // Backward-compatibility aliases for CalendarMonthAdapter, Widgets, and WidgetUpdateHelper
+        val tamilDay: String get() = weekdayTa
+        val dayName: String get() = weekdayTa
+        val dayNameTa: String get() = weekdayTa
+        val tithi: String get() = tithiName
+        val nakshatra: String get() = nakshatraName
+        val yoga: String get() = if (amritadiYoga.isNotEmpty()) amritadiYoga else yogaName
+        val paksham: String get() = paksha
+        val chandrashtamam: String get() = chandrashtamamRasi
+        val nallaNeramMorning: String get() = nallaNeramMorn
+        val nallaNeramEvening: String get() = nallaNeramEve
+        val gowriNallaNeramMorning: String get() = gowriMorn
+        val gowriNallaNeramEvening: String get() = gowriEve
+        val rahuKaalam: String get() = rahu
+        val festivals: String get() = festivalsEvents
+        val karanam: String get() = karanaName
+        val tyajyam: String get() = tyajyamTime
+    }
 
     fun getDayDetails(gregorianDate: String): DayPanchangDetails? {
         val db = readableDatabase
@@ -90,6 +109,7 @@ class TamilDatabaseHelper(private val context: Context) :
         var tMonth = ""
         var tDate = 0
         var wdayTa = ""
+        var pak = ""
         var tithiN = ""
         var tithiT = ""
         var nakN = ""
@@ -104,7 +124,7 @@ class TamilDatabaseHelper(private val context: Context) :
         var pari = ""
 
         db.rawQuery(
-            "SELECT tamil_year, tamil_month, tamil_date, weekday_ta, tithi_name, tithi_time, " +
+            "SELECT tamil_year, tamil_month, tamil_date, weekday_ta, paksha, tithi_name, tithi_time, " +
                     "nakshatra_name, nakshatra_time, yoga_name, amritadi_yoga, karana_name, " +
                     "tyajyam_time, festivals_events, chandrashtamam_rasi, soolam, parikaram " +
                     "FROM panchangam_daily WHERE gregorian_date = ?",
@@ -115,18 +135,19 @@ class TamilDatabaseHelper(private val context: Context) :
                 tMonth = cursor.getString(1) ?: ""
                 tDate = cursor.getInt(2)
                 wdayTa = cursor.getString(3) ?: ""
-                tithiN = cursor.getString(4) ?: ""
-                tithiT = cursor.getString(5) ?: ""
-                nakN = cursor.getString(6) ?: ""
-                nakT = cursor.getString(7) ?: ""
-                yogN = cursor.getString(8) ?: ""
-                amrYoga = cursor.getString(9) ?: ""
-                karN = cursor.getString(10) ?: ""
-                tyajT = cursor.getString(11) ?: ""
-                fest = cursor.getString(12) ?: ""
-                chandra = cursor.getString(13) ?: ""
-                sool = cursor.getString(14) ?: ""
-                pari = cursor.getString(15) ?: ""
+                pak = cursor.getString(4) ?: ""
+                tithiN = cursor.getString(5) ?: ""
+                tithiT = cursor.getString(6) ?: ""
+                nakN = cursor.getString(7) ?: ""
+                nakT = cursor.getString(8) ?: ""
+                yogN = cursor.getString(9) ?: ""
+                amrYoga = cursor.getString(10) ?: ""
+                karN = cursor.getString(11) ?: ""
+                tyajT = cursor.getString(12) ?: ""
+                fest = cursor.getString(13) ?: ""
+                chandra = cursor.getString(14) ?: ""
+                sool = cursor.getString(15) ?: ""
+                pari = cursor.getString(16) ?: ""
             } else {
                 return null
             }
@@ -231,6 +252,7 @@ class TamilDatabaseHelper(private val context: Context) :
             tamilMonth = tMonth,
             tamilDate = tDate,
             weekdayTa = wdayTa,
+            paksha = pak,
             tithiName = tithiN,
             tithiTime = tithiT,
             nakshatraName = nakN,
