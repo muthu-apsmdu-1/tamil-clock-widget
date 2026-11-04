@@ -1,6 +1,5 @@
 package com.example.tamilclock
 
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Color
 import android.graphics.Typeface
@@ -25,6 +24,12 @@ class FragmentGowriHorai : Fragment() {
     companion object {
         private const val TAG = "FragmentGowriHorai"
         private const val REFRESH_INTERVAL = 30_000L
+
+        private const val GOWRI_DB = "gowri.db"
+        private const val HORAI_DB = "horai.db"
+
+        private const val GOWRI_TABLE = "weekday_gowri"
+        private const val HORAI_TABLE = "weekday_horai"
     }
 
     private lateinit var tabBtnGowri: TextView
@@ -46,6 +51,64 @@ class FragmentGowriHorai : Fragment() {
     private var selectedCalendar: Calendar = Calendar.getInstance()
 
     private val refreshHandler = Handler(Looper.getMainLooper())
+
+    // --------------------------------------------------
+    // DATABASE SLOT DEFINITIONS
+    // --------------------------------------------------
+
+    private data class SlotDefinition(
+        val column: String,
+        val startMinute: Int,
+        val durationMinutes: Int
+    )
+
+    // Gowri: 8 periods, each 90 minutes.
+    // Day:   06:00 to 18:00
+    // Night: 18:00 to 06:00
+    private val gowriSlots = listOf(
+        SlotDefinition("slot_6_730", 0, 90),
+        SlotDefinition("slot_730_9", 90, 90),
+        SlotDefinition("slot_9_1030", 180, 90),
+        SlotDefinition("slot_1030_12", 270, 90),
+        SlotDefinition("slot_12_130", 360, 90),
+        SlotDefinition("slot_130_3", 450, 90),
+        SlotDefinition("slot_3_430", 540, 90),
+        SlotDefinition("slot_430_6", 630, 90)
+    )
+
+    // Horai: 12 periods, each 60 minutes.
+    // Day:   06:00 to 18:00
+    // Night: 18:00 to 06:00
+    private val horaiSlots = listOf(
+        SlotDefinition("slot_6_7", 0, 60),
+        SlotDefinition("slot_7_8", 60, 60),
+        SlotDefinition("slot_8_9", 120, 60),
+        SlotDefinition("slot_9_10", 180, 60),
+        SlotDefinition("slot_10_11", 240, 60),
+        SlotDefinition("slot_11_12", 300, 60),
+        SlotDefinition("slot_12_1", 360, 60),
+        SlotDefinition("slot_1_2", 420, 60),
+        SlotDefinition("slot_2_3", 480, 60),
+        SlotDefinition("slot_3_4", 540, 60),
+        SlotDefinition("slot_4_5", 600, 60),
+        SlotDefinition("slot_5_6", 660, 60)
+    )
+
+    // --------------------------------------------------
+    // DATA MODEL
+    // --------------------------------------------------
+
+    data class SlotItem(
+        val timeRange: String,
+        val name: String,
+        val startMin: Int,
+        val endMin: Int,
+        val isAuspicious: Boolean
+    )
+
+    // --------------------------------------------------
+    // CURRENT TIME REFRESH
+    // --------------------------------------------------
 
     private val timeTickRunnable = object : Runnable {
         override fun run() {
@@ -85,19 +148,14 @@ class FragmentGowriHorai : Fragment() {
 
         containerGowriDay = view.findViewById(R.id.container_gowri_day_slots)
         containerGowriNight = view.findViewById(R.id.container_gowri_night_slots)
+
         containerHoraiDay = view.findViewById(R.id.container_horai_day_slots)
         containerHoraiNight = view.findViewById(R.id.container_horai_night_slots)
 
-        tabBtnGowri.setOnClickListener {
-            switchTab(true)
-        }
-
-        tabBtnHorai.setOnClickListener {
-            switchTab(false)
-        }
+        tabBtnGowri.setOnClickListener { switchTab(true) }
+        tabBtnHorai.setOnClickListener { switchTab(false) }
 
         switchTab(isGowriSelected)
-
         updateDate(selectedCalendar)
     }
 
@@ -136,21 +194,18 @@ class FragmentGowriHorai : Fragment() {
     // --------------------------------------------------
 
     fun updateDate(cal: Calendar) {
-        if (!isAdded || view == null) return
-
         selectedCalendar = cal.clone() as Calendar
 
         val today = Calendar.getInstance()
+        isSelectedDateToday = isSameDate(selectedCalendar, today)
 
-        isSelectedDateToday =
-            cal.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
-            cal.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
+        if (!isAdded || view == null) return
 
-        val day = cal.get(Calendar.DAY_OF_MONTH)
-        val month = cal.get(Calendar.MONTH) + 1
-        val year = cal.get(Calendar.YEAR) % 100
+        val day = selectedCalendar.get(Calendar.DAY_OF_MONTH)
+        val month = selectedCalendar.get(Calendar.MONTH) + 1
+        val year = selectedCalendar.get(Calendar.YEAR) % 100
 
-        val dayName = getTamilDayName(cal.get(Calendar.DAY_OF_WEEK))
+        val dayName = getTamilDayName(selectedCalendar.get(Calendar.DAY_OF_WEEK))
 
         tvHeaderStripDate.text = String.format(
             Locale.getDefault(),
@@ -169,8 +224,7 @@ class FragmentGowriHorai : Fragment() {
             tvHeaderStripDate.setTextColor(Color.parseColor("#B71C1C"))
         }
 
-        renderTablesFromSqlite(cal)
-
+        renderTablesFromSqlite(selectedCalendar)
         highlightCurrentSlotIfToday()
     }
 
@@ -192,8 +246,8 @@ class FragmentGowriHorai : Fragment() {
 
             val tempFile = File(parent, "$dbName.tmp")
 
-            if (tempFile.exists()) {
-                tempFile.delete()
+            if (tempFile.exists() && !tempFile.delete()) {
+                throw IllegalStateException("Cannot remove temporary database")
             }
 
             try {
@@ -221,65 +275,76 @@ class FragmentGowriHorai : Fragment() {
     }
 
     // --------------------------------------------------
-    // DATABASE COLUMN DETECTION
+    // DATABASE STRUCTURE VALIDATION
     // --------------------------------------------------
 
-    private fun getColumnNames(
+    private fun validateDatabase(
         db: SQLiteDatabase,
-        tableName: String
-    ): Set<String> {
+        tableName: String,
+        requiredColumns: List<String>
+    ) {
         val columns = mutableSetOf<String>()
 
         db.rawQuery("PRAGMA table_info($tableName)", null).use { cursor ->
-            val nameIndex = cursor.getColumnIndexOrThrow("name")
+            val index = cursor.getColumnIndexOrThrow("name")
             while (cursor.moveToNext()) {
-                columns.add(cursor.getString(nameIndex))
+                columns.add(cursor.getString(index))
             }
         }
 
-        return columns
+        if (!columns.containsAll(requiredColumns)) {
+            throw IllegalStateException("Invalid database structure: $tableName")
+        }
     }
 
     // --------------------------------------------------
-    // RENDER DATABASE TABLES
+    // TAMIL WEEKDAY
+    // --------------------------------------------------
+
+    private fun getTamilDayName(dayOfWeek: Int): String {
+        return when (dayOfWeek) {
+            Calendar.SUNDAY -> "ஞாயிறு"
+            Calendar.MONDAY -> "திங்கள்"
+            Calendar.TUESDAY -> "செவ்வாய்"
+            Calendar.WEDNESDAY -> "புதன்"
+            Calendar.THURSDAY -> "வியாழன்"
+            Calendar.FRIDAY -> "வெள்ளி"
+            Calendar.SATURDAY -> "சனி"
+            else -> ""
+        }
+    }
+
+    // --------------------------------------------------
+    // RENDER BOTH DATABASES
     // --------------------------------------------------
 
     private fun renderTablesFromSqlite(cal: Calendar) {
         clearAllContainers()
 
-        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+        val weekday = getTamilDayName(cal.get(Calendar.DAY_OF_WEEK))
 
-        val dayNameEng = when (dayOfWeek) {
-            Calendar.SUNDAY -> "Sunday"
-            Calendar.MONDAY -> "Monday"
-            Calendar.TUESDAY -> "Tuesday"
-            Calendar.WEDNESDAY -> "Wednesday"
-            Calendar.THURSDAY -> "Thursday"
-            Calendar.FRIDAY -> "Friday"
-            Calendar.SATURDAY -> "Saturday"
-            else -> "Sunday"
-        }
-
-        // GOWRI DATABASE
         try {
-            getDb("gowri.db").use { db ->
-                loadGowriData(db, dayNameEng, dayOfWeek)
+            getDb(GOWRI_DB).use { db ->
+                loadGowriData(db, weekday)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Gowri database error", e)
             showDatabaseError(containerGowriDay, containerGowriNight)
         }
 
-        // HORAI DATABASE
         try {
-            getDb("horai.db").use { db ->
-                loadHoraiData(db, dayNameEng, dayOfWeek)
+            getDb(HORAI_DB).use { db ->
+                loadHoraiData(db, weekday)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Horai database error", e)
             showDatabaseError(containerHoraiDay, containerHoraiNight)
         }
     }
+
+    // --------------------------------------------------
+    // CLEAR CONTAINERS
+    // --------------------------------------------------
 
     private fun clearAllContainers() {
         containerGowriDay.removeAllViews()
@@ -289,145 +354,191 @@ class FragmentGowriHorai : Fragment() {
     }
 
     // --------------------------------------------------
-    // WEEKDAY QUERY
-    // --------------------------------------------------
-
-    private fun getWeekdayQuery(
-        db: SQLiteDatabase,
-        table: String,
-        dayName: String,
-        dayId: Int
-    ): Cursor {
-        val columns = getColumnNames(db, table)
-
-        val dayColumn = when {
-            "day_id" in columns -> "day_id"
-            "day" in columns -> "day"
-            else -> throw IllegalStateException("$table has no weekday column")
-        }
-
-        val orderColumn = if ("id" in columns) "id" else "rowid"
-
-        val requiredColumns = when (table) {
-            "gowri" -> listOf("time", "name", "type")
-            "horai" -> listOf("time", "planet", "type")
-            else -> emptyList()
-        }
-
-        if (!columns.containsAll(requiredColumns)) {
-            throw IllegalStateException("Missing columns in $table")
-        }
-
-        val selectionValue = if (dayColumn == "day_id") {
-            dayId.toString()
-        } else {
-            dayName
-        }
-
-        return db.rawQuery(
-            "SELECT * FROM $table WHERE $dayColumn = ? ORDER BY $orderColumn ASC",
-            arrayOf(selectionValue)
-        )
-    }
-
-    // --------------------------------------------------
-    // LOAD GOWRI DATA
+    // LOAD GOWRI DATABASE
     // --------------------------------------------------
 
     private fun loadGowriData(
         db: SQLiteDatabase,
-        dayNameEng: String,
-        dayOfWeek: Int
+        weekday: String
     ) {
-        val dayItems = mutableListOf<SlotItem>()
-        val nightItems = mutableListOf<SlotItem>()
+        val requiredColumns = listOf(
+            "weekday_ta",
+            "kaalam"
+        ) + gowriSlots.map { it.column }
 
         try {
-            getWeekdayQuery(db, "gowri", dayNameEng, dayOfWeek).use { cursor ->
-                val timeIndex = cursor.getColumnIndexOrThrow("time")
-                val nameIndex = cursor.getColumnIndexOrThrow("name")
-                val typeIndex = cursor.getColumnIndexOrThrow("type")
+            validateDatabase(db, GOWRI_TABLE, requiredColumns)
 
-                while (cursor.moveToNext()) {
-                    val time = cursor.getString(timeIndex)
-                    val name = cursor.getString(nameIndex)
-                    val type = cursor.getString(typeIndex)
+            val dayItems = mutableListOf<SlotItem>()
+            val nightItems = mutableListOf<SlotItem>()
 
-                    val range = parseTimeRangeToMinutes(time) ?: continue
-
-                    val item = SlotItem(
-                        time,
-                        name,
-                        range.first,
-                        range.second,
-                        isGowriGood(name)
-                    )
-
-                    if (type.equals("night", true)) {
-                        nightItems.add(item)
-                    } else {
-                        dayItems.add(item)
-                    }
-                }
-            }
+            loadGowriPeriod(db, weekday, "பகல்", dayItems, 6 * 60)
+            loadGowriPeriod(db, weekday, "இரவு", nightItems, 18 * 60)
 
             displayItems(containerGowriDay, dayItems)
             displayItems(containerGowriNight, nightItems)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Gowri query error", e)
+            Log.e(TAG, "Gowri loading error", e)
             showDatabaseError(containerGowriDay, containerGowriNight)
         }
     }
 
     // --------------------------------------------------
-    // LOAD HORAI DATA
+    // LOAD INDIVIDUAL GOWRI PERIOD
+    // --------------------------------------------------
+
+    private fun loadGowriPeriod(
+        db: SQLiteDatabase,
+        weekday: String,
+        kaalam: String,
+        destination: MutableList<SlotItem>,
+        baseMinute: Int
+    ) {
+        db.query(
+            GOWRI_TABLE,
+            null,
+            "weekday_ta = ? AND kaalam = ?",
+            arrayOf(weekday, kaalam),
+            null,
+            null,
+            null
+        ).use { cursor ->
+
+            if (!cursor.moveToFirst()) {
+                Log.w(TAG, "Gowri record not found for: $weekday, $kaalam")
+                return
+            }
+
+            for (slot in gowriSlots) {
+                val index = cursor.getColumnIndexOrThrow(slot.column)
+                val name = cursor.getString(index)?.trim().orEmpty()
+
+                if (name.isEmpty()) continue
+
+                val start = baseMinute + slot.startMinute
+                val end = start + slot.durationMinutes
+
+                val sMin = start % 1440
+                val eMin = if (end % 1440 == 0 && end > 0) 1440 else end % 1440
+
+                destination.add(
+                    SlotItem(
+                        timeRange = formatTimeRange(start, end),
+                        name = name,
+                        startMin = sMin,
+                        endMin = eMin,
+                        isAuspicious = isGowriGood(name)
+                    )
+                )
+            }
+        }
+    }
+
+    // --------------------------------------------------
+    // LOAD HORAI DATABASE
     // --------------------------------------------------
 
     private fun loadHoraiData(
         db: SQLiteDatabase,
-        dayNameEng: String,
-        dayOfWeek: Int
+        weekday: String
     ) {
-        val dayItems = mutableListOf<SlotItem>()
-        val nightItems = mutableListOf<SlotItem>()
+        val requiredColumns = listOf(
+            "weekday_ta",
+            "kaalam"
+        ) + horaiSlots.map { it.column }
 
         try {
-            getWeekdayQuery(db, "horai", dayNameEng, dayOfWeek).use { cursor ->
-                val timeIndex = cursor.getColumnIndexOrThrow("time")
-                val planetIndex = cursor.getColumnIndexOrThrow("planet")
-                val typeIndex = cursor.getColumnIndexOrThrow("type")
+            validateDatabase(db, HORAI_TABLE, requiredColumns)
 
-                while (cursor.moveToNext()) {
-                    val time = cursor.getString(timeIndex)
-                    val planet = cursor.getString(planetIndex)
-                    val type = cursor.getString(typeIndex)
+            val dayItems = mutableListOf<SlotItem>()
+            val nightItems = mutableListOf<SlotItem>()
 
-                    val range = parseTimeRangeToMinutes(time) ?: continue
-
-                    val item = SlotItem(
-                        time,
-                        planet,
-                        range.first,
-                        range.second,
-                        isHoraiGood(planet)
-                    )
-
-                    if (type.equals("night", true)) {
-                        nightItems.add(item)
-                    } else {
-                        dayItems.add(item)
-                    }
-                }
-            }
+            loadHoraiPeriod(db, weekday, "பகல்", dayItems, 6 * 60)
+            loadHoraiPeriod(db, weekday, "இரவு", nightItems, 18 * 60)
 
             displayItems(containerHoraiDay, dayItems)
             displayItems(containerHoraiNight, nightItems)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Horai query error", e)
+            Log.e(TAG, "Horai loading error", e)
             showDatabaseError(containerHoraiDay, containerHoraiNight)
         }
+    }
+
+    // --------------------------------------------------
+    // LOAD INDIVIDUAL HORAI PERIOD
+    // --------------------------------------------------
+
+    private fun loadHoraiPeriod(
+        db: SQLiteDatabase,
+        weekday: String,
+        kaalam: String,
+        destination: MutableList<SlotItem>,
+        baseMinute: Int
+    ) {
+        db.query(
+            HORAI_TABLE,
+            null,
+            "weekday_ta = ? AND kaalam = ?",
+            arrayOf(weekday, kaalam),
+            null,
+            null,
+            null
+        ).use { cursor ->
+
+            if (!cursor.moveToFirst()) {
+                Log.w(TAG, "Horai record not found for: $weekday, $kaalam")
+                return
+            }
+
+            for (slot in horaiSlots) {
+                val index = cursor.getColumnIndexOrThrow(slot.column)
+                val planet = cursor.getString(index)?.trim().orEmpty()
+
+                if (planet.isEmpty()) continue
+
+                val start = baseMinute + slot.startMinute
+                val end = start + slot.durationMinutes
+
+                val sMin = start % 1440
+                val eMin = if (end % 1440 == 0 && end > 0) 1440 else end % 1440
+
+                destination.add(
+                    SlotItem(
+                        timeRange = formatTimeRange(start, end),
+                        name = planet,
+                        startMin = sMin,
+                        endMin = eMin,
+                        isAuspicious = isHoraiGood(planet)
+                    )
+                )
+            }
+        }
+    }
+
+    // --------------------------------------------------
+    // TIME FORMATTING
+    // --------------------------------------------------
+
+    private fun formatTimeRange(
+        startMinute: Int,
+        endMinute: Int
+    ): String {
+        return "${formatClock(startMinute)} - ${formatClock(endMinute)}"
+    }
+
+    private fun formatClock(totalMinutes: Int): String {
+        val minuteOfDay = totalMinutes % 1440
+        val hour = minuteOfDay / 60
+        val minute = minuteOfDay % 60
+
+        return String.format(
+            Locale.US,
+            "%02d:%02d",
+            hour,
+            minute
+        )
     }
 
     // --------------------------------------------------
@@ -498,7 +609,8 @@ class FragmentGowriHorai : Fragment() {
             name.contains("சுகம்") ||
             name.contains("அமிர்தம்") ||
             name.contains("உத்தி") ||
-            name.contains("சுபம்")
+            name.contains("சுபம்") ||
+            name.contains("தனம்")
     }
 
     private fun isHoraiGood(planet: String): Boolean {
@@ -506,36 +618,6 @@ class FragmentGowriHorai : Fragment() {
             planet.contains("சுக்கிரன்") ||
             planet.contains("புதன்") ||
             planet.contains("சந்திரன்")
-    }
-
-    // --------------------------------------------------
-    // TIME VALIDATION
-    // --------------------------------------------------
-
-    private fun parseTimeRangeToMinutes(timeRange: String): Pair<Int, Int>? {
-        return try {
-            val parts = timeRange.split("-")
-            if (parts.size != 2) return null
-
-            val timePattern = Regex("^([01]?[0-9]|2[0-3]):([0-5][0-9])$")
-
-            fun parseTime(value: String): Int? {
-                val match = timePattern.matchEntire(value.trim()) ?: return null
-                val hour = match.groupValues[1].toInt()
-                val minute = match.groupValues[2].toInt()
-                return hour * 60 + minute
-            }
-
-            val start = parseTime(parts[0]) ?: return null
-            val end = parseTime(parts[1]) ?: return null
-
-            if (start == end) return null
-
-            Pair(start, end)
-        } catch (e: Exception) {
-            Log.w(TAG, "Invalid time range: $timeRange", e)
-            null
-        }
     }
 
     // --------------------------------------------------
@@ -632,20 +714,15 @@ class FragmentGowriHorai : Fragment() {
     }
 
     // --------------------------------------------------
-    // TAMIL WEEKDAY
+    // DATE COMPARISON
     // --------------------------------------------------
 
-    private fun getTamilDayName(dayOfWeek: Int): String {
-        return when (dayOfWeek) {
-            Calendar.SUNDAY -> "ஞாயிறு"
-            Calendar.MONDAY -> "திங்கள்"
-            Calendar.TUESDAY -> "செவ்வாய்"
-            Calendar.WEDNESDAY -> "புதன்"
-            Calendar.THURSDAY -> "வியாழன்"
-            Calendar.FRIDAY -> "வெள்ளி"
-            Calendar.SATURDAY -> "சனி"
-            else -> ""
-        }
+    private fun isSameDate(
+        first: Calendar,
+        second: Calendar
+    ): Boolean {
+        return first.get(Calendar.YEAR) == second.get(Calendar.YEAR) &&
+            first.get(Calendar.DAY_OF_YEAR) == second.get(Calendar.DAY_OF_YEAR)
     }
 
     // --------------------------------------------------
@@ -664,33 +741,13 @@ class FragmentGowriHorai : Fragment() {
         refreshHandler.post(timeTickRunnable)
     }
 
-    private fun isSameDate(
-        first: Calendar,
-        second: Calendar
-    ): Boolean {
-        return first.get(Calendar.YEAR) == second.get(Calendar.YEAR) &&
-            first.get(Calendar.DAY_OF_YEAR) == second.get(Calendar.DAY_OF_YEAR)
-    }
-
     override fun onPause() {
         refreshHandler.removeCallbacks(timeTickRunnable)
         super.onPause()
     }
 
     override fun onDestroyView() {
-        refreshHandler.removeCallbacks(timeTickRunnable)
+        refreshHandler.removeCallbacksAndMessages(null)
         super.onDestroyView()
     }
-
-    // --------------------------------------------------
-    // DATA MODEL
-    // --------------------------------------------------
-
-    data class SlotItem(
-        val timeRange: String,
-        val name: String,
-        val startMin: Int,
-        val endMin: Int,
-        val isAuspicious: Boolean
-    )
 }
