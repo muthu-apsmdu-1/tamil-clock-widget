@@ -1,7 +1,11 @@
 package com.example.tamilclock
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
@@ -22,7 +26,6 @@ class FragmentSettings : Fragment() {
         const val KEY_WIDGET_COLOR = "key_widget_color"
         const val KEY_WIDGET_OPACITY = "key_widget_opacity"
 
-        // Default selections
         const val DEFAULT_APP_THEME = "ivory_cream"
         const val DEFAULT_WIDGET_COLOR = "#4A0E17"
         const val DEFAULT_WIDGET_OPACITY = 85
@@ -108,7 +111,7 @@ class FragmentSettings : Fragment() {
     private fun renderAppThemeOptions() {
         layoutAppThemes.removeAllViews()
         for (option in appThemeOptions) {
-            val isSelected = option.id == currentAppTheme
+            val isSelected = (option.id == currentAppTheme)
             val box = createColorOptionBox(
                 title = option.title,
                 bgColor = Color.parseColor(option.colorHex),
@@ -118,7 +121,6 @@ class FragmentSettings : Fragment() {
                 currentAppTheme = option.id
                 savePreference(KEY_APP_THEME, currentAppTheme)
                 renderAppThemeOptions()
-                // Trigger ThemeManager or activity recreation if dynamic reload is desired
                 ThemeManager.applyTheme(requireActivity())
             }
             layoutAppThemes.addView(box)
@@ -205,7 +207,7 @@ class FragmentSettings : Fragment() {
             text = title
             setTextColor(textColor)
             textSize = 14f
-            textStyle = android.graphics.Typeface.BOLD
+            setTypeface(typeface, Typeface.BOLD)
         }
 
         val tvIndicator = TextView(requireContext()).apply {
@@ -216,7 +218,7 @@ class FragmentSettings : Fragment() {
             text = if (isSelected) "✔" else ""
             setTextColor(if (isSelected) Color.parseColor("#FFD043") else Color.TRANSPARENT)
             textSize = 16f
-            textStyle = android.graphics.Typeface.BOLD
+            setTypeface(typeface, Typeface.BOLD)
         }
 
         innerCard.addView(tvTitle)
@@ -236,7 +238,6 @@ class FragmentSettings : Fragment() {
         }
         cardWidgetPreview.background = bgShape
 
-        // Adjust preview text color contrast depending on widget color
         val isLightWidget = currentWidgetColor.equals("#FFFFFF", ignoreCase = true)
         val contentTextColor = if (isLightWidget) Color.BLACK else Color.WHITE
         tvPreviewTitle.setTextColor(contentTextColor)
@@ -244,11 +245,25 @@ class FragmentSettings : Fragment() {
     }
 
     private fun notifyWidgetsUpdate() {
-        // Trigger WidgetUpdateHelper to refresh all active widgets immediately
-        try {
-            WidgetUpdateHelper.updateAllWidgets(requireContext())
-        } catch (e: Exception) {
-            e.printStackTrace()
+        val ctx = context ?: return
+        val appWidgetManager = AppWidgetManager.getInstance(ctx)
+
+        val providers = listOf(
+            WidgetProvider2x1::class.java,
+            WidgetProvider4x1::class.java,
+            WidgetProvider4x2::class.java,
+            WidgetProvider4x4::class.java
+        )
+
+        for (providerClass in providers) {
+            val ids = appWidgetManager.getAppWidgetIds(ComponentName(ctx, providerClass))
+            if (ids.isNotEmpty()) {
+                val intent = Intent(ctx, providerClass).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+                }
+                ctx.sendBroadcast(intent)
+            }
         }
     }
 }
