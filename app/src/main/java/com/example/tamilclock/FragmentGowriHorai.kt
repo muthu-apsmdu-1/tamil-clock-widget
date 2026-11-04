@@ -30,6 +30,17 @@ class FragmentGowriHorai : Fragment() {
 
         private const val GOWRI_TABLE = "weekday_gowri"
         private const val HORAI_TABLE = "weekday_horai"
+
+        private const val ARG_IS_HORAI = "arg_is_horai"
+
+        fun newInstance(initialTabIsHorai: Boolean): FragmentGowriHorai {
+            val fragment = FragmentGowriHorai()
+            val args = Bundle().apply {
+                putBoolean(ARG_IS_HORAI, initialTabIsHorai)
+            }
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     private lateinit var tabBtnGowri: TextView
@@ -137,6 +148,12 @@ class FragmentGowriHorai : Fragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Read initial configuration from arguments if provided
+        arguments?.let {
+            val startAsHorai = it.getBoolean(ARG_IS_HORAI, false)
+            isGowriSelected = !startAsHorai
+        }
 
         tabBtnGowri = view.findViewById(R.id.tab_btn_gowri)
         tabBtnHorai = view.findViewById(R.id.tab_btn_horai)
