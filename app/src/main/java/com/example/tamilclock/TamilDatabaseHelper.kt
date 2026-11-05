@@ -1,293 +1,501 @@
 package com.example.tamilclock
 
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import java.io.File
 import java.io.FileOutputStream
 
-class TamilDatabaseHelper(private val context: Context) :
-    SQLiteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+/**
+ * Reads the six supplied SQLite databases.
+ *
+ * Required assets:
+ * app/src/main/assets/panchang_clcon.db
+ * app/src/main/assets/rasipalan_daily.db
+ * app/src/main/assets/sun_moon_timings.db
+ * app/src/main/assets/auspicious_periods.db
+ * app/src/main/assets/gowri.db
+ * app/src/main/assets/horai.db
+ *
+ * Original database schemas are preserved.
+ */
+class TamilDatabaseHelper(context: Context) {
 
-    companion object {
-        private const val DB_NAME = "panchang_clcon.db"
-        private const val DB_VERSION = 1
-    }
+    private val appContext = context.applicationContext
+
+    private val databaseNames = listOf(
+        "panchang_clcon.db",
+        "rasipalan_daily.db",
+        "sun_moon_timings.db",
+        "auspicious_periods.db",
+        "gowri.db",
+        "horai.db"
+    )
+
+    private val databases = mutableMapOf<String, SQLiteDatabase>()
 
     init {
-        copyDatabaseIfNeeded()
+        copyDatabasesIfRequired()
     }
 
-    private fun copyDatabaseIfNeeded() {
-        val dbFile = context.getDatabasePath(DB_NAME)
-        if (!dbFile.exists()) {
-            dbFile.parentFile?.mkdirs()
-            val tempFile = File(dbFile.parentFile, "$DB_NAME.tmp")
-            if (tempFile.exists()) tempFile.delete()
+    // ---------------------------------------------------------
+    // 1. COPY DATABASE ASSETS SAFELY
+    // ---------------------------------------------------------
 
-            context.assets.open(DB_NAME).use { input ->
-                FileOutputStream(tempFile).use { output ->
-                    input.copyTo(output)
-                    output.fd.sync()
+    private fun copyDatabasesIfRequired() {
+        val dummyPath = appContext.getDatabasePath("dummy.db")
+        val directory = dummyPath.parentFile ?: File(appContext.applicationInfo.dataDir, "databases")
+
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
+        for (databaseName in databaseNames) {
+            val destination = File(directory, databaseName)
+
+            if (!destination.exists()) {
+                val temporaryFile = File(directory, "$databaseName.tmp")
+
+                try {
+                    appContext.assets.open(databaseName).use { input ->
+                        FileOutputStream(temporaryFile).use { output ->
+                            input.copyTo(output)
+                            output.flush()
+                        }
+                    }
+
+                    if (!temporaryFile.renameTo(destination)) {
+                        temporaryFile.copyTo(destination, overwrite = true)
+                        temporaryFile.delete()
+                    }
+                } catch (e: Exception) {
+                    temporaryFile.delete()
+                    e.printStackTrace()
                 }
             }
-            if (!tempFile.renameTo(dbFile)) {
-                tempFile.delete()
-            }
         }
     }
 
-    override fun onCreate(db: SQLiteDatabase?) {}
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
+    // ---------------------------------------------------------
+    // 2. OPEN DATABASE
+    // ---------------------------------------------------------
 
-    data class DayPanchangDetails(
-        val tamilYear: String,
-        val tamilMonth: String,
-        val tamilDate: Int,
-        val weekdayTa: String,
-        val paksha: String,
-        val tithiName: String,
-        val tithiTime: String,
-        val nakshatraName: String,
-        val nakshatraTime: String,
-        val yogaName: String,
-        val amritadiYoga: String,
-        val karanaName: String,
-        val tyajyamTime: String,
-        val festivalsEvents: String,
-        val chandrashtamamRasi: String,
-        val soolam: String,
-        val parikaram: String,
-        val sunrise: String,
-        val sunset: String,
-        val moonrise: String,
-        val moonset: String,
-        val nallaNeramMorn: String,
-        val nallaNeramEve: String,
-        val gowriMorn: String,
-        val gowriEve: String,
-        val rahu: String,
-        val yamagandam: String,
-        val kuligai: String,
-        val rasiMesham: String,
-        val rasiRishabam: String,
-        val rasiMithunam: String,
-        val rasiKadagam: String,
-        val rasiSimmam: String,
-        val rasiKanni: String,
-        val rasiThulaam: String,
-        val rasiViruchigam: String,
-        val rasiDhanusu: String,
-        val rasiMagaram: String,
-        val rasiKumbam: String,
-        val rasiMeenam: String
-    ) {
-        // Backward-compatibility aliases for CalendarMonthAdapter, Widgets, and WidgetUpdateHelper
-        val tamilDay: String get() = weekdayTa
-        val dayName: String get() = weekdayTa
-        val dayNameTa: String get() = weekdayTa
-        val tithi: String get() = tithiName
-        val nakshatra: String get() = nakshatraName
-        val yoga: String get() = if (amritadiYoga.isNotEmpty()) amritadiYoga else yogaName
-        val paksham: String get() = paksha
-        val chandrashtamam: String get() = chandrashtamamRasi
-        val nallaNeramMorning: String get() = nallaNeramMorn
-        val nallaNeramEvening: String get() = nallaNeramEve
-        val gowriNallaNeramMorning: String get() = gowriMorn
-        val gowriNallaNeramEvening: String get() = gowriEve
-        val rahuKaalam: String get() = rahu
-        val festivals: String get() = festivalsEvents
-        val karanam: String get() = karanaName
-        val tyajyam: String get() = tyajyamTime
+    private fun getDatabase(databaseName: String): SQLiteDatabase {
+        databases[databaseName]?.let {
+            if (it.isOpen) return it
+        }
+
+        val file = appContext.getDatabasePath(databaseName)
+
+        val database = SQLiteDatabase.openDatabase(
+            file.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY
+        )
+
+        databases[databaseName] = database
+        return database
     }
+
+    // ---------------------------------------------------------
+    // 3. CURSOR HELPERS
+    // ---------------------------------------------------------
+
+    private fun Cursor.string(column: String): String {
+        val index = getColumnIndex(column)
+        return if (index >= 0 && !isNull(index)) {
+            getString(index) ?: ""
+        } else {
+            ""
+        }
+    }
+
+    private fun Cursor.intValue(column: String): Int {
+        val index = getColumnIndex(column)
+        return if (index >= 0 && !isNull(index)) {
+            getInt(index)
+        } else {
+            0
+        }
+    }
+
+    private fun queryOne(
+        databaseName: String,
+        tableName: String,
+        selection: String,
+        selectionArgs: Array<String>
+    ): Cursor? {
+        return try {
+            getDatabase(databaseName).query(
+                tableName,
+                null,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null,
+                "1"
+            ).let { cursor ->
+                if (cursor.moveToFirst()) cursor else {
+                    cursor.close()
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 4. MAIN PANCHANGAM DATA MODEL
+    // ---------------------------------------------------------
+
+data class DayPanchangDetails(
+    val gregorianDate: String = "",
+    val tamilYear: String = "",
+    val tamilMonth: String = "",
+    val tamilDate: Int = 0,               // DB Column (INTEGER)
+    val weekdayTa: String = "",           // DB Column (TEXT)
+    val paksha: String = "",
+    val tithiName: String = "",
+    val tithiTime: String = "",
+    val nakshatraName: String = "",
+    val nakshatraTime: String = "",
+    val yogaName: String = "",
+    val yogaTime: String = "",
+    val amritadiYoga: String = "",
+    val karanaName: String = "",
+    val karanaTime: String = "",
+    val tyajyamTime: String = "",
+    val festivalsEvents: String = "",
+    val chandrashtamamRasi: String = "",
+    val soolam: String = "",
+    val parikaram: String = "",
+    val sunrise: String = "",
+    val sunset: String = "",
+    val moonrise: String = "",
+    val moonset: String = "",
+    val nallaNeramMorningStart: String = "",
+    val nallaNeramMorningEnd: String = "",
+    val nallaNeramEveningStart: String = "",
+    val nallaNeramEveningEnd: String = "",
+    val gowriDayStart: String = "",
+    val gowriDayEnd: String = "",
+    val gowriNightStart: String = "",
+    val gowriNightEnd: String = "",
+    val raghuStart: String = "",
+    val raghuEnd: String = "",
+    val emagandamStart: String = "",
+    val emagandamEnd: String = "",
+    val kuligaiStart: String = "",
+    val kuligaiEnd: String = ""
+) {
+    // -------------------------------------------------------------
+    // DATE & DAY COMPATIBILITY ALIASES
+    // -------------------------------------------------------------
+    
+    // Resolves CalendarMonthAdapter.kt & Widget date number text as String
+    val tamilDay: String get() = if (tamilDate > 0) tamilDate.toString() else ""
+    val tamilDateStr: String get() = tamilDay
+
+    // Weekday Name String
+    val dayName: String get() = weekdayTa
+    val dayNameTa: String get() = weekdayTa
+
+    // -------------------------------------------------------------
+    // ASTROLOGICAL ALIASES
+    // -------------------------------------------------------------
+    val tithi: String get() = tithiName
+    val nakshatra: String get() = nakshatraName
+    val yoga: String get() = if (amritadiYoga.isNotBlank()) amritadiYoga else yogaName
+    val paksham: String get() = paksha
+    val karanam: String get() = karanaName
+    val chandrashtamam: String get() = chandrashtamamRasi
+    val festivals: String get() = festivalsEvents
+    val tyajyam: String get() = tyajyamTime
+
+    // Timings aliases for Widgets and FragmentPanchangam
+    val nallaNeramMorning: String get() = combineTime(nallaNeramMorningStart, nallaNeramMorningEnd)
+    val nallaNeramEvening: String get() = combineTime(nallaNeramEveningStart, nallaNeramEveningEnd)
+    val nallaNeramMorn: String get() = nallaNeramMorning
+    val nallaNeramEve: String get() = nallaNeramEvening
+
+    val gowriMorning: String get() = combineTime(gowriDayStart, gowriDayEnd)
+    val gowriNight: String get() = combineTime(gowriNightStart, gowriNightEnd)
+    val gowriMorn: String get() = gowriMorning
+    val gowriEve: String get() = gowriNight
+
+    val rahuKaalam: String get() = combineTime(raghuStart, raghuEnd)
+    val rahu: String get() = rahuKaalam
+    val yamagandam: String get() = combineTime(emagandamStart, emagandamEnd)
+    val kuligai: String get() = combineTime(kuligaiStart, kuligaiEnd)
+
+    private fun combineTime(start: String, end: String): String {
+        return if (start.isNotBlank() && end.isNotBlank()) "$start - $end" else ""
+    }
+}
+
+
+    // ---------------------------------------------------------
+    // 5. RASI PALAN DATA MODEL
+    // ---------------------------------------------------------
+
+    data class RasiPalanDetails(
+        val gregorianDate: String = "",
+        val tamilMonth: String = "",
+        val tamilDate: Int = 0,
+        val weekdayTa: String = "",
+        val nakshatraName: String = "",
+        val mesham: String = "",
+        val rishabam: String = "",
+        val mithunam: String = "",
+        val katakam: String = "",
+        val simmam: String = "",
+        val kanni: String = "",
+        val thulaam: String = "",
+        val viruchigam: String = "",
+        val dhanusu: String = "",
+        val makaram: String = "",
+        val kumbam: String = "",
+        val meenam: String = ""
+    ) {
+        val rasiKadagam: String get() = katakam
+    }
+
+    // ---------------------------------------------------------
+    // 6. GOWRI DATABASE DATA MODEL
+    // ---------------------------------------------------------
+
+    data class GowriDetails(
+        val weekdayTa: String,
+        val kaalam: String,
+        val slots: List<String>
+    )
+
+    // ---------------------------------------------------------
+    // 7. HORAI DATABASE DATA MODEL
+    // ---------------------------------------------------------
+
+    data class HoraiDetails(
+        val weekdayTa: String,
+        val kaalam: String,
+        val slots: List<String>
+    )
+
+    // ---------------------------------------------------------
+    // 8. GET COMPLETE DAILY PANCHANGAM
+    // ---------------------------------------------------------
 
     fun getDayDetails(gregorianDate: String): DayPanchangDetails? {
-        val db = readableDatabase
-
-        // 1. Query panchangam_daily
-        var tYear = ""
-        var tMonth = ""
-        var tDate = 0
-        var wdayTa = ""
-        var pak = ""
-        var tithiN = ""
-        var tithiT = ""
-        var nakN = ""
-        var nakT = ""
-        var yogN = ""
-        var amrYoga = ""
-        var karN = ""
-        var tyajT = ""
-        var fest = ""
-        var chandra = ""
-        var sool = ""
-        var pari = ""
-
-        db.rawQuery(
-            "SELECT tamil_year, tamil_month, tamil_date, weekday_ta, paksha, tithi_name, tithi_time, " +
-                    "nakshatra_name, nakshatra_time, yoga_name, amritadi_yoga, karana_name, " +
-                    "tyajyam_time, festivals_events, chandrashtamam_rasi, soolam, parikaram " +
-                    "FROM panchangam_daily WHERE gregorian_date = ?",
+        val panchangCursor = queryOne(
+            "panchang_clcon.db",
+            "panchangam_daily",
+            "gregorian_date = ?",
             arrayOf(gregorianDate)
-        ).use { cursor ->
-            if (cursor.moveToFirst()) {
-                tYear = cursor.getString(0) ?: ""
-                tMonth = cursor.getString(1) ?: ""
-                tDate = cursor.getInt(2)
-                wdayTa = cursor.getString(3) ?: ""
-                pak = cursor.getString(4) ?: ""
-                tithiN = cursor.getString(5) ?: ""
-                tithiT = cursor.getString(6) ?: ""
-                nakN = cursor.getString(7) ?: ""
-                nakT = cursor.getString(8) ?: ""
-                yogN = cursor.getString(9) ?: ""
-                amrYoga = cursor.getString(10) ?: ""
-                karN = cursor.getString(11) ?: ""
-                tyajT = cursor.getString(12) ?: ""
-                fest = cursor.getString(13) ?: ""
-                chandra = cursor.getString(14) ?: ""
-                sool = cursor.getString(15) ?: ""
-                pari = cursor.getString(16) ?: ""
-            } else {
-                return null
-            }
+        ) ?: return null
+
+        val panchang = panchangCursor.use { cursor ->
+            DayPanchangDetails(
+                gregorianDate = cursor.string("gregorian_date"),
+                tamilYear = cursor.string("tamil_year"),
+                tamilMonth = cursor.string("tamil_month"),
+                tamilDate = cursor.intValue("tamil_date"),
+                weekdayTa = cursor.string("weekday_ta"),
+                paksha = cursor.string("paksha"),
+                tithiName = cursor.string("tithi_name"),
+                tithiTime = cursor.string("tithi_time"),
+                nakshatraName = cursor.string("nakshatra_name"),
+                nakshatraTime = cursor.string("nakshatra_time"),
+                yogaName = cursor.string("yoga_name"),
+                yogaTime = cursor.string("yoga_time"),
+                amritadiYoga = cursor.string("amritadi_yoga"),
+                karanaName = cursor.string("karana_name"),
+                karanaTime = cursor.string("karana_time"),
+                tyajyamTime = cursor.string("tyajyam_time"),
+                festivalsEvents = cursor.string("festivals_events"),
+                chandrashtamamRasi = cursor.string("chandrashtamam_rasi"),
+                soolam = cursor.string("soolam"),
+                parikaram = cursor.string("parikaram")
+            )
         }
 
-        // 2. Query sun_moon_timings
-        var sRise = ""
-        var sSet = ""
-        var mRise = ""
-        var mSet = ""
-        db.rawQuery(
-            "SELECT sunrise, sunset, moonrise, moonset FROM sun_moon_timings WHERE date_gregorian = ?",
+        val sunMoonCursor = queryOne(
+            "sun_moon_timings.db",
+            "sun_moon_timings",
+            "date_gregorian = ?",
             arrayOf(gregorianDate)
-        ).use { cursor ->
-            if (cursor.moveToFirst()) {
-                sRise = cursor.getString(0) ?: ""
-                sSet = cursor.getString(1) ?: ""
-                mRise = cursor.getString(2) ?: ""
-                mSet = cursor.getString(3) ?: ""
-            }
-        }
-
-        // 3. Query weekday_timings_summary
-        var nallaM = ""
-        var nallaE = ""
-        var gowriM = ""
-        var gowriE = ""
-        var rk = ""
-        var yk = ""
-        var kk = ""
-        db.rawQuery(
-            "SELECT nalla_neram_morning_start, nalla_neram_morning_end, " +
-                    "nalla_neram_evening_start, nalla_neram_evening_end, " +
-                    "gowri_day_start, gowri_day_end, gowri_night_start, gowri_night_end, " +
-                    "raghu_start, raghu_end, emagandam_start, emagandam_end, " +
-                    "kuligai_start, kuligai_end FROM weekday_timings_summary WHERE weekday_ta = ?",
-            arrayOf(wdayTa)
-        ).use { cursor ->
-            if (cursor.moveToFirst()) {
-                val nms = cursor.getString(0) ?: ""
-                val nme = cursor.getString(1) ?: ""
-                val nes = cursor.getString(2) ?: ""
-                val nee = cursor.getString(3) ?: ""
-                val gds = cursor.getString(4) ?: ""
-                val gde = cursor.getString(5) ?: ""
-                val gns = cursor.getString(6) ?: ""
-                val gne = cursor.getString(7) ?: ""
-                val rs = cursor.getString(8) ?: ""
-                val re = cursor.getString(9) ?: ""
-                val ys = cursor.getString(10) ?: ""
-                val ye = cursor.getString(11) ?: ""
-                val ks = cursor.getString(12) ?: ""
-                val ke = cursor.getString(13) ?: ""
-
-                if (nms.isNotEmpty() && nme.isNotEmpty()) nallaM = "$nms - $nme"
-                if (nes.isNotEmpty() && nee.isNotEmpty()) nallaE = "$nes - $nee"
-                if (gds.isNotEmpty() && gde.isNotEmpty()) gowriM = "$gds - $gde"
-                if (gns.isNotEmpty() && gne.isNotEmpty()) gowriE = "$gns - $gne"
-                if (rs.isNotEmpty() && re.isNotEmpty()) rk = "$rs - $re"
-                if (ys.isNotEmpty() && ye.isNotEmpty()) yk = "$ys - $ye"
-                if (ks.isNotEmpty() && ke.isNotEmpty()) kk = "$ks - $ke"
-            }
-        }
-
-        // 4. Query rasipalan_daily
-        var rMesham = ""
-        var rRishabam = ""
-        var rMithunam = ""
-        var rKadagam = ""
-        var rSimmam = ""
-        var rKanni = ""
-        var rThulaam = ""
-        var rViruchigam = ""
-        var rDhanusu = ""
-        var rMagaram = ""
-        var rKumbam = ""
-        var rMeenam = ""
-        db.rawQuery(
-            "SELECT mesham, rishabam, mithunam, katakam, simmam, kanni, " +
-                    "thulaam, viruchigam, dhanusu, makaram, kumbam, meenam " +
-                    "FROM rasipalan_daily WHERE gregorian_date = ?",
-            arrayOf(gregorianDate)
-        ).use { cursor ->
-            if (cursor.moveToFirst()) {
-                rMesham = cursor.getString(0) ?: ""
-                rRishabam = cursor.getString(1) ?: ""
-                rMithunam = cursor.getString(2) ?: ""
-                rKadagam = cursor.getString(3) ?: ""
-                rSimmam = cursor.getString(4) ?: ""
-                rKanni = cursor.getString(5) ?: ""
-                rThulaam = cursor.getString(6) ?: ""
-                rViruchigam = cursor.getString(7) ?: ""
-                rDhanusu = cursor.getString(8) ?: ""
-                rMagaram = cursor.getString(9) ?: ""
-                rKumbam = cursor.getString(10) ?: ""
-                rMeenam = cursor.getString(11) ?: ""
-            }
-        }
-
-        return DayPanchangDetails(
-            tamilYear = tYear,
-            tamilMonth = tMonth,
-            tamilDate = tDate,
-            weekdayTa = wdayTa,
-            paksha = pak,
-            tithiName = tithiN,
-            tithiTime = tithiT,
-            nakshatraName = nakN,
-            nakshatraTime = nakT,
-            yogaName = yogN,
-            amritadiYoga = amrYoga,
-            karanaName = karN,
-            tyajyamTime = tyajT,
-            festivalsEvents = fest,
-            chandrashtamamRasi = chandra,
-            soolam = sool,
-            parikaram = pari,
-            sunrise = sRise,
-            sunset = sSet,
-            moonrise = mRise,
-            moonset = mSet,
-            nallaNeramMorn = nallaM,
-            nallaNeramEve = nallaE,
-            gowriMorn = gowriM,
-            gowriEve = gowriE,
-            rahu = rk,
-            yamagandam = yk,
-            kuligai = kk,
-            rasiMesham = rMesham,
-            rasiRishabam = rRishabam,
-            rasiMithunam = rMithunam,
-            rasiKadagam = rKadagam,
-            rasiSimmam = rSimmam,
-            rasiKanni = rKanni,
-            rasiThulaam = rThulaam,
-            rasiViruchigam = rViruchigam,
-            rasiDhanusu = rDhanusu,
-            rasiMagaram = rMagaram,
-            rasiKumbam = rKumbam,
-            rasiMeenam = rMeenam
         )
+
+        val sunMoon = sunMoonCursor?.use { cursor ->
+            listOf(
+                cursor.string("sunrise"),
+                cursor.string("sunset"),
+                cursor.string("moonrise"),
+                cursor.string("moonset")
+            )
+        } ?: listOf("", "", "", "")
+
+        val auspiciousCursor = queryOne(
+            "auspicious_periods.db",
+            "weekday_timings_summary",
+            "weekday_ta = ?",
+            arrayOf(panchang.weekdayTa)
+        )
+
+        val auspicious = auspiciousCursor?.use { cursor ->
+            listOf(
+                cursor.string("nalla_neram_morning_start"),
+                cursor.string("nalla_neram_morning_end"),
+                cursor.string("nalla_neram_evening_start"),
+                cursor.string("nalla_neram_evening_end"),
+                cursor.string("gowri_day_start"),
+                cursor.string("gowri_day_end"),
+                cursor.string("gowri_night_start"),
+                cursor.string("gowri_night_end"),
+                cursor.string("raghu_start"),
+                cursor.string("raghu_end"),
+                cursor.string("emagandam_start"),
+                cursor.string("emagandam_end"),
+                cursor.string("kuligai_start"),
+                cursor.string("kuligai_end")
+            )
+        } ?: List(14) { "" }
+
+        return panchang.copy(
+            sunrise = sunMoon[0],
+            sunset = sunMoon[1],
+            moonrise = sunMoon[2],
+            moonset = sunMoon[3],
+            nallaNeramMorningStart = auspicious[0],
+            nallaNeramMorningEnd = auspicious[1],
+            nallaNeramEveningStart = auspicious[2],
+            nallaNeramEveningEnd = auspicious[3],
+            gowriDayStart = auspicious[4],
+            gowriDayEnd = auspicious[5],
+            gowriNightStart = auspicious[6],
+            gowriNightEnd = auspicious[7],
+            raghuStart = auspicious[8],
+            raghuEnd = auspicious[9],
+            emagandamStart = auspicious[10],
+            emagandamEnd = auspicious[11],
+            kuligaiStart = auspicious[12],
+            kuligaiEnd = auspicious[13]
+        )
+    }
+
+    // ---------------------------------------------------------
+    // 9. GET DAILY RASI PALAN
+    // ---------------------------------------------------------
+
+    fun getRasiDetails(gregorianDate: String): RasiPalanDetails? {
+        val cursor = queryOne(
+            "rasipalan_daily.db",
+            "rasipalan_daily",
+            "gregorian_date = ?",
+            arrayOf(gregorianDate)
+        ) ?: return null
+
+        return cursor.use {
+            RasiPalanDetails(
+                gregorianDate = it.string("gregorian_date"),
+                tamilMonth = it.string("tamil_month"),
+                tamilDate = it.intValue("tamil_date"),
+                weekdayTa = it.string("weekday_ta"),
+                nakshatraName = it.string("nakshatra_name"),
+                mesham = it.string("mesham"),
+                rishabam = it.string("rishabam"),
+                mithunam = it.string("mithunam"),
+                katakam = it.string("katakam"),
+                simmam = it.string("simmam"),
+                kanni = it.string("kanni"),
+                thulaam = it.string("thulaam"),
+                viruchigam = it.string("viruchigam"),
+                dhanusu = it.string("dhanusu"),
+                makaram = it.string("makaram"),
+                kumbam = it.string("kumbam"),
+                meenam = it.string("meenam")
+            )
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 10. GET GOWRI DAY / NIGHT ROW
+    // ---------------------------------------------------------
+
+    fun getGowriDetails(weekdayTa: String, kaalam: String): GowriDetails? {
+        val cursor = queryOne(
+            "gowri.db",
+            "weekday_gowri",
+            "weekday_ta = ? AND kaalam = ?",
+            arrayOf(weekdayTa, kaalam)
+        ) ?: return null
+
+        return cursor.use {
+            GowriDetails(
+                weekdayTa = it.string("weekday_ta"),
+                kaalam = it.string("kaalam"),
+                slots = listOf(
+                    it.string("slot_6_730"),
+                    it.string("slot_730_9"),
+                    it.string("slot_9_1030"),
+                    it.string("slot_1030_12"),
+                    it.string("slot_12_130"),
+                    it.string("slot_130_3"),
+                    it.string("slot_3_430"),
+                    it.string("slot_430_6")
+                )
+            )
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 11. GET HORAI DAY / NIGHT ROW
+    // ---------------------------------------------------------
+
+    fun getHoraiDetails(weekdayTa: String, kaalam: String): HoraiDetails? {
+        val cursor = queryOne(
+            "horai.db",
+            "weekday_horai",
+            "weekday_ta = ? AND kaalam = ?",
+            arrayOf(weekdayTa, kaalam)
+        ) ?: return null
+
+        return cursor.use {
+            HoraiDetails(
+                weekdayTa = it.string("weekday_ta"),
+                kaalam = it.string("kaalam"),
+                slots = listOf(
+                    it.string("slot_6_7"),
+                    it.string("slot_7_8"),
+                    it.string("slot_8_9"),
+                    it.string("slot_9_10"),
+                    it.string("slot_10_11"),
+                    it.string("slot_11_12"),
+                    it.string("slot_12_1"),
+                    it.string("slot_1_2"),
+                    it.string("slot_2_3"),
+                    it.string("slot_3_4"),
+                    it.string("slot_4_5"),
+                    it.string("slot_5_6")
+                )
+            )
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 12. CLOSE ALL DATABASE CONNECTIONS
+    // ---------------------------------------------------------
+
+    fun closeDatabases() {
+        databases.values.forEach { database ->
+            if (database.isOpen) {
+                database.close()
+            }
+        }
+        databases.clear()
+    }
+
+    fun close() {
+        closeDatabases()
     }
 }
