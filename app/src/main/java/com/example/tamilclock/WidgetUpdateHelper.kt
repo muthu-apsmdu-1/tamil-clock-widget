@@ -97,10 +97,14 @@ object WidgetUpdateHelper {
         val gregDate = SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
-        val data = dbHelper.getDayDetails(queryDate)
+        val data = dbHelper.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
 
         val weekdayTa = data.dayNameTa.ifEmpty { "திங்கள்" }
-        val tamilDateText = "$weekdayTa - ${data.tamilMonth} ${data.tamilDay}"
+        val tamilDateText = if (data.tamilMonth.isNotEmpty() && data.tamilDay > 0) {
+            "$weekdayTa - ${data.tamilMonth} ${data.tamilDay}"
+        } else {
+            weekdayTa
+        }
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_2x1)
@@ -120,7 +124,7 @@ object WidgetUpdateHelper {
         val gregWeekday = SimpleDateFormat("dd: MM: yyyy EEEE", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
-        val data = dbHelper.getDayDetails(queryDate)
+        val data = dbHelper.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x1)
@@ -129,7 +133,12 @@ object WidgetUpdateHelper {
 
             views.setTextViewText(R.id.tv_widget_greg_date_weekday, gregWeekday)
             val tithiStr = if (data.tithi.isNotEmpty()) " • ${data.tithi}" else ""
-            views.setTextViewText(R.id.tv_widget_tamil_month_date_tithi, "${data.tamilMonth} ${data.tamilDay}$tithiStr")
+            val monthDateStr = if (data.tamilMonth.isNotEmpty() && data.tamilDay > 0) {
+                "${data.tamilMonth} ${data.tamilDay}$tithiStr"
+            } else {
+                data.tithi
+            }
+            views.setTextViewText(R.id.tv_widget_tamil_month_date_tithi, monthDateStr)
 
             appWidgetManager.updateAppWidget(id, views)
         }
@@ -141,7 +150,7 @@ object WidgetUpdateHelper {
         val gregWeekday = SimpleDateFormat("dd: MM: yyyy EEEE", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
-        val data = dbHelper.getDayDetails(queryDate)
+        val data = dbHelper.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x2)
@@ -156,7 +165,14 @@ object WidgetUpdateHelper {
             val nTime = if (data.nakshatraTime.isNotEmpty()) " ${data.nakshatraTime}" else ""
             views.setTextViewText(R.id.tv_widget_row3, "${data.tithi}$tTime • ${data.nakshatra}$nTime")
 
-            val nn = data.nallaNeram.ifEmpty { "${data.nallaNeramMorning} / ${data.nallaNeramEvening}" }
+            val nnMorning = data.nallaNeramMorning
+            val nnEvening = data.nallaNeramEvening
+            val nn = when {
+                nnMorning.isNotBlank() && nnEvening.isNotBlank() -> "$nnMorning / $nnEvening"
+                nnMorning.isNotBlank() -> nnMorning
+                nnEvening.isNotBlank() -> nnEvening
+                else -> ""
+            }
             views.setTextViewText(R.id.tv_widget_row4, "ந.நே : $nn")
 
             appWidgetManager.updateAppWidget(id, views)
@@ -170,7 +186,7 @@ object WidgetUpdateHelper {
         val weekday = SimpleDateFormat("EEEE", Locale.ENGLISH).format(cal.time)
 
         val dbHelper = TamilDatabaseHelper(context)
-        val data = dbHelper.getDayDetails(queryDate)
+        val data = dbHelper.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
 
         for (id in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
@@ -187,7 +203,7 @@ object WidgetUpdateHelper {
             )
 
             val nTime = if (data.nakshatraTime.isNotEmpty()) " ${data.nakshatraTime}" else ""
-            val nn = data.nallaNeram.ifEmpty { data.nallaNeramMorning }
+            val nn = data.nallaNeramMorning.ifEmpty { data.nallaNeramEvening }
             views.setTextViewText(
                 R.id.tv_widget_4x4_row2,
                 "${data.nakshatra}$nTime | ந.நே : $nn"
