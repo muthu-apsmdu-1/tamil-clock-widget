@@ -150,91 +150,114 @@ class TamilDatabaseHelper(context: Context) {
     // 4. MAIN PANCHANGAM DATA MODEL
     // ---------------------------------------------------------
 
-data class DayPanchangDetails(
-    val gregorianDate: String = "",
-    val tamilYear: String = "",
-    val tamilMonth: String = "",
-    val tamilDate: Int = 0,               // DB Column (INTEGER)
-    val weekdayTa: String = "",           // DB Column (TEXT)
-    val paksha: String = "",
-    val tithiName: String = "",
-    val tithiTime: String = "",
-    val nakshatraName: String = "",
-    val nakshatraTime: String = "",
-    val yogaName: String = "",
-    val yogaTime: String = "",
-    val amritadiYoga: String = "",
-    val karanaName: String = "",
-    val karanaTime: String = "",
-    val tyajyamTime: String = "",
-    val festivalsEvents: String = "",
-    val chandrashtamamRasi: String = "",
-    val soolam: String = "",
-    val parikaram: String = "",
-    val sunrise: String = "",
-    val sunset: String = "",
-    val moonrise: String = "",
-    val moonset: String = "",
-    val nallaNeramMorningStart: String = "",
-    val nallaNeramMorningEnd: String = "",
-    val nallaNeramEveningStart: String = "",
-    val nallaNeramEveningEnd: String = "",
-    val gowriDayStart: String = "",
-    val gowriDayEnd: String = "",
-    val gowriNightStart: String = "",
-    val gowriNightEnd: String = "",
-    val raghuStart: String = "",
-    val raghuEnd: String = "",
-    val emagandamStart: String = "",
-    val emagandamEnd: String = "",
-    val kuligaiStart: String = "",
-    val kuligaiEnd: String = ""
-) {
-    // -------------------------------------------------------------
-    // DATE & DAY COMPATIBILITY ALIASES
-    // -------------------------------------------------------------
-    
-    // Resolves CalendarMonthAdapter.kt & Widget date number text as String
-    val tamilDay: String get() = if (tamilDate > 0) tamilDate.toString() else ""
-    val tamilDateStr: String get() = tamilDay
+    data class DayPanchangDetails(
+        // Panchangam database
+        val gregorianDate: String = "",
+        val tamilYear: String = "",
+        val tamilMonth: String = "",
+        val tamilDate: Int = 0,               // DB Column (INTEGER)
+        val weekdayTa: String = "",           // DB Column (TEXT)
+        val paksha: String = "",
+        val tithiName: String = "",
+        val tithiTime: String = "",
+        val nakshatraName: String = "",
+        val nakshatraTime: String = "",
+        val yogaName: String = "",
+        val yogaTime: String = "",
+        val amritadiYoga: String = "",
+        val karanaName: String = "",
+        val karanaTime: String = "",
+        val tyajyamTime: String = "",
+        val festivalsEvents: String = "",
+        val chandrashtamamRasi: String = "",
+        val soolam: String = "",
+        val parikaram: String = "",
 
-    // Weekday Name String
-    val dayName: String get() = weekdayTa
-    val dayNameTa: String get() = weekdayTa
+        // Sun and moon database
+        val sunrise: String = "",
+        val sunset: String = "",
+        val moonrise: String = "",
+        val moonset: String = "",
 
-    // -------------------------------------------------------------
-    // ASTROLOGICAL ALIASES
-    // -------------------------------------------------------------
-    val tithi: String get() = tithiName
-    val nakshatra: String get() = nakshatraName
-    val yoga: String get() = if (amritadiYoga.isNotBlank()) amritadiYoga else yogaName
-    val paksham: String get() = paksha
-    val karanam: String get() = karanaName
-    val chandrashtamam: String get() = chandrashtamamRasi
-    val festivals: String get() = festivalsEvents
-    val tyajyam: String get() = tyajyamTime
+        // Auspicious periods database
+        val nallaNeramMorningStart: String = "",
+        val nallaNeramMorningEnd: String = "",
+        val nallaNeramEveningStart: String = "",
+        val nallaNeramEveningEnd: String = "",
+        val gowriDayStart: String = "",
+        val gowriDayEnd: String = "",
+        val gowriNightStart: String = "",
+        val gowriNightEnd: String = "",
+        val raghuStart: String = "",
+        val raghuEnd: String = "",
+        val emagandamStart: String = "",
+        val emagandamEnd: String = "",
+        val kuligaiStart: String = "",
+        val kuligaiEnd: String = "",
 
-    // Timings aliases for Widgets and FragmentPanchangam
-    val nallaNeramMorning: String get() = combineTime(nallaNeramMorningStart, nallaNeramMorningEnd)
-    val nallaNeramEvening: String get() = combineTime(nallaNeramEveningStart, nallaNeramEveningEnd)
-    val nallaNeramMorn: String get() = nallaNeramMorning
-    val nallaNeramEve: String get() = nallaNeramEvening
+        // Daily Rasi Palan
+        val rasiPalan: RasiPalanDetails? = null
+    ) {
+        // -------------------------------------------------------------
+        // DATE & DAY COMPATIBILITY ALIASES
+        // -------------------------------------------------------------
+        // Int return fixes CalendarMonthAdapter.kt (dayDetails.tamilDay == 1)
+        val tamilDay: Int get() = tamilDate
 
-    val gowriMorning: String get() = combineTime(gowriDayStart, gowriDayEnd)
-    val gowriNight: String get() = combineTime(gowriNightStart, gowriNightEnd)
-    val gowriMorn: String get() = gowriMorning
-    val gowriEve: String get() = gowriNight
+        // String returns for widgets and textviews
+        val tamilDateStr: String get() = if (tamilDate > 0) tamilDate.toString() else ""
+        val tamilDayStr: String get() = tamilDateStr
 
-    val rahuKaalam: String get() = combineTime(raghuStart, raghuEnd)
-    val rahu: String get() = rahuKaalam
-    val yamagandam: String get() = combineTime(emagandamStart, emagandamEnd)
-    val kuligai: String get() = combineTime(kuligaiStart, kuligaiEnd)
+        // Weekday Name String
+        val dayName: String get() = weekdayTa
+        val dayNameTa: String get() = weekdayTa
 
-    private fun combineTime(start: String, end: String): String {
-        return if (start.isNotBlank() && end.isNotBlank()) "$start - $end" else ""
+        // -------------------------------------------------------------
+        // ASTROLOGICAL ALIASES
+        // -------------------------------------------------------------
+        val tithi: String get() = tithiName
+        val nakshatra: String get() = nakshatraName
+        val yoga: String get() = if (amritadiYoga.isNotBlank()) amritadiYoga else yogaName
+        val paksham: String get() = paksha
+        val karanam: String get() = karanaName
+        val chandrashtamam: String get() = chandrashtamamRasi
+        val festivals: String get() = festivalsEvents
+        val tyajyam: String get() = tyajyamTime
+
+        // Timings aliases
+        val nallaNeramMorning: String get() = combineTime(nallaNeramMorningStart, nallaNeramMorningEnd)
+        val nallaNeramEvening: String get() = combineTime(nallaNeramEveningStart, nallaNeramEveningEnd)
+        val nallaNeramMorn: String get() = nallaNeramMorning
+        val nallaNeramEve: String get() = nallaNeramEvening
+
+        val gowriMorning: String get() = combineTime(gowriDayStart, gowriDayEnd)
+        val gowriNight: String get() = combineTime(gowriNightStart, gowriNightEnd)
+        val gowriMorn: String get() = gowriMorning
+        val gowriEve: String get() = gowriNight
+
+        val rahuKaalam: String get() = combineTime(raghuStart, raghuEnd)
+        val rahu: String get() = rahuKaalam
+        val yamagandam: String get() = combineTime(emagandamStart, emagandamEnd)
+        val kuligai: String get() = combineTime(kuligaiStart, kuligaiEnd)
+
+        // Rasi 12-box aliases for FragmentPanchangam
+        val rasiMesham: String get() = rasiPalan?.mesham ?: ""
+        val rasiRishabam: String get() = rasiPalan?.rishabam ?: ""
+        val rasiMithunam: String get() = rasiPalan?.mithunam ?: ""
+        val rasiKadagam: String get() = rasiPalan?.katakam ?: ""
+        val rasiSimmam: String get() = rasiPalan?.simmam ?: ""
+        val rasiKanni: String get() = rasiPalan?.kanni ?: ""
+        val rasiThulaam: String get() = rasiPalan?.thulaam ?: ""
+        val rasiViruchigam: String get() = rasiPalan?.viruchigam ?: ""
+        val rasiDhanusu: String get() = rasiPalan?.dhanusu ?: ""
+        val rasiMagaram: String get() = rasiPalan?.makaram ?: ""
+        val rasiKumbam: String get() = rasiPalan?.kumbam ?: ""
+        val rasiMeenam: String get() = rasiPalan?.meenam ?: ""
+
+        private fun combineTime(start: String, end: String): String {
+            return if (start.isNotBlank() && end.isNotBlank()) "$start - $end" else ""
+        }
     }
-}
-
 
     // ---------------------------------------------------------
     // 5. RASI PALAN DATA MODEL
@@ -361,6 +384,9 @@ data class DayPanchangDetails(
             )
         } ?: List(14) { "" }
 
+        // Fetch daily rasi palan for zero-hardcoded astrological cards
+        val rasi = getRasiDetails(gregorianDate)
+
         return panchang.copy(
             sunrise = sunMoon[0],
             sunset = sunMoon[1],
@@ -379,7 +405,8 @@ data class DayPanchangDetails(
             emagandamStart = auspicious[10],
             emagandamEnd = auspicious[11],
             kuligaiStart = auspicious[12],
-            kuligaiEnd = auspicious[13]
+            kuligaiEnd = auspicious[13],
+            rasiPalan = rasi
         )
     }
 
