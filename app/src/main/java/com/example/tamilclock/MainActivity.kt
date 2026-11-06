@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // If not on Home (Index 2), return to Home first; else exit
                 if (viewPager.currentItem != MainPagerAdapter.PAGE_PANCHANGAM) {
                     viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
                 } else {
@@ -56,48 +57,45 @@ class MainActivity : AppCompatActivity() {
         pagerAdapter = MainPagerAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        // Launch directly on Home Screen: Day Panchang (Index 2)
+        // Default screen on launch: Home Page (Index 2)
         viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, false)
     }
 
     private fun setupTopNavigationToolbar() {
-        // Top Toolbar Buttons: <<, 🗓️, ☰, 🏠, ☸, ⚙, >>
+        // Toolbar Button IDs:
+        // 1. Previous (<<)
+        // 2. About App (☰)
+        // 3. Monthly Calendar (🗓️)
+        // 4. Home (🏠)
+        // 5. Gowri & Horai (☸)
+        // 6. Settings (⚙)
+        // 7. Next (>>)
         val btnPrev = findViewById<TextView?>(R.id.btn_action_prev)
-        val btnCalendar = findViewById<TextView?>(R.id.btn_action_datepicker) // 🗓️ Icon
-        val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)             // ☰ Icon
-        val btnToday = findViewById<TextView?>(R.id.btn_action_today)           // 🏠 Icon
-        val btnHorai = findViewById<TextView?>(R.id.btn_action_horai)           // ☸ Icon
-        val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)     // ⚙ Icon
-        val btnNext = findViewById<TextView?>(R.id.btn_action_next)             // >> Icon
+        val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)
+        val btnCalendar = findViewById<TextView?>(R.id.btn_action_datepicker)
+        val btnHome = findViewById<TextView?>(R.id.btn_action_today)
+        val btnGowriHorai = findViewById<TextView?>(R.id.btn_action_horai)
+        val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)
+        val btnNext = findViewById<TextView?>(R.id.btn_action_next)
 
-        // Previous Day
+        // 1. Previous Day Button (<<)
         btnPrev?.setOnClickListener {
             selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
             loadDayData()
             updateWidgets()
         }
 
-        // Next Day
-        btnNext?.setOnClickListener {
-            selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
-            loadDayData()
-            updateWidgets()
+        // 2. About App Page (☰) -> Index 0
+        btnMenu?.setOnClickListener {
+            viewPager.setCurrentItem(MainPagerAdapter.PAGE_ABOUT, true)
         }
 
-        // Home / Today Button (Index 2)
-        btnToday?.setOnClickListener {
-            selectedCalendar.time = Calendar.getInstance().time
-            loadDayData()
-            updateWidgets()
-            viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
-        }
-
-        // Monthly Calendar Button (Index 1)
+        // 3. Monthly Calendar Page with selective date picking (🗓️) -> Index 1
         btnCalendar?.setOnClickListener {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_MONTHLY_CALENDAR, true)
         }
 
-        // Long press on Calendar icon opens DatePickerDialog directly
+        // Long press on 🗓️ allows direct native date picking
         btnCalendar?.setOnLongClickListener {
             val datePicker = DatePickerDialog(
                 this,
@@ -114,19 +112,29 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // Gowri Menu (Index 3)
-        btnMenu?.setOnClickListener {
-            viewPager.setCurrentItem(MainPagerAdapter.PAGE_GOWRI, true)
+        // 4. Home Page (🏠) -> Index 2 (Day Panchang with Simple & Expanded Mode)
+        btnHome?.setOnClickListener {
+            selectedCalendar.time = Calendar.getInstance().time
+            loadDayData()
+            updateWidgets()
+            viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
         }
 
-        // Horai / Chakra Page (Index 4)
-        btnHorai?.setOnClickListener {
-            viewPager.setCurrentItem(MainPagerAdapter.PAGE_HORAI, true)
+        // 5. Gowri & Horai Integrated Page (☸) -> Index 3
+        btnGowriHorai?.setOnClickListener {
+            viewPager.setCurrentItem(MainPagerAdapter.PAGE_GOWRI_HORAI, true)
         }
 
-        // Settings Page (Index 5)
+        // 6. Settings Page (⚙) -> Index 4
         btnSettings?.setOnClickListener {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_SETTINGS, true)
+        }
+
+        // 7. Next Day Button (>>)
+        btnNext?.setOnClickListener {
+            selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
+            loadDayData()
+            updateWidgets()
         }
     }
 
