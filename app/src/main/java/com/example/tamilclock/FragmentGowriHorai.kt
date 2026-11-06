@@ -255,13 +255,11 @@ class FragmentGowriHorai : Fragment() {
         containerHoraiDay.removeAllViews()
         containerHoraiNight.removeAllViews()
 
-        // Gowri Day & Night
         val gowriDay = dbHelper.getGowriDetails(weekdayTa, "பகல்")
         val gowriNight = dbHelper.getGowriDetails(weekdayTa, "இரவு")
         populateSlotContainer(containerGowriDay, gowriDay?.slots, gowriTimeRanges, isGowri = true, isNight = false)
         populateSlotContainer(containerGowriNight, gowriNight?.slots, gowriTimeRanges, isGowri = true, isNight = true)
 
-        // Horai Day & Night
         val horaiDay = dbHelper.getHoraiDetails(weekdayTa, "பகல்")
         val horaiNight = dbHelper.getHoraiDetails(weekdayTa, "இரவு")
         populateSlotContainer(containerHoraiDay, horaiDay?.slots, horaiTimeRanges, isGowri = false, isNight = false)
@@ -287,7 +285,7 @@ class FragmentGowriHorai : Fragment() {
             return
         }
 
-        val baseOffset = if (isNight) 720 else 0 // Night slots add 12 hours (720 min)
+        val baseOffset = if (isNight) 720 else 0
 
         slots.forEachIndexed { index, nameValue ->
             val rangeDef = rangeDefs.getOrNull(index)
@@ -325,15 +323,15 @@ class FragmentGowriHorai : Fragment() {
         }
 
         val textColor = if (item.isAuspicious) {
-            Color.parseColor("#2E7D32") // Auspicious Green
+            Color.parseColor("#2E7D32")
         } else {
-            Color.parseColor("#C62828") // Inauspicious Red
+            Color.parseColor("#C62828")
         }
 
         val tvTime = TextView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f)
             text = item.timeRange
-            textSize = 13spToFloat()
+            textSize = 13f
             setTextColor(textColor)
             typeface = Typeface.DEFAULT_BOLD
         }
@@ -341,7 +339,7 @@ class FragmentGowriHorai : Fragment() {
         val tvName = TextView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
             text = item.name
-            textSize = 13.5spToFloat()
+            textSize = 13.5f
             gravity = Gravity.END
             setTextColor(textColor)
             typeface = Typeface.DEFAULT_BOLD
@@ -377,7 +375,7 @@ class FragmentGowriHorai : Fragment() {
                 }
 
                 if (isSelectedDateToday && isActive) {
-                    row.setBackgroundColor(palette.sundayHighlight) // High-contrast highlight
+                    row.setBackgroundColor(palette.sundayHighlight)
                 } else {
                     row.setBackgroundColor(palette.cardBackground)
                 }
@@ -418,6 +416,4 @@ class FragmentGowriHorai : Fragment() {
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
             cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
     }
-
-    private fun TextView.spToFloat(): Float = textSize / resources.displayMetrics.scaledDensity
 }
