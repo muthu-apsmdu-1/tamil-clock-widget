@@ -5,25 +5,20 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import java.util.Calendar
 
-class MainPagerAdapter(
-    activity: FragmentActivity
-) : FragmentStateAdapter(activity) {
+class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
 
     companion object {
         const val PAGE_ABOUT = 0
         const val PAGE_MONTHLY_CALENDAR = 1
-        const val PAGE_PANCHANGAM = 2
-        const val PAGE_GOWRI = 3
-        const val PAGE_HORAI = 4
-        const val PAGE_SETTINGS = 5
+        const val PAGE_PANCHANGAM = 2     // Home Screen (Simple & Expanded)
+        const val PAGE_GOWRI_HORAI = 3    // Gowri & Horai Integrated
+        const val PAGE_SETTINGS = 4       // Settings Customization
 
-        const val TOTAL_PAGES = 6
+        const val TOTAL_PAGES = 5
     }
 
+    private val fragmentReferences = mutableMapOf<Int, Fragment>()
     private var currentCalendar: Calendar = Calendar.getInstance()
-
-    // Store references to notify active fragments on date change
-    private val fragmentMap = mutableMapOf<Int, Fragment>()
 
     override fun getItemCount(): Int = TOTAL_PAGES
 
@@ -32,24 +27,27 @@ class MainPagerAdapter(
             PAGE_ABOUT -> FragmentAboutApp()
             PAGE_MONTHLY_CALENDAR -> FragmentMonthlyCalendar()
             PAGE_PANCHANGAM -> FragmentPanchangam()
-            PAGE_GOWRI -> FragmentGowriHorai.newInstance(initialTabIsHorai = false)
-            PAGE_HORAI -> FragmentGowriHorai.newInstance(initialTabIsHorai = true)
+            PAGE_GOWRI_HORAI -> FragmentGowriHorai()
             PAGE_SETTINGS -> FragmentSettings()
             else -> FragmentPanchangam()
         }
-        fragmentMap[position] = fragment
+        fragmentReferences[position] = fragment
+        syncDateToFragment(fragment, currentCalendar)
         return fragment
     }
 
-    fun updateSelectedDate(cal: Calendar) {
-        currentCalendar = cal.clone() as Calendar
-
-        // Update active fragments if instantiated
-        (fragmentMap[PAGE_PANCHANGAM] as? FragmentPanchangam)?.updateDate(currentCalendar)
-        (fragmentMap[PAGE_GOWRI] as? FragmentGowriHorai)?.updateDate(currentCalendar)
-        (fragmentMap[PAGE_HORAI] as? FragmentGowriHorai)?.updateDate(currentCalendar)
-        (fragmentMap[PAGE_MONTHLY_CALENDAR] as? FragmentMonthlyCalendar)?.updateDate(currentCalendar)
+    fun updateSelectedDate(calendar: Calendar) {
+        currentCalendar = calendar.clone() as Calendar
+        fragmentReferences.values.forEach { fragment ->
+            syncDateToFragment(fragment, currentCalendar)
+        }
     }
 
-    fun getSelectedDate(): Calendar = currentCalendar.clone() as Calendar
+    private fun syncDateToFragment(fragment: Fragment, calendar: Calendar) {
+        when (fragment) {
+            is FragmentMonthlyCalendar -> fragment.updateDate(calendar)
+            is FragmentPanchangam -> fragment.updateDate(calendar)
+            is FragmentGowriHorai -> fragment.updateDate(calendar)
+        }
+    }
 }
