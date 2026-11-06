@@ -39,9 +39,18 @@ class FragmentMonthlyCalendar : Fragment() {
     }
 
     // -------------------------------------------------------------
+    // CALLED BY MainPagerAdapter.kt ON DATE CHANGE
+    // -------------------------------------------------------------
+    fun updateDate(cal: Calendar) {
+        displayCalendar.time = cal.time
+        if (isAdded && ::gridTable.isInitialized) {
+            renderCalendar()
+        }
+    }
+
+    // -------------------------------------------------------------
     // CREATE VIEW
     // -------------------------------------------------------------
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,7 +68,7 @@ class FragmentMonthlyCalendar : Fragment() {
             setPadding(dp(4), dp(8), dp(4), dp(4))
         }
 
-        // Header Section (Controls & Month Titles)
+        // Header Section
         val headerLayout = LinearLayout(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -121,7 +130,7 @@ class FragmentMonthlyCalendar : Fragment() {
         headerLayout.addView(btnNext)
         root.addView(headerLayout)
 
-        // Calendar Scroll Container
+        // 5 Column x 7 Row Scrollable Grid Container
         val scrollContainer = ScrollView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -147,9 +156,8 @@ class FragmentMonthlyCalendar : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // DATE PICKER
+    // DATE PICKER DIALOG
     // -------------------------------------------------------------
-
     private fun showDatePicker() {
         val dpd = DatePickerDialog(
             requireContext(),
@@ -171,7 +179,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // MAIN CALENDAR RENDERING: 7 ROWS x (1 HEADER + 5 DATE COLS)
     // -------------------------------------------------------------
-
     private fun renderCalendar() {
         gridTable.removeAllViews()
 
@@ -266,14 +273,15 @@ class FragmentMonthlyCalendar : Fragment() {
                 // When 5 dates occur on this day of the week (e.g. 3, 10, 17, 24, 31):
                 // - 5th occurrence (31) moves to Column 1 (slots[0])
                 // - Occurrences 1, 2, 3, 4 shift to Columns 2, 3, 4, 5 (slots[1..4])
-                slots[0] = occurrences[4] // 5th occurrence
-                slots[1] = occurrences[0] // 1st occurrence
-                slots[2] = occurrences[1] // 2nd occurrence
-                slots[3] = occurrences[2] // 3rd occurrence
-                slots[4] = occurrences[3] // 4th occurrence
+                slots[0] = occurrences[4]
+                slots[1] = occurrences[0]
+                slots[2] = occurrences[1]
+                slots[3] = occurrences[2]
+                slots[4] = occurrences[3]
             } else {
                 // 4 or fewer occurrences:
-                // If the first date is in Week 2 (day > 7), leave Column 1 (slots[0]) empty.
+                // If the first date of this weekday is on or after Day 8,
+                // it belongs to Week 2, so leave Column 1 (slots[0]) empty.
                 val firstDay = occurrences.firstOrNull()?.gregorianDay ?: 1
                 val startSlot = if (firstDay > 7) 1 else 0
 
@@ -297,7 +305,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // WEEKDAY HEADER CELL (LEFT COLUMN)
     // -------------------------------------------------------------
-
     private fun createWeekdayHeaderCell(
         eng: String,
         tam: String,
@@ -352,10 +359,7 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // DATE CELL
     // -------------------------------------------------------------
-
-    private fun createDateCellView(
-        cell: CalendarDayCell?
-    ): View {
+    private fun createDateCellView(cell: CalendarDayCell?): View {
         val card = CardView(requireContext()).apply {
             layoutParams = TableRow.LayoutParams(
                 0,
@@ -442,7 +446,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // FESTIVAL BADGE IDENTIFIER
     // -------------------------------------------------------------
-
     private fun getFestivalBadge(cell: CalendarDayCell): String {
         val fest = cell.festivals
         val tithi = cell.tithi
@@ -472,7 +475,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // EMPTY CELL MESSAGE (2 SECONDS)
     // -------------------------------------------------------------
-
     private fun showEmptyCellToast() {
         val toast = Toast.makeText(requireContext(), "please select correct date", Toast.LENGTH_SHORT)
         toast.show()
@@ -482,7 +484,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // TAMIL MONTH HEADER
     // -------------------------------------------------------------
-
     private fun getTamilMonthHeader(year: Int, month: Int): String {
         val midDate = String.format(Locale.ENGLISH, "%04d-%02d-15", year, month)
         val data = dbHelper.getDayDetails(midDate)
@@ -494,9 +495,22 @@ class FragmentMonthlyCalendar : Fragment() {
     }
 
     // -------------------------------------------------------------
+    // SAFE VIEW PAGER TRAVERSAL (NO STATIC R.id REFERENCES)
+    // -------------------------------------------------------------
+    private fun findViewPagerInView(view: View): ViewPager2? {
+        if (view is ViewPager2) return view
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val found = findViewPagerInView(view.getChildAt(i))
+                if (found != null) return found
+            }
+        }
+        return null
+    }
+
+    // -------------------------------------------------------------
     // NAVIGATE TO PANCHANGAM WITH SELECTED DATE
     // -------------------------------------------------------------
-
     private fun navigateToHomeWithDate(dateString: String) {
         val act = activity ?: return
 
@@ -512,6 +526,7 @@ class FragmentMonthlyCalendar : Fragment() {
                 set(Calendar.MILLISECOND, 0)
             }
 
+            // Update MainActivity date instance if available
             val methodNames = listOf("loadDayData", "updateSelectedDate", "setSelectedDate")
             val loadMethod = act.javaClass.methods.firstOrNull { method ->
                 method.name in methodNames &&
@@ -528,9 +543,9 @@ class FragmentMonthlyCalendar : Fragment() {
                 Log.w(TAG, "No compatible MainActivity date-update method found")
             }
 
-            val viewPager = act.findViewById<ViewPager2>(R.id.view_pager)
-                ?: act.findViewById(resources.getIdentifier("view_pager", "id", act.packageName))
-                ?: act.findViewById(resources.getIdentifier("viewPager", "id", act.packageName))
+            // Locate ViewPager2 safely without static ID dependencies
+            val rootDecor = act.window?.decorView
+            val viewPager = if (rootDecor != null) findViewPagerInView(rootDecor) else null
 
             viewPager?.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
         } catch (e: Exception) {
@@ -541,7 +556,6 @@ class FragmentMonthlyCalendar : Fragment() {
     // -------------------------------------------------------------
     // CLEANUP & DATA MODEL
     // -------------------------------------------------------------
-
     override fun onDestroy() {
         super.onDestroy()
         dbHelper.close()
