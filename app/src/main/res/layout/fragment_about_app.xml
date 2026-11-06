@@ -1,25 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/themeCardBackground"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#F9F9F9"
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="தமிழ் நாட்காட்டி"
-        android:textColor="#FFD043"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Tamil Calendar &amp; Clock Widget"
-        android:textColor="?attr/themeTextBody"
-        android:textSize="14sp" />
-</LinearLayout>
+        <!-- Header Card with Logo -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#6B000C">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="20dp">
+
+                <ImageView
+                    android:id="@+id/iv_app_logo"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_app_logo"
+                    android:contentDescription="App Logo" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="தமிழ் காலண்டர் &amp; கடிகாரம்"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFDF00"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/tv_app_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="பதிப்பு 1.0.0"
+                    android:textSize="13sp"
+                    android:textColor="#FFCDD2" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Features Overview Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="முக்கிய அம்சங்கள்"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#78000C"
+                    android:layout_marginBottom="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• துல்லியமான தினசரி பஞ்சாங்கம் (திதி, நட்சத்திரம், யோகம், கரணம்)\n• நல்ல நேரம், கௌரி பஞ்சாங்கம், சுப முகூர்த்த நாட்கள்\n• கிரக ஹோரை கால அட்டவணை மற்றும் விரத நாட்கள்\n• 5x7 பாரம்பரிய மாத காலண்டர் காட்சி\n• 4 விட்ஜெட் அளவுகள் (2x1, 4x1, 4x2, 4x4) டிஜிட்டல் &amp; அனலாக் பாணிகளுடன்\n• 100% ஆஃப்லைன் பயன்பாடு (இணையம் தேவையில்லை)"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="5dp"
+                    android:textColor="#37474F" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Actions: Share & Feedback -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/btn_share_app"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:text="செயலியைப் பகிர"
+                android:textSize="13sp"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#78000C" />
+
+            <Button
+                android:id="@+id/btn_feedback"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="கருத்து தெரிவிக்க"
+                android:textSize="13sp"
+                android:textColor="#78000C"
+                android:backgroundTint="#E0F2F1" />
+        </LinearLayout>
+
+        <!-- Footer / Credits -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை © 2026"
+            android:textSize="12sp"
+            android:textColor="#9E9E9E"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+</ScrollView>
