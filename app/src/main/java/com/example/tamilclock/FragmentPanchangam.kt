@@ -1,10 +1,14 @@
 package com.example.tamilclock
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextClock
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import java.text.SimpleDateFormat
@@ -15,9 +19,13 @@ class FragmentPanchangam : Fragment() {
 
     private lateinit var dbHelper: TamilDatabaseHelper
     private var currentCalendar: Calendar = Calendar.getInstance()
+    private var rootScrollView: ScrollView? = null
 
     // Top Capsules
     private lateinit var tvBigGregorianDate: TextView
+    private lateinit var tcBannerTime: TextClock
+    private lateinit var tcBannerAmPm: TextClock
+    private lateinit var viewDivider: View
     private lateinit var tvBannerTamilYear: TextView
     private lateinit var tvBannerTamilMonth: TextView
     private lateinit var tvBannerTamilDate: TextView
@@ -44,7 +52,8 @@ class FragmentPanchangam : Fragment() {
     private lateinit var tvSimpleParikaram: TextView
     private lateinit var tvSimpleChandrashtamam: TextView
 
-    // Simple Mode Rasi Grid (12 Houses)
+    // Simple Mode Rasi Grid
+    private lateinit var tvRasiTitle: TextView
     private lateinit var tvRasiMesham: TextView
     private lateinit var tvRasiRishabam: TextView
     private lateinit var tvRasiMithunam: TextView
@@ -59,12 +68,11 @@ class FragmentPanchangam : Fragment() {
     private lateinit var tvRasiMeenam: TextView
 
     // Expanded Mode Views
+    private lateinit var tvExpModeTitle: TextView
     private lateinit var tvExpSunTimings: TextView
     private lateinit var tvExpMoonTimings: TextView
     private lateinit var tvExpTithiName: TextView
-    private lateinit var tvExpTithiTime: TextView
     private lateinit var tvExpNakshatraName: TextView
-    private lateinit var tvExpNakshatraTime: TextView
     private lateinit var tvExpAmritadiYoga: TextView
     private lateinit var tvExpChandrashtamam: TextView
     private lateinit var tvExpNallaNeram: TextView
@@ -90,14 +98,28 @@ class FragmentPanchangam : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dbHelper = TamilDatabaseHelper(requireContext())
+        rootScrollView = view.findViewById(R.id.scroll_panchangam)
 
         bindViews(view)
         setupToggleListeners()
+        applyDynamicTheme(view)
         renderPanchangam(currentCalendar)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        rootScrollView?.let {
+            applyDynamicTheme(it)
+            renderPanchangam(currentCalendar)
+        }
     }
 
     private fun bindViews(view: View) {
         tvBigGregorianDate = view.findViewById(R.id.tv_big_gregorian_date)
+        tcBannerTime = view.findViewById(R.id.tc_banner_time)
+        tcBannerAmPm = view.findViewById(R.id.tc_banner_ampm)
+        viewDivider = view.findViewById(R.id.view_capsule_divider)
+
         tvBannerTamilYear = view.findViewById(R.id.tv_banner_tamil_year)
         tvBannerTamilMonth = view.findViewById(R.id.tv_banner_tamil_month)
         tvBannerTamilDate = view.findViewById(R.id.tv_banner_tamil_date)
@@ -122,6 +144,7 @@ class FragmentPanchangam : Fragment() {
         tvSimpleParikaram = view.findViewById(R.id.tv_simple_parikaram)
         tvSimpleChandrashtamam = view.findViewById(R.id.tv_simple_chandrashtamam)
 
+        tvRasiTitle = view.findViewById(R.id.tv_rasi_header_title)
         tvRasiMesham = view.findViewById(R.id.tv_rasi_mesham)
         tvRasiRishabam = view.findViewById(R.id.tv_rasi_rishabam)
         tvRasiMithunam = view.findViewById(R.id.tv_rasi_mithunam)
@@ -135,12 +158,11 @@ class FragmentPanchangam : Fragment() {
         tvRasiKumbam = view.findViewById(R.id.tv_rasi_kumbam)
         tvRasiMeenam = view.findViewById(R.id.tv_rasi_meenam)
 
+        tvExpModeTitle = view.findViewById(R.id.tv_exp_mode_title)
         tvExpSunTimings = view.findViewById(R.id.tv_exp_sun_timings)
         tvExpMoonTimings = view.findViewById(R.id.tv_exp_moon_timings)
         tvExpTithiName = view.findViewById(R.id.tv_exp_tithi_name)
-        tvExpTithiTime = view.findViewById(R.id.tv_exp_tithi_time)
         tvExpNakshatraName = view.findViewById(R.id.tv_exp_nakshatra_name)
-        tvExpNakshatraTime = view.findViewById(R.id.tv_exp_nakshatra_time)
         tvExpAmritadiYoga = view.findViewById(R.id.tv_exp_amritadi_yoga)
         tvExpChandrashtamam = view.findViewById(R.id.tv_exp_chandrashtamam)
         tvExpNallaNeram = view.findViewById(R.id.tv_exp_nalla_neram)
@@ -161,7 +183,6 @@ class FragmentPanchangam : Fragment() {
             layoutSimpleMode.visibility = View.GONE
             layoutExpandedMode.visibility = View.VISIBLE
         }
-
         btnToggleCollapse.setOnClickListener {
             layoutExpandedMode.visibility = View.GONE
             layoutSimpleMode.visibility = View.VISIBLE
@@ -175,11 +196,80 @@ class FragmentPanchangam : Fragment() {
         }
     }
 
+    private fun applyDynamicTheme(view: View) {
+        val palette = ThemeManager.getThemePalette(requireContext())
+
+        // 1. Root background
+        view.setBackgroundColor(palette.pageBackground)
+
+        // 2. All Card Containers
+        val cardIds = listOf(
+            R.id.card_date_clock_capsule,
+            R.id.card_tamil_year_month,
+            R.id.card_tamil_date_weekday,
+            R.id.card_eng_month_weekday,
+            R.id.card_simple_summary,
+            R.id.card_nalla_neram,
+            R.id.card_gowri_neram,
+            R.id.card_rahu,
+            R.id.card_yamagandam,
+            R.id.card_kuligai,
+            R.id.card_soolam,
+            R.id.card_parikaram,
+            R.id.card_rasi_grid,
+            R.id.card_exp_sun,
+            R.id.card_exp_moon,
+            R.id.card_exp_tithi,
+            R.id.card_exp_nakshatra,
+            R.id.card_exp_yoga,
+            R.id.card_exp_nalla,
+            R.id.card_exp_gowri,
+            R.id.card_exp_rahu,
+            R.id.card_exp_yamagandam,
+            R.id.card_exp_kuligai,
+            R.id.card_exp_nitya,
+            R.id.card_exp_tyajyam,
+            R.id.card_exp_soolam,
+            R.id.card_exp_festivals
+        )
+        for (id in cardIds) {
+            view.findViewById<View?>(id)?.setBackgroundColor(palette.cardBackground)
+        }
+
+        // 3. Chandrashtamam warning cards
+        view.findViewById<View?>(R.id.tv_simple_chandrashtamam)?.setBackgroundColor(palette.sundayHighlight)
+        view.findViewById<View?>(R.id.card_exp_chandrashtamam)?.setBackgroundColor(palette.sundayHighlight)
+
+        // 4. Headers and Accent Colors
+        tvBigGregorianDate.setTextColor(palette.primaryHeader)
+        viewDivider.setBackgroundColor(palette.accentGold)
+        tcBannerTime.setTextColor(palette.secondaryHeader)
+        tcBannerAmPm.setTextColor(palette.secondaryHeader)
+
+        tvBannerTamilYear.setTextColor(palette.primaryHeader)
+        tvBannerTamilMonth.setTextColor(palette.primaryHeader)
+        tvBannerTamilDate.setTextColor(palette.primaryHeader)
+        tvBannerTamilWeekday.setTextColor(palette.primaryHeader)
+
+        tvBannerEngMonth.setTextColor(palette.secondaryHeader)
+        tvBannerEngWeekday.setTextColor(palette.secondaryHeader)
+
+        tvSimpleSummary.setTextColor(palette.primaryText)
+        tvSimpleChandrashtamam.setTextColor(Color.parseColor("#C62828"))
+
+        tvRasiTitle.setBackgroundColor(palette.primaryHeader)
+        tvRasiTitle.setTextColor(palette.accentGold)
+
+        tvExpModeTitle.setTextColor(palette.primaryHeader)
+        btnToggleExpand.setColorFilter(palette.primaryHeader)
+        btnToggleCollapse.setColorFilter(palette.primaryHeader)
+    }
+
     private fun renderPanchangam(cal: Calendar) {
-        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val queryFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         val dateKey = queryFormat.format(cal.time)
 
-        val dayFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+        val dayFormat = SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH)
         val engMonthFormat = SimpleDateFormat("MMMM", Locale.ENGLISH)
         val engWeekdayFormat = SimpleDateFormat("EEEE", Locale.ENGLISH)
 
@@ -193,149 +283,128 @@ class FragmentPanchangam : Fragment() {
             return
         }
 
-        // Header Tamil details
-        tvBannerTamilYear.text = dayData.tamilYear.ifEmpty { "---" }
-        tvBannerTamilMonth.text = dayData.tamilMonth.ifEmpty { "---" }
+        // Header Tamil Details
+        tvBannerTamilYear.text = dayData.tamilYear
+        tvBannerTamilMonth.text = dayData.tamilMonth
         tvBannerTamilDate.text = if (dayData.tamilDate > 0) dayData.tamilDate.toString() else "---"
-        tvBannerTamilWeekday.text = dayData.weekdayTa.ifEmpty { "---" }
+        tvBannerTamilWeekday.text = dayData.weekdayTa
 
         // Simple Mode Paragraph
         val summaryBuilder = StringBuilder().apply {
-            append("திதி: ").append(dayData.tithiName.ifEmpty { "---" })
-            if (dayData.tithiTime.isNotEmpty()) append(" (${dayData.tithiTime})")
-            append(" • நட்சத்திரம்: ").append(dayData.nakshatraName.ifEmpty { "---" })
-            if (dayData.nakshatraTime.isNotEmpty()) append(" (${dayData.nakshatraTime})")
-            append(" • யோகம்: ").append(dayData.amritadiYoga.ifEmpty { dayData.yogaName.ifEmpty { "---" } })
+            append("திதி: ").append(dayData.tithiName)
+            if (dayData.tithiTime != "---") append(" (${dayData.tithiTime})")
+            append(" • நட்சத்திரம்: ").append(dayData.nakshatraName)
+            if (dayData.nakshatraTime != "---") append(" (${dayData.nakshatraTime})")
+            append(" • யோகம்: ").append(if (dayData.amritadiYoga != "---") dayData.amritadiYoga else dayData.yogaName)
         }
         tvSimpleSummary.text = summaryBuilder.toString()
 
-        tvSimpleNallaMorn.text = "காலை: ${dayData.nallaNeramMorn.ifEmpty { "---" }}"
-        tvSimpleNallaEve.text = "மாலை: ${dayData.nallaNeramEve.ifEmpty { "---" }}"
+        tvSimpleNallaMorn.text = "காலை: ${dayData.nallaNeramMorningStart} - ${dayData.nallaNeramMorningEnd}"
+        tvSimpleNallaEve.text = "மாலை: ${dayData.nallaNeramEveningStart} - ${dayData.nallaNeramEveningEnd}"
 
-        tvSimpleGowriMorn.text = "காலை: ${dayData.gowriMorn.ifEmpty { "---" }}"
-        tvSimpleGowriEve.text = "மாலை: ${dayData.gowriEve.ifEmpty { "---" }}"
+        tvSimpleGowriMorn.text = "காலை: ${dayData.gowriDayStart} - ${dayData.gowriDayEnd}"
+        tvSimpleGowriEve.text = "மாலை: ${dayData.gowriNightStart} - ${dayData.gowriNightEnd}"
 
-        tvSimpleRahu.text = dayData.rahu.ifEmpty { "---" }
-        tvSimpleYamagandam.text = dayData.yamagandam.ifEmpty { "---" }
-        tvSimpleKuligai.text = dayData.kuligai.ifEmpty { "---" }
+        tvSimpleRahu.text = "${dayData.raghuStart} - ${dayData.raghuEnd}"
+        tvSimpleYamagandam.text = "${dayData.emagandamStart} - ${dayData.emagandamEnd}"
+        tvSimpleKuligai.text = "${dayData.kuligaiStart} - ${dayData.kuligaiEnd}"
 
-        tvSimpleSoolam.text = dayData.soolam.ifEmpty { "---" }
-        tvSimpleParikaram.text = dayData.parikaram.ifEmpty { "---" }
-        tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : ${dayData.chandrashtamamRasi.ifEmpty { "---" }}"
+        tvSimpleSoolam.text = dayData.soolam
+        tvSimpleParikaram.text = dayData.parikaram
+        tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : ${dayData.chandrashtamamRasi}"
 
-        // Simple Mode Rasi Grid
-        tvRasiMesham.text = "மேஷம்\n${dayData.rasiMesham.ifEmpty { "---" }}"
-        tvRasiRishabam.text = "ரிஷபம்\n${dayData.rasiRishabam.ifEmpty { "---" }}"
-        tvRasiMithunam.text = "மிதுனம்\n${dayData.rasiMithunam.ifEmpty { "---" }}"
-        tvRasiKadagam.text = "கடகம்\n${dayData.rasiKadagam.ifEmpty { "---" }}"
-        tvRasiSimmam.text = "சிம்மம்\n${dayData.rasiSimmam.ifEmpty { "---" }}"
-        tvRasiKanni.text = "கன்னி\n${dayData.rasiKanni.ifEmpty { "---" }}"
-        tvRasiThulaam.text = "துலாம்\n${dayData.rasiThulaam.ifEmpty { "---" }}"
-        tvRasiViruchigam.text = "விருச்சிகம்\n${dayData.rasiViruchigam.ifEmpty { "---" }}"
-        tvRasiDhanusu.text = "தனுசு\n${dayData.rasiDhanusu.ifEmpty { "---" }}"
-        tvRasiMagaram.text = "மகரம்\n${dayData.rasiMagaram.ifEmpty { "---" }}"
-        tvRasiKumbam.text = "கும்பம்\n${dayData.rasiKumbam.ifEmpty { "---" }}"
-        tvRasiMeenam.text = "மீனம்\n${dayData.rasiMeenam.ifEmpty { "---" }}"
+        // 12 Rasi Houses
+        tvRasiMesham.text = "மேஷம்\n${dayData.rasiMesham}"
+        tvRasiRishabam.text = "ரிஷபம்\n${dayData.rasiRishabam}"
+        tvRasiMithunam.text = "மிதுனம்\n${dayData.rasiMithunam}"
+        tvRasiKadagam.text = "கடகம்\n${dayData.rasiKadagam}"
+        tvRasiSimmam.text = "சிம்மம்\n${dayData.rasiSimmam}"
+        tvRasiKanni.text = "கன்னி\n${dayData.rasiKanni}"
+        tvRasiThulaam.text = "துலாம்\n${dayData.rasiThulaam}"
+        tvRasiViruchigam.text = "விருச்சிகம்\n${dayData.rasiViruchigam}"
+        tvRasiDhanusu.text = "தனுசு\n${dayData.rasiDhanusu}"
+        tvRasiMagaram.text = "மகரம்\n${dayData.rasiMagaram}"
+        tvRasiKumbam.text = "கும்பம்\n${dayData.rasiKumbam}"
+        tvRasiMeenam.text = "மீனம்\n${dayData.rasiMeenam}"
 
-        // Expanded Mode
-        val sunText = if (dayData.sunrise.isNotEmpty() && dayData.sunset.isNotEmpty()) {
-            "☀️ ${dayData.sunrise} • 🌘 ${dayData.sunset}"
-        } else {
-            "☀️ --:-- • 🌘 --:--"
-        }
-        tvExpSunTimings.text = sunText
+        // Expanded Mode Details
+        tvExpSunTimings.text = "☀️ ${dayData.sunrise} • 🌘 ${dayData.sunset}"
+        tvExpMoonTimings.text = "🌙 ${dayData.moonrise} • 🌑 ${dayData.moonset}"
 
-        val moonText = if (dayData.moonrise.isNotEmpty() && dayData.moonset.isNotEmpty()) {
-            "🌙 ${dayData.moonrise} • 🌑 ${dayData.moonset}"
-        } else {
-            "🌙 --:-- • 🌑 --:--"
-        }
-        tvExpMoonTimings.text = moonText
+        tvExpTithiName.text = if (dayData.tithiTime != "---") "${dayData.tithiName} (${dayData.tithiTime})" else dayData.tithiName
+        tvExpNakshatraName.text = if (dayData.nakshatraTime != "---") "${dayData.nakshatraName} (${dayData.nakshatraTime})" else dayData.nakshatraName
+        tvExpAmritadiYoga.text = if (dayData.amritadiYoga != "---") dayData.amritadiYoga else dayData.yogaName
+        tvExpChandrashtamam.text = dayData.chandrashtamamRasi
 
-        tvExpTithiName.text = dayData.tithiName.ifEmpty { "---" }
-        tvExpTithiTime.text = dayData.tithiTime.ifEmpty { "" }
+        tvExpNallaNeram.text = "காலை: ${dayData.nallaNeramMorningStart} - ${dayData.nallaNeramMorningEnd} | மாலை: ${dayData.nallaNeramEveningStart} - ${dayData.nallaNeramEveningEnd}"
+        tvExpGowriNeram.text = "காலை: ${dayData.gowriDayStart} - ${dayData.gowriDayEnd} | மாலை: ${dayData.gowriNightStart} - ${dayData.gowriNightEnd}"
 
-        tvExpNakshatraName.text = dayData.nakshatraName.ifEmpty { "---" }
-        tvExpNakshatraTime.text = dayData.nakshatraTime.ifEmpty { "" }
+        tvExpRahu.text = "${dayData.raghuStart} - ${dayData.raghuEnd}"
+        tvExpYamagandam.text = "${dayData.emagandamStart} - ${dayData.emagandamEnd}"
+        tvExpKuligai.text = "${dayData.kuligaiStart} - ${dayData.kuligaiEnd}"
 
-        tvExpAmritadiYoga.text = dayData.amritadiYoga.ifEmpty { dayData.yogaName.ifEmpty { "---" } }
-        tvExpChandrashtamam.text = dayData.chandrashtamamRasi.ifEmpty { "---" }
-
-        val nallaFull = StringBuilder().apply {
-            append("காலை: ").append(dayData.nallaNeramMorn.ifEmpty { "---" })
-            append(" | மாலை: ").append(dayData.nallaNeramEve.ifEmpty { "---" })
-        }
-        tvExpNallaNeram.text = nallaFull.toString()
-
-        val gowriFull = StringBuilder().apply {
-            append("காலை: ").append(dayData.gowriMorn.ifEmpty { "---" })
-            append(" | மாலை: ").append(dayData.gowriEve.ifEmpty { "---" })
-        }
-        tvExpGowriNeram.text = gowriFull.toString()
-
-        tvExpRahu.text = dayData.rahu.ifEmpty { "---" }
-        tvExpYamagandam.text = dayData.yamagandam.ifEmpty { "---" }
-        tvExpKuligai.text = dayData.kuligai.ifEmpty { "---" }
-
-        tvExpNityaYoga.text = "நித்திய யோகம் : ${dayData.yogaName.ifEmpty { "---" }}"
-        tvExpKarana.text = "கரணம் : ${dayData.karanaName.ifEmpty { "---" }}"
-        tvExpTyajyam.text = dayData.tyajyamTime.ifEmpty { "---" }
-        tvExpSoolam.text = "சூலம் : ${dayData.soolam.ifEmpty { "---" }}"
-        tvExpParikaram.text = "பரிகாரம் : ${dayData.parikaram.ifEmpty { "---" }}"
-        tvExpFestivals.text = dayData.festivalsEvents.ifEmpty { "இன்று விசேஷங்கள் இல்லை" }
+        tvExpNityaYoga.text = "நித்திய யோகம் : ${dayData.yogaName}"
+        tvExpKarana.text = "கரணம் : ${dayData.karanaName}"
+        tvExpTyajyam.text = dayData.tyajyamTime
+        tvExpSoolam.text = "சூலம் : ${dayData.soolam}"
+        tvExpParikaram.text = "பரிகாரம் : ${dayData.parikaram}"
+        tvExpFestivals.text = if (dayData.festivalsEvents.isNotBlank()) dayData.festivalsEvents else "---"
     }
 
     private fun displayEmptyState() {
-        val emptyDash = "---"
+        val dash = "---"
 
-        tvBannerTamilYear.text = emptyDash
-        tvBannerTamilMonth.text = emptyDash
-        tvBannerTamilDate.text = emptyDash
-        tvBannerTamilWeekday.text = emptyDash
+        tvBannerTamilYear.text = dash
+        tvBannerTamilMonth.text = dash
+        tvBannerTamilDate.text = dash
+        tvBannerTamilWeekday.text = dash
 
-        tvSimpleSummary.text = "தரவு கிடைக்கவில்லை"
-        tvSimpleNallaMorn.text = "காலை: $emptyDash"
-        tvSimpleNallaEve.text = "மாலை: $emptyDash"
-        tvSimpleGowriMorn.text = "காலை: $emptyDash"
-        tvSimpleGowriEve.text = "மாலை: $emptyDash"
-        tvSimpleRahu.text = emptyDash
-        tvSimpleYamagandam.text = emptyDash
-        tvSimpleKuligai.text = emptyDash
-        tvSimpleSoolam.text = emptyDash
-        tvSimpleParikaram.text = emptyDash
-        tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : $emptyDash"
+        tvSimpleSummary.text = dash
+        tvSimpleNallaMorn.text = "காலை: $dash"
+        tvSimpleNallaEve.text = "மாலை: $dash"
+        tvSimpleGowriMorn.text = "காலை: $dash"
+        tvSimpleGowriEve.text = "மாலை: $dash"
+        tvSimpleRahu.text = dash
+        tvSimpleYamagandam.text = dash
+        tvSimpleKuligai.text = dash
+        tvSimpleSoolam.text = dash
+        tvSimpleParikaram.text = dash
+        tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : $dash"
 
-        tvRasiMesham.text = "மேஷம்\n$emptyDash"
-        tvRasiRishabam.text = "ரிஷபம்\n$emptyDash"
-        tvRasiMithunam.text = "மிதுனம்\n$emptyDash"
-        tvRasiKadagam.text = "கடகம்\n$emptyDash"
-        tvRasiSimmam.text = "சிம்மம்\n$emptyDash"
-        tvRasiKanni.text = "கன்னி\n$emptyDash"
-        tvRasiThulaam.text = "துலாம்\n$emptyDash"
-        tvRasiViruchigam.text = "விருச்சிகம்\n$emptyDash"
-        tvRasiDhanusu.text = "தனுசு\n$emptyDash"
-        tvRasiMagaram.text = "மகரம்\n$emptyDash"
-        tvRasiKumbam.text = "கும்பம்\n$emptyDash"
-        tvRasiMeenam.text = "மீனம்\n$emptyDash"
+        tvRasiMesham.text = "மேஷம்\n$dash"
+        tvRasiRishabam.text = "ரிஷபம்\n$dash"
+        tvRasiMithunam.text = "மிதுனம்\n$dash"
+        tvRasiKadagam.text = "கடகம்\n$dash"
+        tvRasiSimmam.text = "சிம்மம்\n$dash"
+        tvRasiKanni.text = "கன்னி\n$dash"
+        tvRasiThulaam.text = "துலாம்\n$dash"
+        tvRasiViruchigam.text = "விருச்சிகம்\n$dash"
+        tvRasiDhanusu.text = "தனுசு\n$dash"
+        tvRasiMagaram.text = "மகரம்\n$dash"
+        tvRasiKumbam.text = "கும்பம்\n$dash"
+        tvRasiMeenam.text = "மீனம்\n$dash"
 
-        tvExpSunTimings.text = "☀️ --:-- • 🌘 --:--"
-        tvExpMoonTimings.text = "🌙 --:-- • 🌑 --:--"
-        tvExpTithiName.text = emptyDash
-        tvExpTithiTime.text = ""
-        tvExpNakshatraName.text = emptyDash
-        tvExpNakshatraTime.text = ""
-        tvExpAmritadiYoga.text = emptyDash
-        tvExpChandrashtamam.text = emptyDash
-        tvExpNallaNeram.text = "காலை: $emptyDash | மாலை: $emptyDash"
-        tvExpGowriNeram.text = "காலை: $emptyDash | மாலை: $emptyDash"
-        tvExpRahu.text = emptyDash
-        tvExpYamagandam.text = emptyDash
-        tvExpKuligai.text = emptyDash
-        tvExpNityaYoga.text = "நித்திய யோகம் : $emptyDash"
-        tvExpKarana.text = "கரணம் : $emptyDash"
-        tvExpTyajyam.text = emptyDash
-        tvExpSoolam.text = "சூலம் : $emptyDash"
-        tvExpParikaram.text = "பரிகாரம் : $emptyDash"
-        tvExpFestivals.text = "தரவு கிடைக்கவில்லை"
+        tvExpSunTimings.text = "☀️ $dash • 🌘 $dash"
+        tvExpMoonTimings.text = "🌙 $dash • 🌑 $dash"
+        tvExpTithiName.text = dash
+        tvExpNakshatraName.text = dash
+        tvExpAmritadiYoga.text = dash
+        tvExpChandrashtamam.text = dash
+        tvExpNallaNeram.text = "காலை: $dash | மாலை: $dash"
+        tvExpGowriNeram.text = "காலை: $dash | மாலை: $dash"
+        tvExpRahu.text = dash
+        tvExpYamagandam.text = dash
+        tvExpKuligai.text = dash
+        tvExpNityaYoga.text = "நித்திய யோகம் : $dash"
+        tvExpKarana.text = "கரணம் : $dash"
+        tvExpTyajyam.text = dash
+        tvExpSoolam.text = "சூலம் : $dash"
+        tvExpParikaram.text = "பரிகாரம் : $dash"
+        tvExpFestivals.text = dash
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dbHelper.close()
     }
 }
