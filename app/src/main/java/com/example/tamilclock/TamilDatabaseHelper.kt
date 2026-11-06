@@ -18,6 +18,7 @@ import java.io.FileOutputStream
  * app/src/main/assets/horai.db
  *
  * Original database schemas are preserved.
+ * Missing/blank values resolve to "---".
  */
 class TamilDatabaseHelper(context: Context) {
 
@@ -98,19 +99,20 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 3. CURSOR HELPERS
+    // 3. CURSOR HELPERS WITH "---" SAFE RESOLUTION
     // ---------------------------------------------------------
 
-    private fun Cursor.string(column: String): String {
+    private fun Cursor.safeString(column: String): String {
         val index = getColumnIndex(column)
         return if (index >= 0 && !isNull(index)) {
-            getString(index) ?: ""
+            val value = getString(index)?.trim()
+            if (value.isNullOrEmpty()) "---" else value
         } else {
-            ""
+            "---"
         }
     }
 
-    private fun Cursor.intValue(column: String): Int {
+    private fun Cursor.safeInt(column: String): Int {
         val index = getColumnIndex(column)
         return if (index >= 0 && !isNull(index)) {
             getInt(index)
@@ -141,7 +143,7 @@ class TamilDatabaseHelper(context: Context) {
                     null
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -151,111 +153,104 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     data class DayPanchangDetails(
-        // Panchangam database
-        val gregorianDate: String = "",
-        val tamilYear: String = "",
-        val tamilMonth: String = "",
-        val tamilDate: Int = 0,               // DB Column (INTEGER)
-        val weekdayTa: String = "",           // DB Column (TEXT)
-        val paksha: String = "",
-        val tithiName: String = "",
-        val tithiTime: String = "",
-        val nakshatraName: String = "",
-        val nakshatraTime: String = "",
-        val yogaName: String = "",
-        val yogaTime: String = "",
-        val amritadiYoga: String = "",
-        val karanaName: String = "",
-        val karanaTime: String = "",
-        val tyajyamTime: String = "",
+        val gregorianDate: String = "---",
+        val tamilYear: String = "---",
+        val tamilMonth: String = "---",
+        val tamilDate: Int = 0,
+        val weekdayTa: String = "---",
+        val paksha: String = "---",
+        val tithiName: String = "---",
+        val tithiTime: String = "---",
+        val nakshatraName: String = "---",
+        val nakshatraTime: String = "---",
+        val yogaName: String = "---",
+        val yogaTime: String = "---",
+        val amritadiYoga: String = "---",
+        val karanaName: String = "---",
+        val karanaTime: String = "---",
+        val tyajyamTime: String = "---",
         val festivalsEvents: String = "",
-        val chandrashtamamRasi: String = "",
-        val soolam: String = "",
-        val parikaram: String = "",
+        val chandrashtamamRasi: String = "---",
+        val soolam: String = "---",
+        val parikaram: String = "---",
 
         // Sun and moon database
-        val sunrise: String = "",
-        val sunset: String = "",
-        val moonrise: String = "",
-        val moonset: String = "",
+        val sunrise: String = "---",
+        val sunset: String = "---",
+        val moonrise: String = "---",
+        val moonset: String = "---",
 
         // Auspicious periods database
-        val nallaNeramMorningStart: String = "",
-        val nallaNeramMorningEnd: String = "",
-        val nallaNeramEveningStart: String = "",
-        val nallaNeramEveningEnd: String = "",
-        val gowriDayStart: String = "",
-        val gowriDayEnd: String = "",
-        val gowriNightStart: String = "",
-        val gowriNightEnd: String = "",
-        val raghuStart: String = "",
-        val raghuEnd: String = "",
-        val emagandamStart: String = "",
-        val emagandamEnd: String = "",
-        val kuligaiStart: String = "",
-        val kuligaiEnd: String = "",
+        val nallaNeramMorningStart: String = "---",
+        val nallaNeramMorningEnd: String = "---",
+        val nallaNeramEveningStart: String = "---",
+        val nallaNeramEveningEnd: String = "---",
+        val gowriDayStart: String = "---",
+        val gowriDayEnd: String = "---",
+        val gowriNightStart: String = "---",
+        val gowriNightEnd: String = "---",
+        val raghuStart: String = "---",
+        val raghuEnd: String = "---",
+        val emagandamStart: String = "---",
+        val emagandamEnd: String = "---",
+        val kuligaiStart: String = "---",
+        val kuligaiEnd: String = "---",
 
         // Daily Rasi Palan
         val rasiPalan: RasiPalanDetails? = null
     ) {
-        // -------------------------------------------------------------
-        // DATE & DAY COMPATIBILITY ALIASES
-        // -------------------------------------------------------------
-        // Int return fixes CalendarMonthAdapter.kt (dayDetails.tamilDay == 1)
+        // Compatibility Aliases
         val tamilDay: Int get() = tamilDate
-
-        // String returns for widgets and textviews
-        val tamilDateStr: String get() = if (tamilDate > 0) tamilDate.toString() else ""
+        val tamilDateStr: String get() = if (tamilDate > 0) tamilDate.toString() else "---"
         val tamilDayStr: String get() = tamilDateStr
 
-        // Weekday Name String
         val dayName: String get() = weekdayTa
         val dayNameTa: String get() = weekdayTa
 
-        // -------------------------------------------------------------
-        // ASTROLOGICAL ALIASES
-        // -------------------------------------------------------------
         val tithi: String get() = tithiName
         val nakshatra: String get() = nakshatraName
-        val yoga: String get() = if (amritadiYoga.isNotBlank()) amritadiYoga else yogaName
+        val yoga: String get() = if (amritadiYoga != "---" && amritadiYoga.isNotBlank()) amritadiYoga else yogaName
         val paksham: String get() = paksha
         val karanam: String get() = karanaName
         val chandrashtamam: String get() = chandrashtamamRasi
         val festivals: String get() = festivalsEvents
         val tyajyam: String get() = tyajyamTime
 
-        // Timings aliases
-        val nallaNeramMorning: String get() = combineTime(nallaNeramMorningStart, nallaNeramMorningEnd)
-        val nallaNeramEvening: String get() = combineTime(nallaNeramEveningStart, nallaNeramEveningEnd)
+        val nallaNeramMorning: String get() = combine(nallaNeramMorningStart, nallaNeramMorningEnd)
+        val nallaNeramEvening: String get() = combine(nallaNeramEveningStart, nallaNeramEveningEnd)
         val nallaNeramMorn: String get() = nallaNeramMorning
         val nallaNeramEve: String get() = nallaNeramEvening
 
-        val gowriMorning: String get() = combineTime(gowriDayStart, gowriDayEnd)
-        val gowriNight: String get() = combineTime(gowriNightStart, gowriNightEnd)
+        val gowriMorning: String get() = combine(gowriDayStart, gowriDayEnd)
+        val gowriNight: String get() = combine(gowriNightStart, gowriNightEnd)
         val gowriMorn: String get() = gowriMorning
         val gowriEve: String get() = gowriNight
 
-        val rahuKaalam: String get() = combineTime(raghuStart, raghuEnd)
+        val rahuKaalam: String get() = combine(raghuStart, raghuEnd)
         val rahu: String get() = rahuKaalam
-        val yamagandam: String get() = combineTime(emagandamStart, emagandamEnd)
-        val kuligai: String get() = combineTime(kuligaiStart, kuligaiEnd)
+        val yamagandam: String get() = combine(emagandamStart, emagandamEnd)
+        val kuligai: String get() = combine(kuligaiStart, kuligaiEnd)
 
-        // Rasi 12-box aliases for FragmentPanchangam
-        val rasiMesham: String get() = rasiPalan?.mesham ?: ""
-        val rasiRishabam: String get() = rasiPalan?.rishabam ?: ""
-        val rasiMithunam: String get() = rasiPalan?.mithunam ?: ""
-        val rasiKadagam: String get() = rasiPalan?.katakam ?: ""
-        val rasiSimmam: String get() = rasiPalan?.simmam ?: ""
-        val rasiKanni: String get() = rasiPalan?.kanni ?: ""
-        val rasiThulaam: String get() = rasiPalan?.thulaam ?: ""
-        val rasiViruchigam: String get() = rasiPalan?.viruchigam ?: ""
-        val rasiDhanusu: String get() = rasiPalan?.dhanusu ?: ""
-        val rasiMagaram: String get() = rasiPalan?.makaram ?: ""
-        val rasiKumbam: String get() = rasiPalan?.kumbam ?: ""
-        val rasiMeenam: String get() = rasiPalan?.meenam ?: ""
+        // Rasi 12-box aliases
+        val rasiMesham: String get() = rasiPalan?.mesham ?: "---"
+        val rasiRishabam: String get() = rasiPalan?.rishabam ?: "---"
+        val rasiMithunam: String get() = rasiPalan?.mithunam ?: "---"
+        val rasiKadagam: String get() = rasiPalan?.katakam ?: "---"
+        val rasiSimmam: String get() = rasiPalan?.simmam ?: "---"
+        val rasiKanni: String get() = rasiPalan?.kanni ?: "---"
+        val rasiThulaam: String get() = rasiPalan?.thulaam ?: "---"
+        val rasiViruchigam: String get() = rasiPalan?.viruchigam ?: "---"
+        val rasiDhanusu: String get() = rasiPalan?.dhanusu ?: "---"
+        val rasiMagaram: String get() = rasiPalan?.makaram ?: "---"
+        val rasiKumbam: String get() = rasiPalan?.kumbam ?: "---"
+        val rasiMeenam: String get() = rasiPalan?.meenam ?: "---"
 
-        private fun combineTime(start: String, end: String): String {
-            return if (start.isNotBlank() && end.isNotBlank()) "$start - $end" else ""
+        private fun combine(start: String, end: String): String {
+            return if (start != "---" && end != "---" && start.isNotBlank() && end.isNotBlank()) {
+                "$start - $end"
+            } else {
+                "---"
+            }
         }
     }
 
@@ -264,23 +259,23 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     data class RasiPalanDetails(
-        val gregorianDate: String = "",
-        val tamilMonth: String = "",
+        val gregorianDate: String = "---",
+        val tamilMonth: String = "---",
         val tamilDate: Int = 0,
-        val weekdayTa: String = "",
-        val nakshatraName: String = "",
-        val mesham: String = "",
-        val rishabam: String = "",
-        val mithunam: String = "",
-        val katakam: String = "",
-        val simmam: String = "",
-        val kanni: String = "",
-        val thulaam: String = "",
-        val viruchigam: String = "",
-        val dhanusu: String = "",
-        val makaram: String = "",
-        val kumbam: String = "",
-        val meenam: String = ""
+        val weekdayTa: String = "---",
+        val nakshatraName: String = "---",
+        val mesham: String = "---",
+        val rishabam: String = "---",
+        val mithunam: String = "---",
+        val katakam: String = "---",
+        val simmam: String = "---",
+        val kanni: String = "---",
+        val thulaam: String = "---",
+        val viruchigam: String = "---",
+        val dhanusu: String = "---",
+        val makaram: String = "---",
+        val kumbam: String = "---",
+        val meenam: String = "---"
     ) {
         val rasiKadagam: String get() = katakam
     }
@@ -319,26 +314,28 @@ class TamilDatabaseHelper(context: Context) {
 
         val panchang = panchangCursor.use { cursor ->
             DayPanchangDetails(
-                gregorianDate = cursor.string("gregorian_date"),
-                tamilYear = cursor.string("tamil_year"),
-                tamilMonth = cursor.string("tamil_month"),
-                tamilDate = cursor.intValue("tamil_date"),
-                weekdayTa = cursor.string("weekday_ta"),
-                paksha = cursor.string("paksha"),
-                tithiName = cursor.string("tithi_name"),
-                tithiTime = cursor.string("tithi_time"),
-                nakshatraName = cursor.string("nakshatra_name"),
-                nakshatraTime = cursor.string("nakshatra_time"),
-                yogaName = cursor.string("yoga_name"),
-                yogaTime = cursor.string("yoga_time"),
-                amritadiYoga = cursor.string("amritadi_yoga"),
-                karanaName = cursor.string("karana_name"),
-                karanaTime = cursor.string("karana_time"),
-                tyajyamTime = cursor.string("tyajyam_time"),
-                festivalsEvents = cursor.string("festivals_events"),
-                chandrashtamamRasi = cursor.string("chandrashtamam_rasi"),
-                soolam = cursor.string("soolam"),
-                parikaram = cursor.string("parikaram")
+                gregorianDate = cursor.safeString("gregorian_date"),
+                tamilYear = cursor.safeString("tamil_year"),
+                tamilMonth = cursor.safeString("tamil_month"),
+                tamilDate = cursor.safeInt("tamil_date"),
+                weekdayTa = cursor.safeString("weekday_ta"),
+                paksha = cursor.safeString("paksha"),
+                tithiName = cursor.safeString("tithi_name"),
+                tithiTime = cursor.safeString("tithi_time"),
+                nakshatraName = cursor.safeString("nakshatra_name"),
+                nakshatraTime = cursor.safeString("nakshatra_time"),
+                yogaName = cursor.safeString("yoga_name"),
+                yogaTime = cursor.safeString("yoga_time"),
+                amritadiYoga = cursor.safeString("amritadi_yoga"),
+                karanaName = cursor.safeString("karana_name"),
+                karanaTime = cursor.safeString("karana_time"),
+                tyajyamTime = cursor.safeString("tyajyam_time"),
+                festivalsEvents = if (cursor.getColumnIndex("festivals_events") >= 0 && !cursor.isNull(cursor.getColumnIndex("festivals_events"))) {
+                    cursor.getString(cursor.getColumnIndex("festivals_events")) ?: ""
+                } else "",
+                chandrashtamamRasi = cursor.safeString("chandrashtamam_rasi"),
+                soolam = cursor.safeString("soolam"),
+                parikaram = cursor.safeString("parikaram")
             )
         }
 
@@ -351,12 +348,12 @@ class TamilDatabaseHelper(context: Context) {
 
         val sunMoon = sunMoonCursor?.use { cursor ->
             listOf(
-                cursor.string("sunrise"),
-                cursor.string("sunset"),
-                cursor.string("moonrise"),
-                cursor.string("moonset")
+                cursor.safeString("sunrise"),
+                cursor.safeString("sunset"),
+                cursor.safeString("moonrise"),
+                cursor.safeString("moonset")
             )
-        } ?: listOf("", "", "", "")
+        } ?: listOf("---", "---", "---", "---")
 
         val auspiciousCursor = queryOne(
             "auspicious_periods.db",
@@ -367,24 +364,23 @@ class TamilDatabaseHelper(context: Context) {
 
         val auspicious = auspiciousCursor?.use { cursor ->
             listOf(
-                cursor.string("nalla_neram_morning_start"),
-                cursor.string("nalla_neram_morning_end"),
-                cursor.string("nalla_neram_evening_start"),
-                cursor.string("nalla_neram_evening_end"),
-                cursor.string("gowri_day_start"),
-                cursor.string("gowri_day_end"),
-                cursor.string("gowri_night_start"),
-                cursor.string("gowri_night_end"),
-                cursor.string("raghu_start"),
-                cursor.string("raghu_end"),
-                cursor.string("emagandam_start"),
-                cursor.string("emagandam_end"),
-                cursor.string("kuligai_start"),
-                cursor.string("kuligai_end")
+                cursor.safeString("nalla_neram_morning_start"),
+                cursor.safeString("nalla_neram_morning_end"),
+                cursor.safeString("nalla_neram_evening_start"),
+                cursor.safeString("nalla_neram_evening_end"),
+                cursor.safeString("gowri_day_start"),
+                cursor.safeString("gowri_day_end"),
+                cursor.safeString("gowri_night_start"),
+                cursor.safeString("gowri_night_end"),
+                cursor.safeString("raghu_start"),
+                cursor.safeString("raghu_end"),
+                cursor.safeString("emagandam_start"),
+                cursor.safeString("emagandam_end"),
+                cursor.safeString("kuligai_start"),
+                cursor.safeString("kuligai_end")
             )
-        } ?: List(14) { "" }
+        } ?: List(14) { "---" }
 
-        // Fetch daily rasi palan for zero-hardcoded astrological cards
         val rasi = getRasiDetails(gregorianDate)
 
         return panchang.copy(
@@ -424,23 +420,23 @@ class TamilDatabaseHelper(context: Context) {
 
         return cursor.use {
             RasiPalanDetails(
-                gregorianDate = it.string("gregorian_date"),
-                tamilMonth = it.string("tamil_month"),
-                tamilDate = it.intValue("tamil_date"),
-                weekdayTa = it.string("weekday_ta"),
-                nakshatraName = it.string("nakshatra_name"),
-                mesham = it.string("mesham"),
-                rishabam = it.string("rishabam"),
-                mithunam = it.string("mithunam"),
-                katakam = it.string("katakam"),
-                simmam = it.string("simmam"),
-                kanni = it.string("kanni"),
-                thulaam = it.string("thulaam"),
-                viruchigam = it.string("viruchigam"),
-                dhanusu = it.string("dhanusu"),
-                makaram = it.string("makaram"),
-                kumbam = it.string("kumbam"),
-                meenam = it.string("meenam")
+                gregorianDate = it.safeString("gregorian_date"),
+                tamilMonth = it.safeString("tamil_month"),
+                tamilDate = it.safeInt("tamil_date"),
+                weekdayTa = it.safeString("weekday_ta"),
+                nakshatraName = it.safeString("nakshatra_name"),
+                mesham = it.safeString("mesham"),
+                rishabam = it.safeString("rishabam"),
+                mithunam = it.safeString("mithunam"),
+                katakam = it.safeString("katakam"),
+                simmam = it.safeString("simmam"),
+                kanni = it.safeString("kanni"),
+                thulaam = it.safeString("thulaam"),
+                viruchigam = it.safeString("viruchigam"),
+                dhanusu = it.safeString("dhanusu"),
+                makaram = it.safeString("makaram"),
+                kumbam = it.safeString("kumbam"),
+                meenam = it.safeString("meenam")
             )
         }
     }
@@ -459,17 +455,17 @@ class TamilDatabaseHelper(context: Context) {
 
         return cursor.use {
             GowriDetails(
-                weekdayTa = it.string("weekday_ta"),
-                kaalam = it.string("kaalam"),
+                weekdayTa = it.safeString("weekday_ta"),
+                kaalam = it.safeString("kaalam"),
                 slots = listOf(
-                    it.string("slot_6_730"),
-                    it.string("slot_730_9"),
-                    it.string("slot_9_1030"),
-                    it.string("slot_1030_12"),
-                    it.string("slot_12_130"),
-                    it.string("slot_130_3"),
-                    it.string("slot_3_430"),
-                    it.string("slot_430_6")
+                    it.safeString("slot_6_730"),
+                    it.safeString("slot_730_9"),
+                    it.safeString("slot_9_1030"),
+                    it.safeString("slot_1030_12"),
+                    it.safeString("slot_12_130"),
+                    it.safeString("slot_130_3"),
+                    it.safeString("slot_3_430"),
+                    it.safeString("slot_430_6")
                 )
             )
         }
@@ -489,21 +485,21 @@ class TamilDatabaseHelper(context: Context) {
 
         return cursor.use {
             HoraiDetails(
-                weekdayTa = it.string("weekday_ta"),
-                kaalam = it.string("kaalam"),
+                weekdayTa = it.safeString("weekday_ta"),
+                kaalam = it.safeString("kaalam"),
                 slots = listOf(
-                    it.string("slot_6_7"),
-                    it.string("slot_7_8"),
-                    it.string("slot_8_9"),
-                    it.string("slot_9_10"),
-                    it.string("slot_10_11"),
-                    it.string("slot_11_12"),
-                    it.string("slot_12_1"),
-                    it.string("slot_1_2"),
-                    it.string("slot_2_3"),
-                    it.string("slot_3_4"),
-                    it.string("slot_4_5"),
-                    it.string("slot_5_6")
+                    it.safeString("slot_6_7"),
+                    it.safeString("slot_7_8"),
+                    it.safeString("slot_8_9"),
+                    it.safeString("slot_9_10"),
+                    it.safeString("slot_10_11"),
+                    it.safeString("slot_11_12"),
+                    it.safeString("slot_12_1"),
+                    it.safeString("slot_1_2"),
+                    it.safeString("slot_2_3"),
+                    it.safeString("slot_3_4"),
+                    it.safeString("slot_4_5"),
+                    it.safeString("slot_5_6")
                 )
             )
         }
