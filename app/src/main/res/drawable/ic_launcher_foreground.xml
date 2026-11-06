@@ -1,0 +1,69 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Central Safe-zone Group (scaled to 66dp inner circle) -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.68"
+        android:scaleY="0.68">
+
+        <!-- Coconut Tip -->
+        <path
+            android:fillColor="#FFA000"
+            android:pathData="M54,20 C50,28 44,36 44,42 C44,48 54,52 54,52 C54,52 64,48 64,42 C64,36 58,28 54,20 Z" />
+
+        <!-- Mango Leaves (Green) -->
+        <path
+            android:fillColor="#388E3C"
+            android:pathData="M44,40 C34,34 26,35 24,40 C28,48 40,48 46,46 Z" />
+        <path
+            android:fillColor="#4CAF50"
+            android:pathData="M64,40 C74,34 82,35 84,40 C80,48 68,48 62,46 Z" />
+
+        <!-- Kalasam Pot (Gold Dial) -->
+        <!-- Rim -->
+        <path
+            android:fillColor="#FFD54F"
+            android:pathData="M38,47 L70,47 C72,47 73,49 71,51 L68,54 L40,54 L37,51 C35,49 36,47 38,47 Z" />
+        <!-- Round Pot Body -->
+        <path
+            android:fillColor="#FFC107"
+            android:pathData="M54,52 C38,52 32,64 32,74 C32,86 42,92 54,92 C66,92 76,86 76,74 C76,64 70,52 54,52 Z" />
+
+        <!-- Clock Markers (12, 3, 6, 9) -->
+        <path
+            android:fillColor="#5D4037"
+            android:pathData="M52,56 H56 V60 H52 Z
+                              M68,72 H72 V76 H68 Z
+                              M52,84 H56 V88 H52 Z
+                              M36,72 H40 V76 H36 Z" />
+
+        <!-- Clock Hands (Auspicious 10:10 Time) -->
+        <path
+            android:strokeColor="#3E2723"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:pathData="M54,74 L46,65" />
+        <path
+            android:strokeColor="#3E2723"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:pathData="M54,74 L64,68" />
+        <!-- Center Pivot -->
+        <path
+            android:fillColor="#D84315"
+            android:pathData="M54,71 A3,3 0 1,0 54,77 A3,3 0 1,0 54,71 Z" />
+
+        <!-- Lotus Base (Pedestal) -->
+        <path
+            android:fillColor="#FFA000"
+            android:pathData="M54,88 C46,88 38,94 30,92 C36,98 48,100 54,97 C60,100 72,98 78,92 C70,94 62,88 54,88 Z" />
+        <path
+            android:fillColor="#FFB300"
+            android:pathData="M54,89 C50,89 45,93 45,96 C49,99 59,99 63,96 C63,93 58,89 54,89 Z" />
+    </group>
+</vector>
