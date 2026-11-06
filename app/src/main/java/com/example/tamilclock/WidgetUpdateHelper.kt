@@ -2,6 +2,7 @@ package com.example.tamilclock
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
@@ -13,16 +14,8 @@ import java.util.Locale
 
 object WidgetUpdateHelper {
 
-    fun updateAllWidgets(context: Context) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        update2x1(context, appWidgetManager)
-        update4x1(context, appWidgetManager)
-        update4x2(context, appWidgetManager)
-        update4x4(context, appWidgetManager)
-    }
-
     // -------------------------------------------------------------
-    // SHARED INTENT BUILDER
+    // PENDING INTENT BUILDER
     // -------------------------------------------------------------
     private fun getPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
@@ -34,6 +27,31 @@ object WidgetUpdateHelper {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+    }
+
+    // -------------------------------------------------------------
+    // SAFE VIEW BINDING HELPER
+    // Prevents crash or compile failure if an ID is missing in XML
+    // -------------------------------------------------------------
+    private fun RemoteViews.safeSetText(context: Context, idName: String, text: CharSequence) {
+        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
+        if (resId != 0) {
+            setTextViewText(resId, text)
+        }
+    }
+
+    private fun RemoteViews.safeSetVisibility(context: Context, idName: String, visibility: Int) {
+        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
+        if (resId != 0) {
+            setViewVisibility(resId, visibility)
+        }
+    }
+
+    private fun RemoteViews.safeSetImageBitmap(context: Context, idName: String, bitmap: Bitmap) {
+        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
+        if (resId != 0) {
+            setImageViewBitmap(resId, bitmap)
+        }
     }
 
     // -------------------------------------------------------------
@@ -53,7 +71,6 @@ object WidgetUpdateHelper {
         val opacityPercent = ThemeManager.getWidgetOpacity(context)
         val alpha = (opacityPercent * 255 / 100).coerceIn(0, 255)
 
-        // Fill background
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = baseColor
             this.alpha = alpha
@@ -63,7 +80,6 @@ object WidgetUpdateHelper {
         val rect = RectF(4f, 4f, (widthPx - 4).toFloat(), (heightPx - 4).toFloat())
         canvas.drawRoundRect(rect, cornerRadius, cornerRadius, bgPaint)
 
-        // Outer Gold / Accent Border
         val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = if (hexColor == ThemeManager.WIDGET_COLOR_OFF_WHITE) Color.parseColor("#BDBDBD") else Color.parseColor("#FFDF00")
             this.alpha = alpha.coerceAtLeast(80)
@@ -76,7 +92,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // DATE VIEW FORMATTER (A: 06 - 11 - 2026 vs B: 06 Nov 26)
+    // DATE VIEW FORMATTER (06 - 11 - 2026 vs 06 Nov 26)
     // -------------------------------------------------------------
     private fun formatEnglishDate(cal: Calendar, formatType: Int): String {
         return if (formatType == ThemeManager.DATE_FORMAT_TEXT) {
@@ -105,64 +121,109 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 1. UPDATE 2x1 WIDGET
+    // 1. UPDATE 2x1 WIDGET (Supports both 2-arg and 3-arg invocations)
     // -------------------------------------------------------------
-    fun update2x1(context: Context, manager: AppWidgetManager) {
-        val views = RemoteViews(context.packageName, R.layout.widget_layout_2x1)
+    @JvmOverloads
+    fun update2x1(
+        context: Context,
+        manager: AppWidgetManager,
+        appWidgetIds: IntArray? = null
+    ) {
+        val layoutId = context.resources.getIdentifier("widget_layout_2x1", "layout", context.packageName)
+        if (layoutId == 0) return
+        val views = RemoteViews(context.packageName, layoutId)
+
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
 
         val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate)
+        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
         val bgBitmap = createWidgetBackgroundBitmap(context, 280, 140)
-        views.setImageViewBitmap(R.id.widget_bg_image, bgBitmap)
+        views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        views.setTextViewText(R.id.tv_widget_greg_date, SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
-        views.setTextViewText(R.id.tv_widget_greg_month_year, SimpleDateFormat("MMM yyyy", Locale.ENGLISH).format(cal.time).uppercase(Locale.ENGLISH))
-        views.setTextViewText(R.id.tv_widget_weekday, data?.weekdayTa ?: "---")
-        views.setTextViewText(R.id.tv_widget_tamil_month_day, "${data?.tamilMonth ?: "---"} ${data?.tamilDateStr ?: "---"}")
+        views.safeSetText(context, "tv_widget_greg_date", SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
+        views.safeSetText(context, "tv_widget_greg_month_year", SimpleDateFormat("MMM yyyy", Locale.ENGLISH).format(cal.time).uppercase(Locale.ENGLISH))
+        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        views.safeSetText(context, "tv_widget_tamil_month_day", "${data.tamilMonth} ${data.tamilDateStr}")
+        views.safeSetText(context, "tv_widget_tamil_date", "${data.tamilMonth} ${data.tamilDateStr}")
 
-        views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
+        val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
+        if (rootId != 0) {
+            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
+        }
 
-        val component = android.content.ComponentName(context, WidgetProvider2x1::class.java)
-        manager.updateAppWidget(component, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        }
+
+        if (targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
 
     // -------------------------------------------------------------
     // 2. UPDATE 4x1 WIDGET
     // -------------------------------------------------------------
-    fun update4x1(context: Context, manager: AppWidgetManager) {
-        val views = RemoteViews(context.packageName, R.layout.widget_layout_4x1)
+    @JvmOverloads
+    fun update4x1(
+        context: Context,
+        manager: AppWidgetManager,
+        appWidgetIds: IntArray? = null
+    ) {
+        val layoutId = context.resources.getIdentifier("widget_layout_4x1", "layout", context.packageName)
+        if (layoutId == 0) return
+        val views = RemoteViews(context.packageName, layoutId)
+
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
 
         val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate)
+        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 140)
-        views.setImageViewBitmap(R.id.widget_bg_image, bgBitmap)
+        views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        views.setTextViewText(R.id.tv_widget_greg_date, SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
-        views.setTextViewText(R.id.tv_widget_weekday, data?.weekdayTa ?: "---")
-        views.setTextViewText(R.id.tv_widget_tamil_month, data?.tamilMonth ?: "---")
-        views.setTextViewText(R.id.tv_widget_tamil_day, data?.tamilDateStr ?: "---")
-        views.setTextViewText(R.id.tv_widget_tithi, data?.tithiName ?: "---")
-        views.setTextViewText(R.id.tv_widget_nalla_neram, data?.nallaNeramMorning ?: "---")
+        views.safeSetText(context, "tv_widget_greg_date", SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
+        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        views.safeSetText(context, "tv_widget_tamil_month", data.tamilMonth)
+        views.safeSetText(context, "tv_widget_tamil_day", data.tamilDateStr)
+        views.safeSetText(context, "tv_widget_tithi", data.tithiName)
+        views.safeSetText(context, "tv_widget_nalla_neram", data.nallaNeramMorning)
 
-        views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
+        val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
+        if (rootId != 0) {
+            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
+        }
 
-        val component = android.content.ComponentName(context, WidgetProvider4x1::class.java)
-        manager.updateAppWidget(component, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x1::class.java))
+        }
+
+        if (targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
 
     // -------------------------------------------------------------
     // 3. UPDATE 4x2 WIDGET (DATE FORMAT + SELECTABLE 3 ELEMENTS)
     // -------------------------------------------------------------
-    fun update4x2(context: Context, manager: AppWidgetManager) {
-        val views = RemoteViews(context.packageName, R.layout.widget_layout_4x2)
+    @JvmOverloads
+    fun update4x2(
+        context: Context,
+        manager: AppWidgetManager,
+        appWidgetIds: IntArray? = null
+    ) {
+        val layoutId = context.resources.getIdentifier("widget_layout_4x2", "layout", context.packageName)
+        if (layoutId == 0) return
+        val views = RemoteViews(context.packageName, layoutId)
+
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
 
@@ -171,40 +232,54 @@ object WidgetUpdateHelper {
         db.close()
 
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280)
-        views.setImageViewBitmap(R.id.widget_bg_image, bgBitmap)
+        views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        // Date format option
         val dateFormat = ThemeManager.getDateFormat4x2(context)
-        views.setTextViewText(R.id.tv_widget_eng_date, formatEnglishDate(cal, dateFormat))
-        views.setTextViewText(R.id.tv_widget_weekday, data.weekdayTa)
-        views.setTextViewText(R.id.tv_widget_tamil_date, "${data.tamilMonth} ${data.tamilDateStr}")
+        views.safeSetText(context, "tv_widget_eng_date", formatEnglishDate(cal, dateFormat))
+        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        views.safeSetText(context, "tv_widget_tamil_date", "${data.tamilMonth} ${data.tamilDateStr}")
 
-        // Selectable 3 Elements
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
         val elem3 = resolveElement(selectedKeys.getOrNull(2) ?: ThemeManager.ELEM_NAKSHATRA, data)
 
-        views.setTextViewText(R.id.tv_widget_elem1_label, elem1.first)
-        views.setTextViewText(R.id.tv_widget_elem1_val, elem1.second)
+        views.safeSetText(context, "tv_widget_elem1_label", elem1.first)
+        views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
+        views.safeSetText(context, "tv_widget_elem2_label", elem2.first)
+        views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
+        views.safeSetText(context, "tv_widget_elem3_label", elem3.first)
+        views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
 
-        views.setTextViewText(R.id.tv_widget_elem2_label, elem2.first)
-        views.setTextViewText(R.id.tv_widget_elem2_val, elem2.second)
+        val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
+        if (rootId != 0) {
+            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
+        }
 
-        views.setTextViewText(R.id.tv_widget_elem3_label, elem3.first)
-        views.setTextViewText(R.id.tv_widget_elem3_val, elem3.second)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x2::class.java))
+        }
 
-        views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
-
-        val component = android.content.ComponentName(context, WidgetProvider4x2::class.java)
-        manager.updateAppWidget(component, views)
+        if (targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
 
     // -------------------------------------------------------------
     // 4. UPDATE 4x4 WIDGET (CLOCK FACE + DATE FORMAT + SELECTABLE 5 ELEMENTS)
     // -------------------------------------------------------------
-    fun update4x4(context: Context, manager: AppWidgetManager) {
-        val views = RemoteViews(context.packageName, R.layout.widget_layout_4x4)
+    @JvmOverloads
+    fun update4x4(
+        context: Context,
+        manager: AppWidgetManager,
+        appWidgetIds: IntArray? = null
+    ) {
+        val layoutId = context.resources.getIdentifier("widget_layout_4x4", "layout", context.packageName)
+        if (layoutId == 0) return
+        val views = RemoteViews(context.packageName, layoutId)
+
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
 
@@ -213,26 +288,23 @@ object WidgetUpdateHelper {
         db.close()
 
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 580)
-        views.setImageViewBitmap(R.id.widget_bg_image, bgBitmap)
+        views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        // Clock Face Selector (Digital vs Classic Vintage Analog)
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_CLASSIC_VINTAGE) {
-            views.setViewVisibility(R.id.analog_clock_view, View.VISIBLE)
-            views.setViewVisibility(R.id.digital_clock_view, View.GONE)
+            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "digital_clock_view", View.GONE)
         } else {
-            views.setViewVisibility(R.id.analog_clock_view, View.GONE)
-            views.setViewVisibility(R.id.digital_clock_view, View.VISIBLE)
-            views.setTextViewText(R.id.tv_digital_clock, SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(cal.time))
+            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "digital_clock_view", View.VISIBLE)
+            views.safeSetText(context, "tv_digital_clock", SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(cal.time))
         }
 
-        // English Date Format
         val dateFormat = ThemeManager.getDateFormat4x4(context)
-        views.setTextViewText(R.id.tv_widget_eng_date, formatEnglishDate(cal, dateFormat))
-        views.setTextViewText(R.id.tv_widget_weekday, data.weekdayTa)
-        views.setTextViewText(R.id.tv_widget_tamil_full, "${data.tamilYear} • ${data.tamilMonth} ${data.tamilDateStr}")
+        views.safeSetText(context, "tv_widget_eng_date", formatEnglishDate(cal, dateFormat))
+        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} ${data.tamilDateStr}")
 
-        // Selectable 5 Elements
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -240,24 +312,38 @@ object WidgetUpdateHelper {
         val elem4 = resolveElement(selectedKeys.getOrNull(3) ?: ThemeManager.ELEM_NALLA_NERAM, data)
         val elem5 = resolveElement(selectedKeys.getOrNull(4) ?: ThemeManager.ELEM_GOWRI_NALLA_NERAM, data)
 
-        views.setTextViewText(R.id.tv_widget_elem1_label, elem1.first)
-        views.setTextViewText(R.id.tv_widget_elem1_val, elem1.second)
+        views.safeSetText(context, "tv_widget_elem1_label", elem1.first)
+        views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
+        views.safeSetText(context, "tv_widget_elem2_label", elem2.first)
+        views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
+        views.safeSetText(context, "tv_widget_elem3_label", elem3.first)
+        views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
+        views.safeSetText(context, "tv_widget_elem4_label", elem4.first)
+        views.safeSetText(context, "tv_widget_elem4_val", elem4.second)
+        views.safeSetText(context, "tv_widget_elem5_label", elem5.first)
+        views.safeSetText(context, "tv_widget_elem5_val", elem5.second)
 
-        views.setTextViewText(R.id.tv_widget_elem2_label, elem2.first)
-        views.setTextViewText(R.id.tv_widget_elem2_val, elem2.second)
+        val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
+        if (rootId != 0) {
+            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
+        }
 
-        views.setTextViewText(R.id.tv_widget_elem3_label, elem3.first)
-        views.setTextViewText(R.id.tv_widget_elem3_val, elem3.second)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x4::class.java))
+        }
 
-        views.setTextViewText(R.id.tv_widget_elem4_label, elem4.first)
-        views.setTextViewText(R.id.tv_widget_elem4_val, elem4.second)
+        if (targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
+    }
 
-        views.setTextViewText(R.id.tv_widget_elem5_label, elem5.first)
-        views.setTextViewText(R.id.tv_widget_elem5_val, elem5.second)
-
-        views.setOnClickPendingIntent(R.id.widget_root, getPendingIntent(context))
-
-        val component = android.content.ComponentName(context, WidgetProvider4x4::class.java)
-        manager.updateAppWidget(component, views)
+    fun updateAllWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        update2x1(context, appWidgetManager)
+        update4x1(context, appWidgetManager)
+        update4x2(context, appWidgetManager)
+        update4x4(context, appWidgetManager)
     }
 }
