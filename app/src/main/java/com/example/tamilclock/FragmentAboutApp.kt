@@ -23,8 +23,8 @@ class FragmentAboutApp : Fragment() {
         val root = inflater.inflate(R.layout.fragment_about_app, container, false)
         rootScrollView = root
 
-        // Bind Version Name
-        val tvVersion = root.findViewById<TextView>(R.id.tv_app_version)
+        // Bind Version Name safely
+        val tvVersion = root.findViewById<TextView?>(R.id.tv_app_version)
         val versionName = try {
             val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
             "பதிப்பு ${pInfo.versionName}"
@@ -33,24 +33,24 @@ class FragmentAboutApp : Fragment() {
         }
         tvVersion?.text = versionName
 
-        // Share App Button
-        root.findViewById<Button>(R.id.btn_share_app)?.setOnClickListener {
+        // Share App Action
+        root.findViewById<Button?>(R.id.btn_share_app)?.setOnClickListener {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(
                     Intent.EXTRA_TEXT,
-                    "தமிழ் காலண்டர் மற்றும் கடிகார விட்ஜெட் செயலி - ஆஃப்லைன் பஞ்சாங்கம், நல்ல நேரம், கௌரி & ஹோரை தகவல்களுடன்!"
+                    "தமிழ் நாட்காட்டி மற்றும் கடிகார விட்ஜெட் செயலி - துல்லியமான தினசரி பஞ்சாங்கம், நல்ல நேரம், கௌரி & ஹோரை தகவல்களுடன்!"
                 )
             }
             startActivity(Intent.createChooser(shareIntent, "பகிரவும்"))
         }
 
-        // Feedback / Support Email Button
-        root.findViewById<Button>(R.id.btn_feedback)?.setOnClickListener {
+        // Feedback Action
+        root.findViewById<Button?>(R.id.btn_feedback)?.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("support@example.com"))
-                putExtra(Intent.EXTRA_SUBJECT, "Tamil Clock Widget Feedback")
+                putExtra(Intent.EXTRA_SUBJECT, "Tamil Natkatti App Feedback")
             }
             try {
                 startActivity(emailIntent)
@@ -70,24 +70,24 @@ class FragmentAboutApp : Fragment() {
         val context = context ?: return
         val palette = ThemeManager.getThemePalette(context)
 
-        // 1. Root ScrollView background
+        // 1. Root Background
         root.setBackgroundColor(palette.pageBackground)
 
-        // 2. Header banner card
-        val headerCard = root.findViewById<CardView?>(R.id.header_card)
-            ?: (root.findViewById<View>(R.id.iv_app_logo)?.parent?.parent as? CardView)
-        headerCard?.setCardBackgroundColor(palette.primaryHeader)
-
-        // 3. Content & Feature Cards
+        // 2. Safely find the top CardView without hardcoded R.id.header_card
         val allCards = mutableListOf<CardView>()
-        findAllCards(root as ViewGroup, allCards)
-        for (card in allCards) {
-            if (card != headerCard) {
-                card.setCardBackgroundColor(palette.cardBackground)
-            }
+        if (root is ViewGroup) {
+            findAllCards(root, allCards)
         }
 
-        // 4. Action Buttons
+        val headerCard = allCards.firstOrNull()
+        headerCard?.setCardBackgroundColor(palette.primaryHeader)
+
+        // 3. Style remaining content cards
+        for (i in 1 until allCards.size) {
+            allCards[i].setCardBackgroundColor(palette.cardBackground)
+        }
+
+        // 4. Buttons
         val btnShare = root.findViewById<Button?>(R.id.btn_share_app)
         btnShare?.setBackgroundColor(palette.primaryHeader)
         btnShare?.setTextColor(palette.accentGold)
