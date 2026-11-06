@@ -5,32 +5,19 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var pagerAdapter: MainPagerAdapter
-    private lateinit var calendarMonthAdapter: CalendarMonthAdapter
     private lateinit var dbHelper: TamilDatabaseHelper
     private lateinit var viewPager: ViewPager2
 
-    private val selectedCalendar: Calendar = Calendar.getInstance()
-    private val displayedMonthCalendar: Calendar = Calendar.getInstance()
-
-    private lateinit var tvSheetMonthYear: TextView
+    val selectedCalendar: Calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
@@ -41,19 +28,20 @@ class MainActivity : AppCompatActivity() {
 
         setupTabsAndViewPager()
         setupTopNavigationToolbar()
-        setupHybridBottomSheet()
         setupBackNavigation()
         loadDayData()
         updateWidgets()
     }
 
-    // Back button navigation: Sheet dismisses first, any sub-page returns to Home (Index 2), then exits app
+    override fun onResume() {
+        super.onResume()
+        loadDayData()
+    }
+
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-                } else if (viewPager.currentItem != MainPagerAdapter.PAGE_PANCHANGAM) {
+                if (viewPager.currentItem != MainPagerAdapter.PAGE_PANCHANGAM) {
                     viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
                 } else {
                     isEnabled = false
@@ -68,53 +56,54 @@ class MainActivity : AppCompatActivity() {
         pagerAdapter = MainPagerAdapter(this)
         viewPager.adapter = pagerAdapter
 
-        // Launch directly onto Home Screen: Day Panchang (Index 2)
+        // Launch directly on Home Screen: Day Panchang (Index 2)
         viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, false)
     }
 
     private fun setupTopNavigationToolbar() {
-        // 7-Button Navigation Bar in activity_main.xml
-        val btnPrev = findViewById<TextView>(R.id.btn_action_prev)
-        val btnDatePicker = findViewById<TextView>(R.id.btn_action_datepicker)
-        val btnMenu = findViewById<TextView>(R.id.btn_action_menu)
-        val btnToday = findViewById<TextView>(R.id.btn_action_today)
-        val btnHorai = findViewById<TextView>(R.id.btn_action_horai)
-        val btnSettings = findViewById<TextView>(R.id.btn_action_settings)
-        val btnNext = findViewById<TextView>(R.id.btn_action_next)
+        // Top Toolbar Buttons: <<, 🗓️, ☰, 🏠, ☸, ⚙, >>
+        val btnPrev = findViewById<TextView?>(R.id.btn_action_prev)
+        val btnCalendar = findViewById<TextView?>(R.id.btn_action_datepicker) // 🗓️ Icon
+        val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)             // ☰ Icon
+        val btnToday = findViewById<TextView?>(R.id.btn_action_today)           // 🏠 Icon
+        val btnHorai = findViewById<TextView?>(R.id.btn_action_horai)           // ☸ Icon
+        val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)     // ⚙ Icon
+        val btnNext = findViewById<TextView?>(R.id.btn_action_next)             // >> Icon
 
+        // Previous Day
         btnPrev?.setOnClickListener {
             selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
-            displayedMonthCalendar.time = selectedCalendar.time
             loadDayData()
-            refreshMonthCalendarGrid()
             updateWidgets()
         }
 
+        // Next Day
         btnNext?.setOnClickListener {
             selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
-            displayedMonthCalendar.time = selectedCalendar.time
             loadDayData()
-            refreshMonthCalendarGrid()
             updateWidgets()
         }
 
+        // Home / Today Button (Index 2)
         btnToday?.setOnClickListener {
             selectedCalendar.time = Calendar.getInstance().time
-            displayedMonthCalendar.time = selectedCalendar.time
             loadDayData()
-            refreshMonthCalendarGrid()
             updateWidgets()
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
         }
 
-        btnDatePicker?.setOnClickListener {
+        // Monthly Calendar Button (Index 1)
+        btnCalendar?.setOnClickListener {
+            viewPager.setCurrentItem(MainPagerAdapter.PAGE_MONTHLY_CALENDAR, true)
+        }
+
+        // Long press on Calendar icon opens DatePickerDialog directly
+        btnCalendar?.setOnLongClickListener {
             val datePicker = DatePickerDialog(
                 this,
                 { _, year, month, dayOfMonth ->
                     selectedCalendar.set(year, month, dayOfMonth)
-                    displayedMonthCalendar.time = selectedCalendar.time
                     loadDayData()
-                    refreshMonthCalendarGrid()
                     updateWidgets()
                 },
                 selectedCalendar.get(Calendar.YEAR),
@@ -122,79 +111,33 @@ class MainActivity : AppCompatActivity() {
                 selectedCalendar.get(Calendar.DAY_OF_MONTH)
             )
             datePicker.show()
+            true
         }
 
+        // Gowri Menu (Index 3)
         btnMenu?.setOnClickListener {
-            // Index 0: About App / Demo / Help
-            viewPager.setCurrentItem(MainPagerAdapter.PAGE_ABOUT, true)
+            viewPager.setCurrentItem(MainPagerAdapter.PAGE_GOWRI, true)
         }
 
+        // Horai / Chakra Page (Index 4)
         btnHorai?.setOnClickListener {
-            // Index 4: Horai Page
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_HORAI, true)
         }
 
+        // Settings Page (Index 5)
         btnSettings?.setOnClickListener {
-            // Index 5: Settings Page
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_SETTINGS, true)
         }
     }
 
-    private fun loadDayData() {
+    fun loadDayData() {
         pagerAdapter.updateSelectedDate(selectedCalendar)
     }
 
-    private fun setupHybridBottomSheet() {
-        val sheetView = findViewById<View>(R.id.bottom_sheet_calendar)
-        bottomSheetBehavior = BottomSheetBehavior.from(sheetView)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-
-        tvSheetMonthYear = findViewById(R.id.tv_sheet_month_year)
-        val btnPrevMonth = findViewById<TextView>(R.id.btn_prev_month)
-        val btnNextMonth = findViewById<TextView>(R.id.btn_next_month)
-
-        val container = findViewById<FrameLayout>(R.id.container_calendar_content)
-        val contentView = LayoutInflater.from(this).inflate(R.layout.view_calendar_sheet_content, container, true)
-
-        val rvGrid = contentView.findViewById<RecyclerView>(R.id.rv_calendar_month_grid)
-        rvGrid.layoutManager = GridLayoutManager(this, 7)
-
-        calendarMonthAdapter = CalendarMonthAdapter { selectedDateKey ->
-            val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            format.parse(selectedDateKey)?.let { parsedDate ->
-                selectedCalendar.time = parsedDate
-                displayedMonthCalendar.time = parsedDate
-                loadDayData()
-                refreshMonthCalendarGrid()
-                updateWidgets()
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            }
-        }
-        rvGrid.adapter = calendarMonthAdapter
-
-        btnPrevMonth?.setOnClickListener {
-            displayedMonthCalendar.add(Calendar.MONTH, -1)
-            refreshMonthCalendarGrid()
-        }
-
-        btnNextMonth?.setOnClickListener {
-            displayedMonthCalendar.add(Calendar.MONTH, 1)
-            refreshMonthCalendarGrid()
-        }
-        refreshMonthCalendarGrid()
-    }
-
-    private fun refreshMonthCalendarGrid() {
-        val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("ta"))
-        tvSheetMonthYear.text = monthYearFormat.format(displayedMonthCalendar.time)
-        calendarMonthAdapter.setMonthData(displayedMonthCalendar, selectedCalendar, dbHelper)
-    }
-
-    fun openMonthlyCalendarSheet() {
-        displayedMonthCalendar.time = selectedCalendar.time
-        refreshMonthCalendarGrid()
-        calendarMonthAdapter.setClassicMode(true)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    fun updateSelectedDate(cal: Calendar) {
+        selectedCalendar.time = cal.time
+        loadDayData()
+        updateWidgets()
     }
 
     private fun updateWidgets() {
@@ -235,5 +178,10 @@ class MainActivity : AppCompatActivity() {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         }
         sendBroadcast(intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dbHelper.close()
     }
 }
