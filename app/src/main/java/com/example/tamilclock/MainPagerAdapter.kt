@@ -8,11 +8,21 @@ import java.util.Calendar
 class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
 
     companion object {
+        // Requested 5-Page Order:
+        // 0: About App
+        // 1: Monthly Calendar (with date picker)
+        // 2: Home Page (Panchangam Simple & Expanded)
+        // 3: Gowri & Horai Integrated Page
+        // 4: Settings Page
         const val PAGE_ABOUT = 0
         const val PAGE_MONTHLY_CALENDAR = 1
-        const val PAGE_PANCHANGAM = 2     // Home Screen (Simple & Expanded)
-        const val PAGE_GOWRI_HORAI = 3    // Gowri & Horai Integrated
-        const val PAGE_SETTINGS = 4       // Settings Customization
+        const val PAGE_PANCHANGAM = 2
+        const val PAGE_GOWRI_HORAI = 3
+        const val PAGE_SETTINGS = 4
+
+        // Backward-compatibility aliases for MainActivity
+        const val PAGE_GOWRI = PAGE_GOWRI_HORAI
+        const val PAGE_HORAI = PAGE_GOWRI_HORAI
 
         const val TOTAL_PAGES = 5
     }
