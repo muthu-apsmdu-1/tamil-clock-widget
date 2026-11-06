@@ -35,7 +35,6 @@
                     android:layout_height="120dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_launcher_foreground"
-"
                     android:contentDescription="App Logo" />
 
                 <TextView
