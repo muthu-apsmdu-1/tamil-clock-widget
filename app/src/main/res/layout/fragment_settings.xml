@@ -17,7 +17,7 @@
             android:id="@+id/tv_settings_main_heading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="அமைப்புகள் (Settings)"
+            android:text="Settings"
             android:textSize="21sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
@@ -27,7 +27,7 @@
             android:id="@+id/tv_lbl_app_theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="செயலி பின்னணி நிறம் (App Background)"
+            android:text="App Background"
             android:textSize="14.5sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -51,7 +51,7 @@
             android:id="@+id/tv_lbl_widget_theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="விட்ஜெட் பின்னணி நிறம் (Widget Background)"
+            android:text="Widget Background"
             android:textSize="14.5sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:text="விட்ஜெட் ஒளிபுகா தன்மை (Opacity)"
+                android:text="Opacity"
                 android:textSize="14.5sp"
                 android:textStyle="bold" />
 
@@ -108,7 +108,7 @@
             android:id="@+id/tv_lbl_widget_preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="விட்ஜெட் நேரலை மாதிரி (Live Preview)"
+            android:text="Live Preview"
             android:textSize="13sp"
             android:layout_marginBottom="8dp" />
 
