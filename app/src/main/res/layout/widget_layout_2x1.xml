@@ -1,107 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Dynamic Background Bitmap Layer -->
+    <!-- Dynamic Background Bitmap Layer (Theme color, opacity, rounded corners & border) -->
     <ImageView
         android:id="@+id/widget_bg_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        android:scaleType="fitXY"
+        android:contentDescription="Widget Background" />
 
+    <!-- Main Container: Exactly 1:1 Split (Clock Half : Information Half) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="6dp">
+        android:padding="6dp"
+        android:weightSum="2">
 
+        <!-- LEFT HALF: Clock Container (Exact half width) -->
         <FrameLayout
+            android:id="@+id/container_clock_half"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_margin="2dp">
 
+            <!-- Classic Vintage Analog Clock (Direct on theme background, no extra plate) -->
             <AnalogClock
-                android:id="@+id/analog_clock"
+                android:id="@+id/analog_clock_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:dial="@drawable/classic_clock_dial"
                 android:hand_hour="@drawable/classic_clock_hour"
                 android:hand_minute="@drawable/classic_clock_minute"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
-            <LinearLayout
-                android:id="@+id/digital_clock"
+            <!-- Digital Clock: Big time font with half-size AM/PM bound via SpannableString -->
+            <TextView
+                android:id="@+id/tv_digital_clock"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
                 android:gravity="center"
-                android:visibility="gone">
-
-                <TextClock
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:format12Hour="hh:mm"
-                    android:format24Hour="HH:mm"
-                    android:textColor="#FFDF00"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false" />
-
-                <TextClock
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="2dp"
-                    android:format12Hour="a"
-                    android:format24Hour=""
-                    android:textColor="#FFDF00"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:includeFontPadding="false" />
-            </LinearLayout>
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:visibility="visible" />
         </FrameLayout>
 
+        <!-- Vertical Accent Divider -->
         <View
-            android:layout_width="2.5dp"
+            android:id="@+id/view_center_divider"
+            android:layout_width="1.5dp"
             android:layout_height="match_parent"
             android:layout_marginVertical="6dp"
-            android:background="#FFDF00" />
+            android:layout_marginHorizontal="3dp"
+            android:background="#44FFDF00" />
 
+        <!-- RIGHT HALF: Elements (Horizontally Centered, Vertically Justified) -->
         <LinearLayout
+            android:id="@+id/container_elements_half"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.3"
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center"
-            android:paddingHorizontal="6dp">
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="4dp"
+            android:weightSum="2">
 
-            <TextView
-                android:id="@+id/tv_widget_greg_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:textSize="15.5sp"
-                android:textStyle="bold"
-                android:singleLine="true" />
-
-            <View
+            <!-- Row 1: Gregorian Date (Type optional via Settings: 06 - 11 - 2026 vs 06 Nov 26) -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="1.5dp"
-                android:layout_marginVertical="3dp"
-                android:background="#FFDF00" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center">
 
-            <TextView
-                android:id="@+id/tv_widget_tamil_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#FFDF00"
-                android:textSize="13.5sp"
-                android:textStyle="bold"
-                android:singleLine="true" />
+                <TextView
+                    android:id="@+id/tv_widget_greg_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <!-- Row 2: Tamil Month & Tamil Date (e.g. ஐப்பசி 21) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_widget_tamil_month_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
         </LinearLayout>
+
     </LinearLayout>
+
 </FrameLayout>
