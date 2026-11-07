@@ -1,8 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <solid android:color="#FDFBF7" />
-    <stroke
-        android:width="3dp"
-        android:color="#C5A059" />
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Square Bezel Outer Frame (Transparent center) -->
+    <path
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M 30,16 H 170 A 14,14 0 0 1 184,30 V 170 A 14,14 0 0 1 170,184 H 30 A 14,14 0 0 1 16,170 V 30 A 14,14 0 0 1 30,16 Z" />
+
+    <!-- 12 O'CLOCK: Multi-segment Cardinal Baton -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,22 h10 v18 h-10 z" />
+    <path
+        android:strokeColor="#222222"
+        android:strokeWidth="1"
+        android:pathData="M95,26 h10 M95,31 h10 M95,36 h10" />
+
+    <!-- 6 O'CLOCK: Multi-segment Cardinal Baton -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M95,160 h10 v18 h-10 z" />
+    <path
+        android:strokeColor="#222222"
+        android:strokeWidth="1"
+        android:pathData="M95,164 h10 M95,169 h10 M95,174 h10" />
+
+    <!-- 9 O'CLOCK: Multi-segment Cardinal Baton -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,95 h18 v10 h-18 z" />
+    <path
+        android:strokeColor="#222222"
+        android:strokeWidth="1"
+        android:pathData="M26,95 v10 M31,95 v10 M36,95 v10" />
+
+    <!-- 3 O'CLOCK: Multi-segment Cardinal Baton -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M160,95 h18 v10 h-18 z" />
+    <path
+        android:strokeColor="#222222"
+        android:strokeWidth="1"
+        android:pathData="M164,95 v10 M169,95 v10 M174,95 v10" />
+
+    <!-- 1 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="30">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 2 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="60">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 4 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="120">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 5 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="150">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 7 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="210">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 8 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="240">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 10 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="300">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- 11 O'CLOCK -->
+    <group android:pivotX="100" android:pivotY="100" android:rotation="330">
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+    </group>
+
+    <!-- QUARTZ Brand Typography -->
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M78,142 a3.5,4.5 0 1 0 7,0 a3.5,4.5 0 1 0 -7,0 M83.5,145.5 l2.5,2" />
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M89,138 v6 a2.5,2.5 0 0 0 5,0 v-6" />
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M98,147 l3.5,-9.5 l3.5,9.5 M99,144.5 h5" />
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M109,147 v-9.5 h3.5 a2.5,2.5 0 0 1 0,5 h-3.5 M111.5,142.5 l3,4.5" />
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M117,137.5 h7 M120.5,137.5 v9.5" />
+    <path android:strokeColor="#B0FFFFFF" android:strokeWidth="1.2" android:pathData="M127,137.5 h6 l-6,9.5 h6" />
+</vector>
