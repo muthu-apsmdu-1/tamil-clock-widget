@@ -5,11 +5,23 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
+    <!-- Left Flange (Bright Silver) -->
     <path
-        android:pathData="M 97,110 L 98,52 L 100,46 L 102,52 L 103,110 Z"
-        android:fillColor="#111111" />
+        android:fillColor="#EBEBEB"
+        android:pathData="M 100,48 L 94.5,96 L 100,108 Z" />
 
+    <!-- Right Flange (Shadowed Silver Bevel) -->
     <path
-        android:pathData="M 100,94 A 6,6 0 1,1 99.9,94 Z"
-        android:fillColor="#FFDF00" />
+        android:fillColor="#B8B8B8"
+        android:pathData="M 100,48 L 105.5,96 L 100,108 Z" />
+
+    <!-- Center Pivot Pin (Exact Axis 100, 100) -->
+    <path
+        android:fillColor="#D8D8D8"
+        android:strokeColor="#7A7A7A"
+        android:strokeWidth="0.8"
+        android:pathData="M 100,100 m -4,0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#444444"
+        android:pathData="M 100,100 m -1.5,0 a 1.5,1.5 0 1,0 3,0 a 1.5,1.5 0 1,0 -3,0" />
 </vector>
