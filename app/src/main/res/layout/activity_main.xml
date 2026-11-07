@@ -1,193 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1E24">
+    android:orientation="vertical">
 
-    <!-- Main Vertical Content (Header + Toolbar + ViewPager) -->
-    <LinearLayout
+    <!-- 1. Pinned Top Banner: App Logo + தமிழ் நாட்காட்டி -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_top_banner"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="52dp"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="3dp">
 
-        <!-- 1. Permanent Title Banner (All Pages) -->
-        <TextView
-            android:id="@+id/tv_app_title_banner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="6dp"
-            android:background="@drawable/bg_gold_header_texture"
-            android:includeFontPadding="false"
-            android:text="தமிழ் நாட்காட்டி"
-            android:textColor="#FFD043"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:shadowColor="#1A0000"
-            android:shadowDx="1.5"
-            android:shadowDy="2.0"
-            android:shadowRadius="2.0" />
-
-        <!-- 2. Permanent 7-Toolbox Navigation Row (All Pages) -->
         <LinearLayout
-            android:id="@+id/layout_nav_toolbar"
+            android:id="@+id/ll_banner_inner"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginHorizontal="6dp"
-            android:layout_marginBottom="4dp"
-            android:gravity="center_vertical"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="horizontal"
-            android:weightSum="7">
+            android:paddingHorizontal="12dp">
 
-            <TextView
-                android:id="@+id/btn_action_prev"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="❮❮"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btn_action_datepicker"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="📅"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/btn_action_menu"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="☰"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/btn_action_today"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="🏠"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/btn_action_horai"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="☸"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/btn_action_settings"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="⚙"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/btn_action_next"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:background="@drawable/bg_header_btn_ripple"
-                android:gravity="center"
-                android:text="❯❯"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- 3. ViewPager2 Container -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager_main"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
-    <!-- 4. Monthly Calendar Bottom Sheet -->
-    <LinearLayout
-        android:id="@+id/bottom_sheet_calendar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="?attr/themeCardBackground"
-        android:padding="8dp"
-        app:behavior_hideable="true"
-        app:behavior_peekHeight="0dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-        <!-- Top Month Navigation Bar -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:paddingHorizontal="4dp">
-
-            <ImageButton
-                android:id="@+id/btn_prev_month"
+            <ImageView
+                android:id="@+id/iv_app_logo"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackground"
-                android:src="@android:drawable/ic_media_previous" />
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="App Logo" />
 
             <TextView
-                android:id="@+id/tv_sheet_month_year"
+                android:id="@+id/tv_app_title_banner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textColor="?attr/themeTextBody"
-                android:textSize="16sp"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:text="தமிழ் நாட்காட்டி"
+                android:textSize="22sp"
                 android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-            <ImageButton
-                android:id="@+id/btn_next_month"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackground"
-                android:src="@android:drawable/ic_media_next" />
-        </RelativeLayout>
+    <!-- 2. Permanent 7-Toolbox Navigation Row -->
+    <!-- Exact Order: Prev <<, About App ☰, Monthly Calendar 🗓️, Home 🏠, Gowri/Horai ☸, Settings ⚙, Next >> -->
+    <LinearLayout
+        android:id="@+id/layout_nav_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        android:weightSum="7">
 
-        <!-- Calendar Month Content Container -->
-        <FrameLayout
-            android:id="@+id/container_calendar_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" />
+        <!-- 1. Previous Day (<<) -->
+        <TextView
+            android:id="@+id/btn_action_prev"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="❮❮"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <!-- 2. About App Page (☰) -->
+        <TextView
+            android:id="@+id/btn_action_menu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="☰"
+            android:textSize="18sp" />
+
+        <!-- 3. Monthly Calendar (🗓️) -->
+        <TextView
+            android:id="@+id/btn_action_datepicker"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="🗓️"
+            android:textSize="18sp" />
+
+        <!-- 4. Home Page (🏠) -->
+        <TextView
+            android:id="@+id/btn_action_today"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="🏠"
+            android:textSize="18sp" />
+
+        <!-- 5. Gowri & Horai Integrated Page (☸) -->
+        <TextView
+            android:id="@+id/btn_action_horai"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="☸"
+            android:textSize="18sp" />
+
+        <!-- 6. Settings Page (⚙) -->
+        <TextView
+            android:id="@+id/btn_action_settings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="⚙"
+            android:textSize="18sp" />
+
+        <!-- 7. Next Day (>>) -->
+        <TextView
+            android:id="@+id/btn_action_next"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="1.5dp"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:text="❯❯"
+            android:textSize="17sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- 3. ViewPager2 Container (5 Pages) -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
