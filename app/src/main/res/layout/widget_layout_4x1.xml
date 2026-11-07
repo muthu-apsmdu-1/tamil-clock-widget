@@ -48,6 +48,8 @@
                 android:gravity="center"
                 android:textSize="22sp"
                 android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
                 android:includeFontPadding="false"
                 android:visibility="visible" />
         </FrameLayout>
