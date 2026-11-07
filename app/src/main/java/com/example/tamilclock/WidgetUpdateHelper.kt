@@ -346,7 +346,9 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 3. UPDATE 4x2 WIDGET
+        // -------------------------------------------------------------
+    // 3. UPDATE 4x2 WIDGET (2x2 Clock Left + 2x2 Elements Area Right)
+    // Background Color & Opacity: Driven strictly by Settings/ThemeManager
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x2(
@@ -365,53 +367,65 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
+        // 1. Dynamic Background Bitmap generated with Settings color & opacity
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context)
 
+        // 2. 2x2 Left Side: Clock (Classic Analog vs Digital with 0.5x AM/PM)
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "digital_clock_view", View.GONE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "digital_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
         }
 
+        // 3. 2x2 Right Side - Row 1: Gregorian Date (Settings choice) + Tamil Weekday
         val dateFormat = ThemeManager.getDateFormat4x2(context)
-        views.safeSetText(context, "tv_widget_eng_date", formatEnglishDate(cal, dateFormat))
-        views.safeSetTextColor(context, "tv_widget_eng_date", colors.primaryText)
+        val gregDateStr = formatEnglishDate(cal, dateFormat)
+        views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
+        views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
+        views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
 
-        val tDateStr = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
-        views.safeSetText(context, "tv_widget_tamil_date", "${data.tamilMonth} $tDateStr")
+        // 4. Row 2: Tamil Month & Date
+        val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
+        val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
+        views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
 
+        // 5. Rows 3, 4, 5: 3 Options Selectable via Settings
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
         val elem3 = resolveElement(selectedKeys.getOrNull(2) ?: ThemeManager.ELEM_NAKSHATRA, data)
 
-        views.safeSetText(context, "tv_widget_elem1_label", elem1.first)
+        // Row 3
+        views.safeSetText(context, "tv_widget_elem1_label", "${elem1.first} :")
         views.safeSetTextColor(context, "tv_widget_elem1_label", colors.accentGold)
         views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
-        views.safeSetTextColor(context, "tv_widget_elem1_val", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_elem1_val", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_elem2_label", elem2.first)
+        // Row 4
+        views.safeSetText(context, "tv_widget_elem2_label", "${elem2.first} :")
         views.safeSetTextColor(context, "tv_widget_elem2_label", colors.accentGold)
         views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
-        views.safeSetTextColor(context, "tv_widget_elem2_val", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_elem2_val", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_elem3_label", elem3.first)
+        // Row 5
+        views.safeSetText(context, "tv_widget_elem3_label", "${elem3.first} :")
         views.safeSetTextColor(context, "tv_widget_elem3_label", colors.accentGold)
         views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
-        views.safeSetTextColor(context, "tv_widget_elem3_val", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_elem3_val", colors.primaryText)
 
+        // Open App on Click
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
@@ -426,6 +440,8 @@ object WidgetUpdateHelper {
         if (targetIds != null && targetIds.isNotEmpty()) {
             manager.updateAppWidget(targetIds, views)
         }
+    }
+
     }
 
     // -------------------------------------------------------------
