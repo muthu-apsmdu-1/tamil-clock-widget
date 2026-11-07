@@ -115,6 +115,7 @@
                     android:text="  •  "
                     android:textSize="12sp"
                     android:textStyle="bold"
+                    android:maxLines="1"
                     android:includeFontPadding="false" />
 
                 <TextView
