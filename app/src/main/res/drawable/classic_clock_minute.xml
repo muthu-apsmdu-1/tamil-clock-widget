@@ -5,11 +5,23 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
+    <!-- Left Flange (Reflective Silver) -->
     <path
-        android:pathData="M 98,116 L 98.6,26 L 100,20 L 101.4,26 L 102,116 Z"
-        android:fillColor="#111111" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M 100,28 L 95.5,96 L 100,112 Z" />
 
+    <!-- Right Flange (Beveled Shadow) -->
     <path
-        android:pathData="M 100,96 A 4,4 0 1,1 99.9,96 Z"
-        android:fillColor="#C62828" />
+        android:fillColor="#CCCCCC"
+        android:pathData="M 100,28 L 104.5,96 L 100,112 Z" />
+
+    <!-- Center Cap Nut (Exact Axis 100, 100) -->
+    <path
+        android:fillColor="#ECECEC"
+        android:strokeColor="#8E8E8E"
+        android:strokeWidth="0.8"
+        android:pathData="M 100,100 m -4.5,0 a 4.5,4.5 0 1,0 9,0 a 4.5,4.5 0 1,0 -9,0" />
+    <path
+        android:fillColor="#222222"
+        android:pathData="M 100,100 m -1.5,0 a 1.5,1.5 0 1,0 3,0 a 1.5,1.5 0 1,0 -3,0" />
 </vector>
