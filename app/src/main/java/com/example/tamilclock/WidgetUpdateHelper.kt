@@ -63,13 +63,6 @@ object WidgetUpdateHelper {
         }
     }
 
-    private fun RemoteViews.safeSetImageResource(context: Context, idName: String, resDrawableId: Int) {
-        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            setImageViewResource(resId, resDrawableId)
-        }
-    }
-
     // -------------------------------------------------------------
     // COLOR RESOLUTION FOR WIDGETS
     // -------------------------------------------------------------
@@ -146,7 +139,7 @@ object WidgetUpdateHelper {
     // -------------------------------------------------------------
     // DIGITAL CLOCK FORMATTER: BIG TIME + HALF-SIZE AM/PM
     // -------------------------------------------------------------
-    private fun formatDigitalTimeWithHalfAmPm(cal: Calendar): CharSequence {
+    fun formatDigitalTimeWithHalfAmPm(cal: Calendar): CharSequence {
         val timePart = SimpleDateFormat("h:mm", Locale.ENGLISH).format(cal.time)
         val amPmPart = SimpleDateFormat(" a", Locale.ENGLISH).format(cal.time)
 
@@ -243,7 +236,7 @@ object WidgetUpdateHelper {
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
         }
 
-        // Right Half: Row 1 - Gregorian Date (Optional type via Settings)
+        // Right Half: Row 1 - Gregorian Date
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
@@ -346,9 +339,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-        // -------------------------------------------------------------
     // 3. UPDATE 4x2 WIDGET (2x2 Clock Left + 2x2 Elements Area Right)
-    // Background Color & Opacity: Driven strictly by Settings/ThemeManager
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x2(
@@ -367,13 +358,12 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
-        // 1. Dynamic Background Bitmap generated with Settings color & opacity
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context)
 
-        // 2. 2x2 Left Side: Clock (Classic Analog vs Digital with 0.5x AM/PM)
+        // 2x2 Left Side: Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -385,7 +375,7 @@ object WidgetUpdateHelper {
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
         }
 
-        // 3. 2x2 Right Side - Row 1: Gregorian Date (Settings choice) + Tamil Weekday
+        // 2x2 Right Side - Row 1: Gregorian Date + Tamil Weekday
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
@@ -395,13 +385,13 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
 
-        // 4. Row 2: Tamil Month & Date
+        // Row 2: Tamil Month & Date
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
 
-        // 5. Rows 3, 4, 5: 3 Options Selectable via Settings
+        // Rows 3, 4, 5: 3 Options Selectable via Settings
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -425,7 +415,6 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
         views.safeSetTextColor(context, "tv_widget_elem3_val", colors.primaryText)
 
-        // Open App on Click
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
@@ -443,7 +432,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4. UPDATE 4x4 WIDGET
+    // 4. UPDATE 4x4 WIDGET (Top 2/3 Clock + Bottom 1/3 In 4 Rows)
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x4(
@@ -467,20 +456,22 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context)
 
+        // Top 2/3: Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "digital_clock_view", View.GONE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "digital_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
         }
 
+        // Bottom 1/3 - Row 1 (Fixed): Gregorian Date + Tamil Weekday + Tamil Month & Date
         val dateFormat = ThemeManager.getDateFormat4x4(context)
-        views.safeSetText(context, "tv_widget_eng_date", formatEnglishDate(cal, dateFormat))
-        views.safeSetTextColor(context, "tv_widget_eng_date", colors.primaryText)
+        views.safeSetText(context, "tv_widget_greg_date", formatEnglishDate(cal, dateFormat))
+        views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
         views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
@@ -489,6 +480,7 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} $tDateStr")
         views.safeSetTextColor(context, "tv_widget_tamil_full", colors.secondaryText)
 
+        // Bottom 1/3 - Rows 2, 3, 4: 5 User Selected Options in Paragraph Form (" | ")
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -496,30 +488,20 @@ object WidgetUpdateHelper {
         val elem4 = resolveElement(selectedKeys.getOrNull(3) ?: ThemeManager.ELEM_NALLA_NERAM, data)
         val elem5 = resolveElement(selectedKeys.getOrNull(4) ?: ThemeManager.ELEM_GOWRI_NALLA_NERAM, data)
 
-        views.safeSetText(context, "tv_widget_elem1_label", elem1.first)
-        views.safeSetTextColor(context, "tv_widget_elem1_label", colors.accentGold)
-        views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
-        views.safeSetTextColor(context, "tv_widget_elem1_val", colors.secondaryText)
+        // Row 2: First 2 elements
+        val row2Text = "${elem1.first}: ${elem1.second}  |  ${elem2.first}: ${elem2.second}"
+        views.safeSetText(context, "tv_widget_row2_paragraph", row2Text)
+        views.safeSetTextColor(context, "tv_widget_row2_paragraph", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_elem2_label", elem2.first)
-        views.safeSetTextColor(context, "tv_widget_elem2_label", colors.accentGold)
-        views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
-        views.safeSetTextColor(context, "tv_widget_elem2_val", colors.secondaryText)
+        // Row 3: Next 2 elements
+        val row3Text = "${elem3.first}: ${elem3.second}  |  ${elem4.first}: ${elem4.second}"
+        views.safeSetText(context, "tv_widget_row3_paragraph", row3Text)
+        views.safeSetTextColor(context, "tv_widget_row3_paragraph", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_elem3_label", elem3.first)
-        views.safeSetTextColor(context, "tv_widget_elem3_label", colors.accentGold)
-        views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
-        views.safeSetTextColor(context, "tv_widget_elem3_val", colors.secondaryText)
-
-        views.safeSetText(context, "tv_widget_elem4_label", elem4.first)
-        views.safeSetTextColor(context, "tv_widget_elem4_label", colors.accentGold)
-        views.safeSetText(context, "tv_widget_elem4_val", elem4.second)
-        views.safeSetTextColor(context, "tv_widget_elem4_val", colors.secondaryText)
-
-        views.safeSetText(context, "tv_widget_elem5_label", elem5.first)
-        views.safeSetTextColor(context, "tv_widget_elem5_label", colors.accentGold)
-        views.safeSetText(context, "tv_widget_elem5_val", elem5.second)
-        views.safeSetTextColor(context, "tv_widget_elem5_val", colors.secondaryText)
+        // Row 4: 5th element
+        val row4Text = "${elem5.first}: ${elem5.second}"
+        views.safeSetText(context, "tv_widget_row4_paragraph", row4Text)
+        views.safeSetTextColor(context, "tv_widget_row4_paragraph", colors.primaryText)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
