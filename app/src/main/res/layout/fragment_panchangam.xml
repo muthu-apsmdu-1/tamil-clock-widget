@@ -170,7 +170,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 3. Content Frames: Simple & Expanded Panchangam -->
+        <!-- 3. Toggleable Modes: Simple vs. Expanded -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -455,71 +455,6 @@
                     android:paddingVertical="7dp"
                     android:textSize="13.5sp"
                     android:textStyle="bold" />
-
-                <!-- Rasi Chart -->
-                <LinearLayout
-                    android:id="@+id/card_rasi_grid"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:elevation="2dp"
-                    android:layout_marginTop="5dp"
-                    android:padding="2dp">
-
-                    <TextView
-                        android:id="@+id/tv_rasi_header_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="28dp"
-                        android:gravity="center"
-                        android:text="இன்றைய ராசிபலன்"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <!-- 4 Rows x 3 Columns -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3"
-                        android:paddingVertical="4dp">
-                        <TextView android:id="@+id/tv_rasi_mesham" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_rishabam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_mithunam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3"
-                        android:paddingVertical="4dp">
-                        <TextView android:id="@+id/tv_rasi_kadagam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_simmam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_kanni" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3"
-                        android:paddingVertical="4dp">
-                        <TextView android:id="@+id/tv_rasi_thulaam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_viruchigam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_dhanusu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3"
-                        android:paddingVertical="4dp">
-                        <TextView android:id="@+id/tv_rasi_magaram" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_kumbam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                        <TextView android:id="@+id/tv_rasi_meenam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
             </LinearLayout>
 
             <!-- Expanded Mode Layout -->
@@ -602,7 +537,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Expanded Rows -->
+                <!-- Tithi -->
                 <LinearLayout
                     android:id="@+id/card_exp_tithi"
                     android:layout_width="match_parent"
@@ -618,6 +553,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Nakshatra -->
                 <LinearLayout
                     android:id="@+id/card_exp_nakshatra"
                     android:layout_width="match_parent"
@@ -633,6 +569,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Yoga -->
                 <LinearLayout
                     android:id="@+id/card_exp_yoga"
                     android:layout_width="match_parent"
@@ -648,6 +585,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Chandrashtamam -->
                 <LinearLayout
                     android:id="@+id/card_exp_chandrashtamam"
                     android:layout_width="match_parent"
@@ -663,6 +601,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Nalla Neram -->
                 <LinearLayout
                     android:id="@+id/card_exp_nalla"
                     android:layout_width="match_parent"
@@ -678,6 +617,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Gowri Nalla Neram -->
                 <LinearLayout
                     android:id="@+id/card_exp_gowri"
                     android:layout_width="match_parent"
@@ -693,6 +633,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Rahu -->
                 <LinearLayout
                     android:id="@+id/card_exp_rahu"
                     android:layout_width="match_parent"
@@ -708,6 +649,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Yamagandam -->
                 <LinearLayout
                     android:id="@+id/card_exp_yamagandam"
                     android:layout_width="match_parent"
@@ -723,6 +665,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Kuligai -->
                 <LinearLayout
                     android:id="@+id/card_exp_kuligai"
                     android:layout_width="match_parent"
@@ -738,6 +681,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Nitya Yoga & Karana -->
                 <LinearLayout
                     android:id="@+id/card_exp_nitya"
                     android:layout_width="match_parent"
@@ -753,6 +697,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Tyajyam -->
                 <LinearLayout
                     android:id="@+id/card_exp_tyajyam"
                     android:layout_width="match_parent"
@@ -768,6 +713,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Soolam & Parikaram -->
                 <LinearLayout
                     android:id="@+id/card_exp_soolam"
                     android:layout_width="match_parent"
@@ -783,6 +729,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Festivals -->
                 <LinearLayout
                     android:id="@+id/card_exp_festivals"
                     android:layout_width="match_parent"
@@ -800,6 +747,75 @@
 
             </LinearLayout>
         </FrameLayout>
+
+        <!-- 4. Universal Rasi Chart (Placed at bottom for BOTH Simple & Expanded modes) -->
+        <LinearLayout
+            android:id="@+id/card_rasi_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:elevation="2dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="12dp"
+            android:padding="2dp">
+
+            <TextView
+                android:id="@+id/tv_rasi_header_title"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:text="இன்றைய ராசிபலன்"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <!-- Row 1: Mesham, Rishabam, Mithunam -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:paddingVertical="4dp">
+                <TextView android:id="@+id/tv_rasi_mesham" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_rishabam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_mithunam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 2: Kadagam, Simmam, Kanni -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:paddingVertical="4dp">
+                <TextView android:id="@+id/tv_rasi_kadagam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_simmam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_kanni" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 3: Thulaam, Viruchigam, Dhanusu -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:paddingVertical="4dp">
+                <TextView android:id="@+id/tv_rasi_thulaam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_viruchigam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_dhanusu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Row 4: Magaram, Kumbam, Meenam -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:paddingVertical="4dp">
+                <TextView android:id="@+id/tv_rasi_magaram" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_kumbam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+                <TextView android:id="@+id/tv_rasi_meenam" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:textSize="11sp" android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
