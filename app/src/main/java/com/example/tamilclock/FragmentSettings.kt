@@ -32,20 +32,20 @@ class FragmentSettings : Fragment() {
     private var tvPreviewTitle: TextView? = null
     private var tvPreviewSub: TextView? = null
 
-    // 5 Distinct App Theme Choices
+    // 5 App Background Choices (Exact ThemeManager constants)
     private val appThemeOptions = listOf(
         Pair(ThemeManager.APP_COLOR_ANTIQUE_SANDAL, "பண்டைய சந்தனம் (Antique Sandal)"),
-        Pair(ThemeManager.APP_COLOR_LEMON, "எலுமிச்சை மஞ்சள் (Bright Lemon)"),
+        Pair(ThemeManager.APP_COLOR_BRIGHT_LEMON, "எலுமிச்சை மஞ்சள் (Bright Lemon)"),
         Pair(ThemeManager.APP_COLOR_MIDNIGHT_VIOLET, "நள்ளிரவு ஊதா (Midnight Violet)"),
         Pair(ThemeManager.APP_COLOR_OFF_WHITE, "மங்கலான வெள்ளை (Off-White)"),
         Pair(ThemeManager.APP_COLOR_AMOLED_BLACK, "அமோலெட் கருப்பு (AMOLED Black)")
     )
 
-    // 5 Widget Background Choices
+    // 5 Widget Background Choices (Exact ThemeManager constants)
     private val widgetThemeOptions = listOf(
         Pair(ThemeManager.WIDGET_COLOR_VELVET_MAROON, "வெல்வெட் மெரூன் (Velvet Maroon)"),
-        Pair(ThemeManager.WIDGET_COLOR_ROYAL_BLUE, "ராயல் நீலம் (Royal Blue)"),
-        Pair(ThemeManager.WIDGET_COLOR_EMERALD_GREEN, "மரகத பச்சை (Emerald Green)"),
+        Pair(ThemeManager.WIDGET_COLOR_ROYAL_NAVY, "ராயல் நேவி நீலம் (Royal Navy)"),
+        Pair(ThemeManager.WIDGET_COLOR_MIDNIGHT_VIOLET, "நள்ளிரவு ஊதா (Midnight Violet)"),
         Pair(ThemeManager.WIDGET_COLOR_OFF_WHITE, "மங்கலான வெள்ளை (Off-White)"),
         Pair(ThemeManager.WIDGET_COLOR_AMOLED_BLACK, "அமோலெட் கருப்பு (AMOLED Black)")
     )
@@ -105,13 +105,13 @@ class FragmentSettings : Fragment() {
         val rg = rgAppThemes ?: return
         rg.removeAllViews()
 
-        appThemeOptions.forEachIndexed { index, pair ->
+        appThemeOptions.forEach { pair ->
             val rb = RadioButton(context).apply {
                 id = View.generateViewId()
                 text = pair.second
                 textSize = 14f
                 tag = pair.first
-                isChecked = (pair.first.equals(currentAppTheme, ignoreCase = true))
+                isChecked = pair.first.equals(currentAppTheme, ignoreCase = true)
                 setPadding(12, 10, 12, 10)
             }
             rg.addView(rb)
@@ -121,10 +121,10 @@ class FragmentSettings : Fragment() {
             val selectedRb = group.findViewById<RadioButton>(checkedId)
             val selectedHex = selectedRb?.tag as? String ?: return@setOnCheckedChangeListener
 
-            ThemeManager.setAppBackgroundColor(requireContext(), selectedHex)
+            ThemeManager.saveAppBackgroundColor(requireContext(), selectedHex)
             applyDynamicTheming()
 
-            // Notify MainActivity to immediately refresh its top banner, logo & navigation bar
+            // Refresh MainActivity top banner & bar immediately
             (activity as? MainActivity)?.apply {
                 loadDayData()
             }
@@ -140,13 +140,13 @@ class FragmentSettings : Fragment() {
         val rg = rgWidgetThemes ?: return
         rg.removeAllViews()
 
-        widgetThemeOptions.forEachIndexed { index, pair ->
+        widgetThemeOptions.forEach { pair ->
             val rb = RadioButton(context).apply {
                 id = View.generateViewId()
                 text = pair.second
                 textSize = 14f
                 tag = pair.first
-                isChecked = (pair.first.equals(currentWidgetTheme, ignoreCase = true))
+                isChecked = pair.first.equals(currentWidgetTheme, ignoreCase = true)
                 setPadding(12, 10, 12, 10)
             }
             rg.addView(rb)
@@ -156,7 +156,7 @@ class FragmentSettings : Fragment() {
             val selectedRb = group.findViewById<RadioButton>(checkedId)
             val selectedHex = selectedRb?.tag as? String ?: return@setOnCheckedChangeListener
 
-            ThemeManager.setWidgetBackgroundColor(requireContext(), selectedHex)
+            ThemeManager.saveWidgetBackgroundColor(requireContext(), selectedHex)
             updateWidgetPreview()
             WidgetUpdateHelper.updateAllWidgets(requireContext())
         }
@@ -178,7 +178,7 @@ class FragmentSettings : Fragment() {
                 tvWidgetOpacityVal?.text = "$clamped%"
                 tvPreviewSub?.text = "நேரலை மாதிரி • $clamped%"
                 if (fromUser) {
-                    ThemeManager.setWidgetOpacity(requireContext(), clamped)
+                    ThemeManager.saveWidgetOpacity(requireContext(), clamped)
                     updateWidgetPreview()
                 }
             }
@@ -187,7 +187,7 @@ class FragmentSettings : Fragment() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 val finalOpacity = (seekBar?.progress ?: 85).coerceIn(10, 100)
-                ThemeManager.setWidgetOpacity(requireContext(), finalOpacity)
+                ThemeManager.saveWidgetOpacity(requireContext(), finalOpacity)
                 updateWidgetPreview()
                 WidgetUpdateHelper.updateAllWidgets(requireContext())
             }
@@ -220,7 +220,6 @@ class FragmentSettings : Fragment() {
 
         val radioTint = ColorStateList.valueOf(palette.accentGold)
 
-        // Tint all App Theme Radio Buttons
         rgAppThemes?.let { group ->
             for (i in 0 until group.childCount) {
                 (group.getChildAt(i) as? RadioButton)?.apply {
@@ -230,7 +229,6 @@ class FragmentSettings : Fragment() {
             }
         }
 
-        // Tint all Widget Theme Radio Buttons
         rgWidgetThemes?.let { group ->
             for (i in 0 until group.childCount) {
                 (group.getChildAt(i) as? RadioButton)?.apply {
@@ -240,7 +238,6 @@ class FragmentSettings : Fragment() {
             }
         }
 
-        // Tint SeekBar
         seekBarOpacity?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
         seekBarOpacity?.progressTintList = ColorStateList.valueOf(palette.accentGold)
 
@@ -256,7 +253,7 @@ class FragmentSettings : Fragment() {
         ivPreviewWidgetBg?.setImageBitmap(bgBitmap)
 
         val hexColor = ThemeManager.getWidgetBackgroundColor(context)
-        val isWidgetLight = (hexColor == ThemeManager.WIDGET_COLOR_OFF_WHITE)
+        val isWidgetLight = hexColor.equals(ThemeManager.WIDGET_COLOR_OFF_WHITE, ignoreCase = true)
 
         val previewTextColor = if (isWidgetLight) Color.parseColor("#081E7D") else Color.WHITE
         val previewSubColor = if (isWidgetLight) Color.parseColor("#D81B60") else Color.parseColor("#FFDF00")
