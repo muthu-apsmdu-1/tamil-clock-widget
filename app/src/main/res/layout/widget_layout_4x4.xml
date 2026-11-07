@@ -41,7 +41,7 @@
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
-            <!-- Digital Clock: Big time font with half-size AM/PM -->
+            <!-- Digital Clock: Big time font with half-size AM/PM bound via SpannableString -->
             <TextView
                 android:id="@+id/tv_digital_clock"
                 android:layout_width="match_parent"
@@ -49,6 +49,8 @@
                 android:gravity="center"
                 android:textSize="38sp"
                 android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
                 android:includeFontPadding="false"
                 android:visibility="visible" />
         </FrameLayout>
