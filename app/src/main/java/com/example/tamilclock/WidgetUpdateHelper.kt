@@ -174,6 +174,26 @@ object WidgetUpdateHelper {
         }
     }
 
+        // -------------------------------------------------------------
+    // PAKSHAM NAME CONVERTER (ALL WIDGETS)
+    // சுக்ல பக்ஷம் -> "வளர்", கிருஷ்ண பக்ஷம் -> "தேய்"
+    // -------------------------------------------------------------
+    fun convertPakshamName(rawPaksham: String): String {
+        return when {
+            rawPaksham.contains("சுக்ல") || rawPaksham.contains("வளர்பிறை") -> "வளர்"
+            rawPaksham.contains("கிருஷ்ண") || rawPaksham.contains("தேய்பிறை") -> "தேய்"
+            rawPaksham.isBlank() -> "---"
+            else -> rawPaksham.trim()
+        }
+    }
+
+    // Also update ThemeManager.ELEM_PAKSHAM inside resolveElement:
+    private fun resolveElement(elemKey: String, details: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
+        val fallback = "---"
+        return when (elemKey) {
+            ThemeManager.ELEM_PAKSHAM -> Pair("பக்ஷம்", convertPakshamName(details.paksha))
+            // ... balance lines stay unchanged
+
     // -------------------------------------------------------------
     // ASTROLOGICAL ELEMENT RESOLVER (TITLE + VALUE WITH "---")
     // -------------------------------------------------------------
@@ -265,8 +285,10 @@ object WidgetUpdateHelper {
         }
     }
 
-    // -------------------------------------------------------------
-    // 2. UPDATE 4x1 WIDGET
+        // -------------------------------------------------------------
+    // 2. UPDATE 4x1 WIDGET (¼ Clock + Balance 3/4 Area)
+    // Row 1 = Gregorian Date (optional style) + Tamil Weekday
+    // Row 2 = Tamil Month & Tamil Date + Converted Paksham & Thithi
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x1(
@@ -290,29 +312,40 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context)
 
-        views.safeSetImageResource(context, "iv_widget_logo", R.mipmap.ic_launcher)
+        // 1. Clock at 1/4 Area (Analog vs Digital with half-size AM/PM)
+        val clockFace = ThemeManager.getClockFace(context)
+        if (clockFace == ThemeManager.CLOCK_ANALOG) {
+            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
+        } else {
+            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
+            views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
+            views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+        }
 
-        // Gregorian Date (Big)
-        views.safeSetText(context, "tv_widget_greg_date", SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
+        // 2. Balance Area - Row 1: Gregorian Date (Type Optional via Settings) + Tamil Weekday
+        val dateFormat = ThemeManager.getDateFormat4x2(context)
+        val gregDateStr = formatEnglishDate(cal, dateFormat)
+        views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
-        // Small Elements
-        views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
+        val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
+        views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
 
-        views.safeSetText(context, "tv_widget_tamil_month", data.tamilMonth)
-        views.safeSetTextColor(context, "tv_widget_tamil_month", colors.secondaryText)
+        // 3. Balance Area - Row 2: Tamil Month & Date + Paksham & Thithi
+        val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
+        val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
+        views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
+        views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
 
-        val tDateStr = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
-        views.safeSetText(context, "tv_widget_tamil_day", tDateStr)
-        views.safeSetTextColor(context, "tv_widget_tamil_day", colors.secondaryText)
+        val convertedPaksham = convertPakshamName(data.paksha)
+        val thithiStr = if (data.tithiName.isNotBlank()) data.tithiName else "---"
+        views.safeSetText(context, "tv_widget_paksham_thithi", "$convertedPaksham • $thithiStr")
+        views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.primaryText)
 
-        views.safeSetText(context, "tv_widget_tithi", data.tithiName)
-        views.safeSetTextColor(context, "tv_widget_tithi", colors.primaryText)
-
-        views.safeSetText(context, "tv_widget_nalla_neram", data.nallaNeramMorning)
-        views.safeSetTextColor(context, "tv_widget_nalla_neram", colors.secondaryText)
-
+        // Pending Intent
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
@@ -328,6 +361,7 @@ object WidgetUpdateHelper {
             manager.updateAppWidget(targetIds, views)
         }
     }
+
 
     // -------------------------------------------------------------
     // 3. UPDATE 4x2 WIDGET
