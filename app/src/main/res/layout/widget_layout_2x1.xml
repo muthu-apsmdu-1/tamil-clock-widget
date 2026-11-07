@@ -48,6 +48,8 @@
                 android:gravity="center"
                 android:textSize="26sp"
                 android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
                 android:includeFontPadding="false"
                 android:visibility="visible" />
         </FrameLayout>
@@ -72,7 +74,7 @@
             android:paddingHorizontal="4dp"
             android:weightSum="2">
 
-            <!-- Row 1: Gregorian Date (Type optional via Settings: 06 - 11 - 2026 vs 06 Nov 26) -->
+            <!-- Row 1: Gregorian Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -90,7 +92,7 @@
                     android:includeFontPadding="false" />
             </LinearLayout>
 
-            <!-- Row 2: Tamil Month & Tamil Date (e.g. ஐப்பசி 21) -->
+            <!-- Row 2: Tamil Month & Tamil Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
