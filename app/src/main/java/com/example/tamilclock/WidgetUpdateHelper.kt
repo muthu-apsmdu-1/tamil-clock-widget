@@ -218,10 +218,10 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context)
 
-        // Show launcher icon / respective image
+        // Show launcher icon
         views.safeSetImageResource(context, "iv_widget_logo", R.mipmap.ic_launcher)
 
-        // Clock Style Integration (if layout provides both)
+        // Clock Style Integration
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -237,7 +237,7 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_greg_date", SimpleDateFormat("dd", Locale.ENGLISH).format(cal.time))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
-        // Month, Weekday, Tamil Details (Small)
+        // Small Elements
         views.safeSetText(context, "tv_widget_greg_month_year", SimpleDateFormat("MMM yyyy", Locale.ENGLISH).format(cal.time).uppercase(Locale.ENGLISH))
         views.safeSetTextColor(context, "tv_widget_greg_month_year", colors.secondaryText)
 
@@ -254,13 +254,13 @@ object WidgetUpdateHelper {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
         }
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) {
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
             appWidgetIds
         } else {
             manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
         }
 
-        if (targetIds.isNotEmpty()) {
+        if (targetIds != null && targetIds.isNotEmpty()) {
             manager.updateAppWidget(targetIds, views)
         }
     }
@@ -318,13 +318,13 @@ object WidgetUpdateHelper {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
         }
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) {
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
             appWidgetIds
         } else {
             manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x1::class.java))
         }
 
-        if (targetIds.isNotEmpty()) {
+        if (targetIds != null && targetIds.isNotEmpty()) {
             manager.updateAppWidget(targetIds, views)
         }
     }
@@ -379,7 +379,6 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_tamil_date", "${data.tamilMonth} $tDateStr")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
 
-        // Selectable 3 Elements (Small Font)
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -405,13 +404,13 @@ object WidgetUpdateHelper {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
         }
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) {
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
             appWidgetIds
         } else {
             manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x2::class.java))
         }
 
-        if (targetIds.isNotEmpty()) {
+        if (targetIds != null && targetIds.isNotEmpty()) {
             manager.updateAppWidget(targetIds, views)
         }
     }
@@ -443,7 +442,6 @@ object WidgetUpdateHelper {
 
         views.safeSetImageResource(context, "iv_widget_logo", R.mipmap.ic_launcher)
 
-        // Clock Face Selection: Classic vs Digital
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -466,7 +464,6 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} $tDateStr")
         views.safeSetTextColor(context, "tv_widget_tamil_full", colors.secondaryText)
 
-        // Selectable 5 Elements (Small Font)
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -504,13 +501,13 @@ object WidgetUpdateHelper {
             views.setOnClickPendingIntent(rootId, getPendingIntent(context))
         }
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) {
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
             appWidgetIds
         } else {
             manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x4::class.java))
         }
 
-        if (targetIds.isNotEmpty()) {
+        if (targetIds != null && targetIds.isNotEmpty()) {
             manager.updateAppWidget(targetIds, views)
         }
     }
