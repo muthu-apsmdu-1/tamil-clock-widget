@@ -5,9 +5,12 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.viewpager2.widget.ViewPager2
 import java.util.Calendar
 
@@ -35,7 +38,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        applyToolbarTheme()
         loadDayData()
+    }
+
+    private fun applyToolbarTheme() {
+        val palette = ThemeManager.getThemePalette(this)
+
+        // 1. Root Activity Background
+        findViewById<View?>(R.id.root_main_layout)?.setBackgroundColor(palette.pageBackground)
+
+        // 2. Pinned Top Banner (Logo + App Title)
+        findViewById<CardView?>(R.id.card_top_banner)?.setCardBackgroundColor(palette.primaryHeader)
+        findViewById<TextView?>(R.id.tv_app_title_banner)?.setTextColor(palette.accentGold)
+
+        // 3. 7-Tool Navigation Toolbar
+        findViewById<LinearLayout?>(R.id.layout_nav_toolbar)?.setBackgroundColor(palette.secondaryHeader)
+
+        val navButtons = listOf<TextView?>(
+            findViewById(R.id.btn_action_prev),
+            findViewById(R.id.btn_action_menu),
+            findViewById(R.id.btn_action_datepicker),
+            findViewById(R.id.btn_action_today),
+            findViewById(R.id.btn_action_horai),
+            findViewById(R.id.btn_action_settings),
+            findViewById(R.id.btn_action_next)
+        )
+        for (btn in navButtons) {
+            btn?.setTextColor(palette.accentGold)
+        }
     }
 
     private fun setupBackNavigation() {
@@ -62,13 +93,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTopNavigationToolbar() {
-        // Toolbar Button IDs:
-        // 1. Previous (<<)
-        // 2. About App (☰)
-        // 3. Monthly Calendar (🗓️)
-        // 4. Home (🏠)
-        // 5. Gowri & Horai (☸)
-        // 6. Settings (⚙)
+        // Buttons in exact sequence:
+        // 1. Prev (<<)
+        // 2. About App (☰) -> Index 0
+        // 3. Monthly Calendar (🗓️) -> Index 1
+        // 4. Home / Day Panchang (🏠) -> Index 2
+        // 5. Gowri & Horai (☸) -> Index 3
+        // 6. Settings (⚙) -> Index 4
         // 7. Next (>>)
         val btnPrev = findViewById<TextView?>(R.id.btn_action_prev)
         val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)
@@ -78,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)
         val btnNext = findViewById<TextView?>(R.id.btn_action_next)
 
-        // 1. Previous Day Button (<<)
+        // 1. Previous Day
         btnPrev?.setOnClickListener {
             selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
             loadDayData()
@@ -90,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_ABOUT, true)
         }
 
-        // 3. Monthly Calendar Page with selective date picking (🗓️) -> Index 1
+        // 3. Monthly Calendar (🗓️) -> Index 1
         btnCalendar?.setOnClickListener {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_MONTHLY_CALENDAR, true)
         }
@@ -112,7 +143,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // 4. Home Page (🏠) -> Index 2 (Day Panchang with Simple & Expanded Mode)
+        // 4. Home Page (🏠) -> Index 2 (Day Panchang)
         btnHome?.setOnClickListener {
             selectedCalendar.time = Calendar.getInstance().time
             loadDayData()
@@ -130,7 +161,7 @@ class MainActivity : AppCompatActivity() {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_SETTINGS, true)
         }
 
-        // 7. Next Day Button (>>)
+        // 7. Next Day
         btnNext?.setOnClickListener {
             selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
             loadDayData()
