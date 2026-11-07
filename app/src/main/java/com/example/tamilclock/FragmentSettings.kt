@@ -1,269 +1,267 @@
 package com.example.tamilclock
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 
 class FragmentSettings : Fragment() {
 
-    companion object {
-        const val PREFS_NAME = "tamil_clock_settings"
-        const val KEY_APP_THEME = "key_app_theme"
-        const val KEY_WIDGET_COLOR = "key_widget_color"
-        const val KEY_WIDGET_OPACITY = "key_widget_opacity"
+    private var rootScrollView: ScrollView? = null
+    private var tvHeading: TextView? = null
+    private var tvLblAppTheme: TextView? = null
+    private var rgAppThemes: RadioGroup? = null
+    private var tvLblWidgetTheme: TextView? = null
+    private var rgWidgetThemes: RadioGroup? = null
+    private var tvLblWidgetOpacity: TextView? = null
+    private var tvWidgetOpacityVal: TextView? = null
+    private var seekBarOpacity: SeekBar? = null
+    private var tvLblWidgetPreview: TextView? = null
+    private var framePreviewWrapper: FrameLayout? = null
+    private var ivPreviewWidgetBg: ImageView? = null
+    private var tvPreviewTitle: TextView? = null
+    private var tvPreviewSub: TextView? = null
 
-        const val DEFAULT_APP_THEME = "ivory_cream"
-        const val DEFAULT_WIDGET_COLOR = "#4A0E17"
-        const val DEFAULT_WIDGET_OPACITY = 85
-    }
-
-    private data class ColorOption(
-        val id: String,
-        val title: String,
-        val colorHex: String,
-        val textColorHex: String
-    )
-
+    // 5 Distinct App Theme Choices
     private val appThemeOptions = listOf(
-        ColorOption("ivory_cream", "Ivory Cream (Default)", "#FFFDF7", "#1E1E24"),
-        ColorOption("white", "White", "#FFFFFF", "#212121"),
-        ColorOption("temple_navy", "Temple Navy", "#0F172A", "#F8FAFC"),
-        ColorOption("amoled_black", "Pitch Black (AMOLED)", "#000000", "#EDEDED")
+        Pair(ThemeManager.APP_COLOR_ANTIQUE_SANDAL, "பண்டைய சந்தனம் (Antique Sandal)"),
+        Pair(ThemeManager.APP_COLOR_LEMON, "எலுமிச்சை மஞ்சள் (Bright Lemon)"),
+        Pair(ThemeManager.APP_COLOR_MIDNIGHT_VIOLET, "நள்ளிரவு ஊதா (Midnight Violet)"),
+        Pair(ThemeManager.APP_COLOR_OFF_WHITE, "மங்கலான வெள்ளை (Off-White)"),
+        Pair(ThemeManager.APP_COLOR_AMOLED_BLACK, "அமோலெட் கருப்பு (AMOLED Black)")
     )
 
+    // 5 Widget Background Choices
     private val widgetThemeOptions = listOf(
-        ColorOption("deep_maroon", "Deep Maroon (Default)", "#4A0E17", "#FFFFFF"),
-        ColorOption("midnight_black", "Midnight Black", "#000000", "#FFFFFF"),
-        ColorOption("white", "White", "#FFFFFF", "#1E1E24"),
-        ColorOption("teal_blue_green", "Teal Blue - Green", "#0D4D4D", "#FFFFFF")
+        Pair(ThemeManager.WIDGET_COLOR_VELVET_MAROON, "வெல்வெட் மெரூன் (Velvet Maroon)"),
+        Pair(ThemeManager.WIDGET_COLOR_ROYAL_BLUE, "ராயல் நீலம் (Royal Blue)"),
+        Pair(ThemeManager.WIDGET_COLOR_EMERALD_GREEN, "மரகத பச்சை (Emerald Green)"),
+        Pair(ThemeManager.WIDGET_COLOR_OFF_WHITE, "மங்கலான வெள்ளை (Off-White)"),
+        Pair(ThemeManager.WIDGET_COLOR_AMOLED_BLACK, "அமோலெட் கருப்பு (AMOLED Black)")
     )
-
-    private lateinit var layoutAppThemes: LinearLayout
-    private lateinit var layoutWidgetThemes: LinearLayout
-    private lateinit var seekbarOpacity: SeekBar
-    private lateinit var tvOpacityVal: TextView
-
-    private lateinit var cardWidgetPreview: LinearLayout
-    private lateinit var tvPreviewTitle: TextView
-    private lateinit var tvPreviewSub: TextView
-
-    private var currentAppTheme = DEFAULT_APP_THEME
-    private var currentWidgetColor = DEFAULT_WIDGET_COLOR
-    private var currentWidgetOpacity = DEFAULT_WIDGET_OPACITY
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        bindViews(view)
+        setupAppThemeSelection()
+        setupWidgetThemeSelection()
+        setupOpacitySeekBar()
+        applyDynamicTheming()
+    }
 
-        layoutAppThemes = view.findViewById(R.id.layout_app_theme_options)
-        layoutWidgetThemes = view.findViewById(R.id.layout_widget_theme_options)
-        seekbarOpacity = view.findViewById(R.id.seekbar_widget_opacity)
-        tvOpacityVal = view.findViewById(R.id.tv_widget_opacity_val)
+    override fun onResume() {
+        super.onResume()
+        applyDynamicTheming()
+    }
 
-        cardWidgetPreview = view.findViewById(R.id.card_widget_preview)
+    private fun bindViews(view: View) {
+        rootScrollView = view.findViewById(R.id.scroll_settings_root)
+        tvHeading = view.findViewById(R.id.tv_settings_main_heading)
+        tvLblAppTheme = view.findViewById(R.id.tv_lbl_app_theme)
+        rgAppThemes = view.findViewById(R.id.rg_app_theme_options)
+        tvLblWidgetTheme = view.findViewById(R.id.tv_lbl_widget_theme)
+        rgWidgetThemes = view.findViewById(R.id.rg_widget_theme_options)
+        tvLblWidgetOpacity = view.findViewById(R.id.tv_lbl_widget_opacity)
+        tvWidgetOpacityVal = view.findViewById(R.id.tv_widget_opacity_val)
+        seekBarOpacity = view.findViewById(R.id.seekbar_widget_opacity)
+        tvLblWidgetPreview = view.findViewById(R.id.tv_lbl_widget_preview)
+        framePreviewWrapper = view.findViewById(R.id.frame_preview_wrapper)
+        ivPreviewWidgetBg = view.findViewById(R.id.iv_preview_widget_bg)
         tvPreviewTitle = view.findViewById(R.id.tv_preview_title)
         tvPreviewSub = view.findViewById(R.id.tv_preview_sub)
-
-        loadSavedPreferences()
-        renderAppThemeOptions()
-        renderWidgetThemeOptions()
-        setupOpacitySlider()
-        updateWidgetPreview()
     }
 
-    private fun loadSavedPreferences() {
-        val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        currentAppTheme = prefs.getString(KEY_APP_THEME, DEFAULT_APP_THEME) ?: DEFAULT_APP_THEME
-        currentWidgetColor = prefs.getString(KEY_WIDGET_COLOR, DEFAULT_WIDGET_COLOR) ?: DEFAULT_WIDGET_COLOR
-        currentWidgetOpacity = prefs.getInt(KEY_WIDGET_OPACITY, DEFAULT_WIDGET_OPACITY)
+    private fun isDarkThemeActive(): Boolean {
+        val context = context ?: return false
+        val currentBg = ThemeManager.getAppBackgroundColor(context)
+        return currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
+               currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
     }
 
-    private fun savePreference(key: String, value: Any) {
-        val editor = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-        when (value) {
-            is String -> editor.putString(key, value)
-            is Int -> editor.putInt(key, value)
-        }
-        editor.apply()
-    }
+    // -------------------------------------------------------------
+    // 1. APP THEME RADIOGROUP
+    // -------------------------------------------------------------
+    private fun setupAppThemeSelection() {
+        val context = context ?: return
+        val currentAppTheme = ThemeManager.getAppBackgroundColor(context)
+        val rg = rgAppThemes ?: return
+        rg.removeAllViews()
 
-    private fun renderAppThemeOptions() {
-        layoutAppThemes.removeAllViews()
-        for (option in appThemeOptions) {
-            val isSelected = (option.id == currentAppTheme)
-            val box = createColorOptionBox(
-                title = option.title,
-                bgColor = Color.parseColor(option.colorHex),
-                textColor = Color.parseColor(option.textColorHex),
-                isSelected = isSelected
-            ) {
-                currentAppTheme = option.id
-                savePreference(KEY_APP_THEME, currentAppTheme)
-                renderAppThemeOptions()
-                ThemeManager.applyTheme(requireActivity())
+        appThemeOptions.forEachIndexed { index, pair ->
+            val rb = RadioButton(context).apply {
+                id = View.generateViewId()
+                text = pair.second
+                textSize = 14f
+                tag = pair.first
+                isChecked = (pair.first.equals(currentAppTheme, ignoreCase = true))
+                setPadding(12, 10, 12, 10)
             }
-            layoutAppThemes.addView(box)
+            rg.addView(rb)
         }
-    }
 
-    private fun renderWidgetThemeOptions() {
-        layoutWidgetThemes.removeAllViews()
-        for (option in widgetThemeOptions) {
-            val isSelected = option.colorHex.equals(currentWidgetColor, ignoreCase = true)
-            val box = createColorOptionBox(
-                title = option.title,
-                bgColor = Color.parseColor(option.colorHex),
-                textColor = Color.parseColor(option.textColorHex),
-                isSelected = isSelected
-            ) {
-                currentWidgetColor = option.colorHex
-                savePreference(KEY_WIDGET_COLOR, currentWidgetColor)
-                renderWidgetThemeOptions()
-                updateWidgetPreview()
-                notifyWidgetsUpdate()
+        rg.setOnCheckedChangeListener { group, checkedId ->
+            val selectedRb = group.findViewById<RadioButton>(checkedId)
+            val selectedHex = selectedRb?.tag as? String ?: return@setOnCheckedChangeListener
+
+            ThemeManager.setAppBackgroundColor(requireContext(), selectedHex)
+            applyDynamicTheming()
+
+            // Notify MainActivity to immediately refresh its top banner, logo & navigation bar
+            (activity as? MainActivity)?.apply {
+                loadDayData()
             }
-            layoutWidgetThemes.addView(box)
         }
     }
 
-    private fun setupOpacitySlider() {
-        seekbarOpacity.progress = currentWidgetOpacity
-        tvOpacityVal.text = "$currentWidgetOpacity%"
+    // -------------------------------------------------------------
+    // 2. WIDGET THEME RADIOGROUP
+    // -------------------------------------------------------------
+    private fun setupWidgetThemeSelection() {
+        val context = context ?: return
+        val currentWidgetTheme = ThemeManager.getWidgetBackgroundColor(context)
+        val rg = rgWidgetThemes ?: return
+        rg.removeAllViews()
 
-        seekbarOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        widgetThemeOptions.forEachIndexed { index, pair ->
+            val rb = RadioButton(context).apply {
+                id = View.generateViewId()
+                text = pair.second
+                textSize = 14f
+                tag = pair.first
+                isChecked = (pair.first.equals(currentWidgetTheme, ignoreCase = true))
+                setPadding(12, 10, 12, 10)
+            }
+            rg.addView(rb)
+        }
+
+        rg.setOnCheckedChangeListener { group, checkedId ->
+            val selectedRb = group.findViewById<RadioButton>(checkedId)
+            val selectedHex = selectedRb?.tag as? String ?: return@setOnCheckedChangeListener
+
+            ThemeManager.setWidgetBackgroundColor(requireContext(), selectedHex)
+            updateWidgetPreview()
+            WidgetUpdateHelper.updateAllWidgets(requireContext())
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 3. WIDGET OPACITY SLIDER
+    // -------------------------------------------------------------
+    private fun setupOpacitySeekBar() {
+        val context = context ?: return
+        val currentOpacity = ThemeManager.getWidgetOpacity(context)
+
+        seekBarOpacity?.progress = currentOpacity
+        tvWidgetOpacityVal?.text = "$currentOpacity%"
+
+        seekBarOpacity?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                currentWidgetOpacity = progress
-                tvOpacityVal.text = "$progress%"
-                updateWidgetPreview()
+                val clamped = progress.coerceIn(10, 100)
+                tvWidgetOpacityVal?.text = "$clamped%"
+                tvPreviewSub?.text = "நேரலை மாதிரி • $clamped%"
+                if (fromUser) {
+                    ThemeManager.setWidgetOpacity(requireContext(), clamped)
+                    updateWidgetPreview()
+                }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                savePreference(KEY_WIDGET_OPACITY, currentWidgetOpacity)
-                notifyWidgetsUpdate()
+                val finalOpacity = (seekBar?.progress ?: 85).coerceIn(10, 100)
+                ThemeManager.setWidgetOpacity(requireContext(), finalOpacity)
+                updateWidgetPreview()
+                WidgetUpdateHelper.updateAllWidgets(requireContext())
             }
         })
     }
 
-    private fun createColorOptionBox(
-        title: String,
-        bgColor: Int,
-        textColor: Int,
-        isSelected: Boolean,
-        onClick: () -> Unit
-    ): View {
-        val root = FrameLayout(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(0, 4, 0, 8) }
-            setBackgroundResource(
-                if (isSelected) R.drawable.bg_color_chip_selected
-                else R.drawable.bg_color_chip_unselected
-            )
-            setPadding(4, 4, 4, 4)
-            setOnClickListener { onClick() }
-        }
+    // -------------------------------------------------------------
+    // 4. DYNAMIC THEMING & PURE WHITE TEXT COLOR RULES
+    // -------------------------------------------------------------
+    private fun applyDynamicTheming() {
+        val context = context ?: return
+        val palette = ThemeManager.getThemePalette(context)
+        val isDark = isDarkThemeActive()
 
-        val innerCard = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-            )
-            val shape = GradientDrawable().apply {
-                setColor(bgColor)
-                cornerRadius = 8f * resources.displayMetrics.density
-            }
-            background = shape
-            setPadding(16, 14, 16, 14)
-        }
+        // Page Root & Container Backgrounds
+        rootScrollView?.setBackgroundColor(palette.pageBackground)
+        framePreviewWrapper?.setBackgroundColor(palette.cardBackground)
 
-        val tvTitle = TextView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
-            text = title
-            setTextColor(textColor)
-            textSize = 14f
-            setTypeface(typeface, Typeface.BOLD)
-        }
+        // Text Colors: Pure White (#FFFFFF) for dark themes; designated palette colors for light themes
+        val headingColor = if (isDark) Color.WHITE else palette.primaryHeader
+        val labelColor = if (isDark) Color.WHITE else palette.secondaryHeader
+        val radioTextColor = if (isDark) Color.WHITE else palette.primaryText
 
-        val tvIndicator = TextView(requireContext()).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            text = if (isSelected) "✔" else ""
-            setTextColor(if (isSelected) Color.parseColor("#FFD043") else Color.TRANSPARENT)
-            textSize = 16f
-            setTypeface(typeface, Typeface.BOLD)
-        }
+        tvHeading?.setTextColor(headingColor)
+        tvLblAppTheme?.setTextColor(labelColor)
+        tvLblWidgetTheme?.setTextColor(labelColor)
+        tvLblWidgetOpacity?.setTextColor(labelColor)
+        tvWidgetOpacityVal?.setTextColor(palette.accentGold)
+        tvLblWidgetPreview?.setTextColor(labelColor)
 
-        innerCard.addView(tvTitle)
-        innerCard.addView(tvIndicator)
-        root.addView(innerCard)
-        return root
-    }
+        val radioTint = ColorStateList.valueOf(palette.accentGold)
 
-    private fun updateWidgetPreview() {
-        val baseColor = Color.parseColor(currentWidgetColor)
-        val alpha = (currentWidgetOpacity * 255) / 100
-        val finalColor = Color.argb(alpha, Color.red(baseColor), Color.green(baseColor), Color.blue(baseColor))
-
-        val bgShape = GradientDrawable().apply {
-            setColor(finalColor)
-            cornerRadius = 12f * resources.displayMetrics.density
-        }
-        cardWidgetPreview.background = bgShape
-
-        val isLightWidget = currentWidgetColor.equals("#FFFFFF", ignoreCase = true)
-        val contentTextColor = if (isLightWidget) Color.BLACK else Color.WHITE
-        tvPreviewTitle.setTextColor(contentTextColor)
-        tvPreviewSub.setTextColor(contentTextColor)
-    }
-
-    private fun notifyWidgetsUpdate() {
-        val ctx = context ?: return
-        val appWidgetManager = AppWidgetManager.getInstance(ctx)
-
-        val providers = listOf(
-            WidgetProvider2x1::class.java,
-            WidgetProvider4x1::class.java,
-            WidgetProvider4x2::class.java,
-            WidgetProvider4x4::class.java
-        )
-
-        for (providerClass in providers) {
-            val ids = appWidgetManager.getAppWidgetIds(ComponentName(ctx, providerClass))
-            if (ids.isNotEmpty()) {
-                val intent = Intent(ctx, providerClass).apply {
-                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
+        // Tint all App Theme Radio Buttons
+        rgAppThemes?.let { group ->
+            for (i in 0 until group.childCount) {
+                (group.getChildAt(i) as? RadioButton)?.apply {
+                    setTextColor(radioTextColor)
+                    buttonTintList = radioTint
                 }
-                ctx.sendBroadcast(intent)
             }
         }
+
+        // Tint all Widget Theme Radio Buttons
+        rgWidgetThemes?.let { group ->
+            for (i in 0 until group.childCount) {
+                (group.getChildAt(i) as? RadioButton)?.apply {
+                    setTextColor(radioTextColor)
+                    buttonTintList = radioTint
+                }
+            }
+        }
+
+        // Tint SeekBar
+        seekBarOpacity?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
+        seekBarOpacity?.progressTintList = ColorStateList.valueOf(palette.accentGold)
+
+        updateWidgetPreview()
+    }
+
+    // -------------------------------------------------------------
+    // 5. LIVE PREVIEW BITMAP RENDERING
+    // -------------------------------------------------------------
+    private fun updateWidgetPreview() {
+        val context = context ?: return
+        val bgBitmap = WidgetUpdateHelper.createWidgetBackgroundBitmap(context, 480, 140)
+        ivPreviewWidgetBg?.setImageBitmap(bgBitmap)
+
+        val hexColor = ThemeManager.getWidgetBackgroundColor(context)
+        val isWidgetLight = (hexColor == ThemeManager.WIDGET_COLOR_OFF_WHITE)
+
+        val previewTextColor = if (isWidgetLight) Color.parseColor("#081E7D") else Color.WHITE
+        val previewSubColor = if (isWidgetLight) Color.parseColor("#D81B60") else Color.parseColor("#FFDF00")
+
+        tvPreviewTitle?.setTextColor(previewTextColor)
+        tvPreviewSub?.setTextColor(previewSubColor)
     }
 }
