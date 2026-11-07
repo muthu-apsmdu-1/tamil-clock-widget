@@ -18,7 +18,8 @@ class WidgetProvider2x1 : AppWidgetProvider() {
         if (action == AppWidgetManager.ACTION_APPWIDGET_UPDATE || 
             action == Intent.ACTION_TIME_TICK || 
             action == Intent.ACTION_TIME_CHANGED || 
-            action == Intent.ACTION_TIMEZONE_CHANGED) {
+            action == Intent.ACTION_TIMEZONE_CHANGED ||
+            action == Intent.ACTION_DATE_CHANGED) {
             
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val thisWidget = ComponentName(context, WidgetProvider2x1::class.java)
