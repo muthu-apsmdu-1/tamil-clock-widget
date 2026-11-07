@@ -199,13 +199,20 @@ class FragmentGowriHorai : Fragment() {
         highlightCurrentSlotIfToday()
     }
 
+    private fun isDarkThemeActive(): Boolean {
+        val context = context ?: return false
+        val currentBg = ThemeManager.getAppBackgroundColor(context)
+        return currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK || 
+               currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+    }
+
     private fun applyTheme() {
         val context = context ?: return
         val palette = ThemeManager.getThemePalette(context)
 
         rootLayout?.setBackgroundColor(palette.pageBackground)
         layoutDateStrip.setBackgroundColor(palette.cardBackground)
-        tvHeaderStripDate.setTextColor(palette.primaryHeader)
+        tvHeaderStripDate.setTextColor(if (isDarkThemeActive()) Color.WHITE else palette.primaryHeader)
 
         tvGowriDayHeader.setBackgroundColor(palette.primaryHeader)
         tvGowriDayHeader.setTextColor(palette.accentGold)
@@ -278,7 +285,7 @@ class FragmentGowriHorai : Fragment() {
                 text = "---"
                 gravity = Gravity.CENTER
                 textSize = 14f
-                setTextColor(Color.parseColor("#9E9E9E"))
+                setTextColor(if (isDarkThemeActive()) Color.WHITE else Color.parseColor("#9E9E9E"))
                 setPadding(0, 16, 0, 16)
             }
             container.addView(emptyTv)
@@ -306,9 +313,11 @@ class FragmentGowriHorai : Fragment() {
     }
 
     private fun createSlotRowView(item: SlotItem): View {
-        val palette = ThemeManager.getThemePalette(requireContext())
+        val context = requireContext()
+        val palette = ThemeManager.getThemePalette(context)
+        val isDark = isDarkThemeActive()
 
-        val row = LinearLayout(requireContext()).apply {
+        val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -322,13 +331,13 @@ class FragmentGowriHorai : Fragment() {
             tag = item
         }
 
-        val textColor = if (item.isAuspicious) {
-            Color.parseColor("#2E7D32")
+        val textColor = if (isDark) {
+            Color.WHITE
         } else {
-            Color.parseColor("#C62828")
+            if (item.isAuspicious) Color.parseColor("#2E7D32") else Color.parseColor("#C62828")
         }
 
-        val tvTime = TextView(requireContext()).apply {
+        val tvTime = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f)
             text = item.timeRange
             textSize = 13f
@@ -336,7 +345,7 @@ class FragmentGowriHorai : Fragment() {
             typeface = Typeface.DEFAULT_BOLD
         }
 
-        val tvName = TextView(requireContext()).apply {
+        val tvName = TextView(context).apply {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
             text = item.name
             textSize = 13.5f
