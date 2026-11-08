@@ -3,7 +3,8 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@android:drawable/ic_menu_today"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Tamil Clock Widget"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
