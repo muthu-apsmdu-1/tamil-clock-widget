@@ -78,8 +78,8 @@
                     android:id="@+id/tv_widget_greg_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13.5sp"
-                    android:textStyle="bold"
+                    android:textSize="7sp"
+                    android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
 
@@ -88,8 +88,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textSize="13.5sp"
-                    android:textStyle="bold"
+                    android:textSize="7"
+                    android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
             </LinearLayout>
@@ -106,8 +106,8 @@
                     android:id="@+id/tv_widget_tamil_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
+                    android:textSize="7sp"
+                    android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
 
@@ -116,8 +116,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
+                    android:textSize="7sp"
+                    android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
             </LinearLayout>
