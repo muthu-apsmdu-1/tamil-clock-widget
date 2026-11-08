@@ -3,6 +3,8 @@ package com.example.tamilclock
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 
 object ThemeManager {
 
@@ -28,7 +30,7 @@ object ThemeManager {
     const val APP_COLOR_AMOLED_BLACK = "#000000"
 
     // -------------------------------------------------------------
-    // ITEM 2: WIDGET BACKGROUND COLORS
+    // ITEM 2: WIDGET BACKGROUND COLORS (LEGACY)
     // -------------------------------------------------------------
     const val WIDGET_COLOR_VELVET_MAROON = "#65001F" // Default
     const val WIDGET_COLOR_ROYAL_NAVY = "#142B50"
@@ -76,6 +78,73 @@ object ThemeManager {
     private const val KEY_ELEMENTS_4X2 = "elements_4x2"
     private const val KEY_ELEMENTS_4X4 = "elements_4x4"
 
+    // New Theme Engine Keys
+    private const val KEY_PRESET_ID = "selected_preset_id"
+    private const val KEY_BORDER_ENABLED = "outer_border_enabled"
+    const val SHADOW_THRESHOLD_PERCENT = 30
+
+    // -------------------------------------------------------------
+    // NEW 6 PRESET ENUM DEFINITION
+    // -------------------------------------------------------------
+    enum class Preset(
+        val id: String,
+        val displayName: String,
+        @ColorRes val bgResId: Int,
+        @ColorRes val accentResId: Int
+    ) {
+        MIDNIGHT_GOLD(
+            id = "midnight_gold",
+            displayName = "Midnight Gold",
+            bgResId = R.color.widget_canvas_black,
+            accentResId = R.color.widget_accent_gold
+        ),
+        HERITAGE_MAROON(
+            id = "heritage_maroon",
+            displayName = "Heritage Maroon",
+            bgResId = R.color.widget_canvas_maroon,
+            accentResId = R.color.widget_accent_gold
+        ),
+        CLASSIC_MONO(
+            id = "classic_mono",
+            displayName = "Classic Mono",
+            bgResId = R.color.widget_canvas_black,
+            accentResId = R.color.widget_accent_white
+        ),
+        NEON_NIGHT(
+            id = "neon_night",
+            displayName = "Neon Night",
+            bgResId = R.color.widget_canvas_black,
+            accentResId = R.color.widget_accent_neon_green
+        ),
+        PORCELAIN_BLUE(
+            id = "porcelain_blue",
+            displayName = "Porcelain Blue",
+            bgResId = R.color.widget_canvas_white,
+            accentResId = R.color.widget_accent_royal_blue
+        ),
+        PORCELAIN_RED(
+            id = "porcelain_red",
+            displayName = "Porcelain Red",
+            bgResId = R.color.widget_canvas_white,
+            accentResId = R.color.widget_accent_crimson
+        );
+
+        companion object {
+            fun fromId(id: String?): Preset =
+                entries.firstOrNull { it.id == id } ?: MIDNIGHT_GOLD
+        }
+    }
+
+    data class ThemeConfig(
+        val preset: Preset,
+        val baseBackgroundColor: Int,
+        val resolvedBackgroundColor: Int,
+        val accentColor: Int,
+        val opacityPercent: Int,
+        val isBorderEnabled: Boolean,
+        val requiresLegibilityShadow: Boolean
+    )
+
     data class AppThemePalette(
         val pageBackground: Int,
         val cardBackground: Int,
@@ -90,7 +159,64 @@ object ThemeManager {
     )
 
     // -------------------------------------------------------------
-    // ACTIVITY THEME RESTORATION (Resolves Unresolved reference: applyTheme)
+    // NEW THEME SYSTEM ENGINE
+    // -------------------------------------------------------------
+    fun savePreset(context: Context, preset: Preset) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_PRESET_ID, preset.id)
+            .apply()
+    }
+
+    fun getSelectedPreset(context: Context): Preset {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return Preset.fromId(prefs.getString(KEY_PRESET_ID, Preset.MIDNIGHT_GOLD.id))
+    }
+
+    fun isBorderEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_BORDER_ENABLED, true)
+    }
+
+    fun saveBorderEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_BORDER_ENABLED, enabled)
+            .apply()
+    }
+
+    fun getActiveTheme(context: Context): ThemeConfig {
+        val preset = getSelectedPreset(context)
+        val opacity = getWidgetOpacity(context)
+        val borderEnabled = isBorderEnabled(context)
+
+        val rawBgColor = ContextCompat.getColor(context, preset.bgResId)
+        val accentColor = ContextCompat.getColor(context, preset.accentResId)
+
+        // Alpha calculation: Convert 0-100% to 0-255
+        val alpha = (opacity * 255) / 100
+        val resolvedBg = Color.argb(
+            alpha,
+            Color.red(rawBgColor),
+            Color.green(rawBgColor),
+            Color.blue(rawBgColor)
+        )
+
+        val requiresShadow = opacity < SHADOW_THRESHOLD_PERCENT
+
+        return ThemeConfig(
+            preset = preset,
+            baseBackgroundColor = rawBgColor,
+            resolvedBackgroundColor = resolvedBg,
+            accentColor = accentColor,
+            opacityPercent = opacity,
+            isBorderEnabled = borderEnabled,
+            requiresLegibilityShadow = requiresShadow
+        )
+    }
+
+    // -------------------------------------------------------------
+    // ACTIVITY THEME RESTORATION
     // -------------------------------------------------------------
     fun applyTheme(activity: Activity) {
         val styleRes = when (getSavedTheme(activity)) {
