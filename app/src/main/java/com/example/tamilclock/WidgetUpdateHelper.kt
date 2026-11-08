@@ -63,6 +63,24 @@ object WidgetUpdateHelper {
         }
     }
 
+    private fun RemoteViews.applyTextShadowIfRequired(
+        context: Context,
+        idName: String,
+        requiresShadow: Boolean
+    ) {
+        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
+        if (resId != 0) {
+            if (requiresShadow) {
+                // Apply subtle dropshadow for transparency < 30%
+                setFloat(idName, "setShadowLayer", 4f)
+                // shadowColor = semi-transparent black #B3000000
+                setInt(idName, "setShadowColor", Color.argb(180, 0, 0, 0))
+            } else {
+                setFloat(idName, "setShadowLayer", 0f)
+            }
+        }
+    }
+
     // -------------------------------------------------------------
     // COLOR RESOLUTION FOR WIDGETS
     // -------------------------------------------------------------
@@ -70,68 +88,66 @@ object WidgetUpdateHelper {
         val isLightWidget: Boolean,
         val primaryText: Int,
         val secondaryText: Int,
-        val accentGold: Int
+        val accentColor: Int
     )
 
-    private fun resolveWidgetColors(context: Context): WidgetColorPalette {
-        val hex = ThemeManager.getWidgetBackgroundColor(context)
-        val isLight = hex.equals(ThemeManager.WIDGET_COLOR_OFF_WHITE, ignoreCase = true)
+    private fun resolveWidgetColors(context: Context, themeConfig: ThemeManager.ThemeConfig): WidgetColorPalette {
+        val isWhiteCanvas = themeConfig.preset == ThemeManager.Preset.PORCELAIN_BLUE ||
+                themeConfig.preset == ThemeManager.Preset.PORCELAIN_RED
 
-        return if (isLight) {
+        return if (isWhiteCanvas) {
             WidgetColorPalette(
                 isLightWidget = true,
-                primaryText = Color.parseColor("#081E7D"),     // Dark Blue
-                secondaryText = Color.parseColor("#D81B60"),   // Pink
-                accentGold = Color.parseColor("#B26A00")       // Dark Sandal Gold
+                primaryText = themeConfig.accentColor,
+                secondaryText = Color.parseColor("#424242"),
+                accentColor = themeConfig.accentColor
             )
         } else {
-            // Dark themes: pure white for content, gold for headers/accents
+            // Dark Canvases (Black or Maroon)
             WidgetColorPalette(
                 isLightWidget = false,
                 primaryText = Color.WHITE,
-                secondaryText = Color.WHITE,
-                accentGold = Color.parseColor("#FFDF00")
+                secondaryText = Color.parseColor("#E0E0E0"),
+                accentColor = themeConfig.accentColor
             )
         }
     }
 
     // -------------------------------------------------------------
-    // DYNAMIC BACKGROUND BITMAP GENERATOR (COLOR + OPACITY)
+    // DYNAMIC BACKGROUND BITMAP GENERATOR (COLOR + OPACITY + BORDER)
     // -------------------------------------------------------------
-    fun createWidgetBackgroundBitmap(context: Context, widthPx: Int, heightPx: Int): Bitmap {
-        val bitmap = Bitmap.createBitmap(widthPx.coerceAtLeast(10), heightPx.coerceAtLeast(10), Bitmap.Config.ARGB_8888)
+    fun createWidgetBackgroundBitmap(
+        context: Context,
+        widthPx: Int,
+        heightPx: Int,
+        themeConfig: ThemeManager.ThemeConfig
+    ): Bitmap {
+        val w = widthPx.coerceAtLeast(10)
+        val h = heightPx.coerceAtLeast(10)
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        val hexColor = ThemeManager.getWidgetBackgroundColor(context)
-        val baseColor = try {
-            Color.parseColor(hexColor)
-        } catch (_: Exception) {
-            Color.parseColor(ThemeManager.WIDGET_COLOR_VELVET_MAROON)
-        }
+        val cornerRadius = 32f
+        val rect = RectF(4f, 4f, (w - 4).toFloat(), (h - 4).toFloat())
 
-        val opacityPercent = ThemeManager.getWidgetOpacity(context)
-        val alpha = (opacityPercent * 255 / 100).coerceIn(0, 255)
-
+        // 1. Draw Background Fill (Canvas Base + Alpha)
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = baseColor
-            this.alpha = alpha
+            color = themeConfig.resolvedBackgroundColor
             style = Paint.Style.FILL
         }
-        val cornerRadius = 32f
-        val rect = RectF(4f, 4f, (widthPx - 4).toFloat(), (heightPx - 4).toFloat())
         canvas.drawRoundRect(rect, cornerRadius, cornerRadius, bgPaint)
 
-        val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = if (hexColor.equals(ThemeManager.WIDGET_COLOR_OFF_WHITE, ignoreCase = true)) {
-                Color.parseColor("#BDBDBD")
-            } else {
-                Color.parseColor("#FFDF00")
+        // 2. Draw Accent Outer Border if enabled
+        if (themeConfig.isBorderEnabled) {
+            val borderAlpha = ((themeConfig.opacityPercent / 100f).coerceAtLeast(0.4f) * 255).toInt()
+            val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = themeConfig.accentColor
+                alpha = borderAlpha
+                style = Paint.Style.STROKE
+                strokeWidth = 3.5f
             }
-            this.alpha = alpha.coerceAtLeast(80)
-            style = Paint.Style.STROKE
-            strokeWidth = 3f
+            canvas.drawRoundRect(rect, cornerRadius, cornerRadius, borderPaint)
         }
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, borderPaint)
 
         return bitmap
     }
@@ -169,7 +185,6 @@ object WidgetUpdateHelper {
 
     // -------------------------------------------------------------
     // PAKSHAM NAME CONVERTER (ALL WIDGETS)
-    // சுக்ல பக்ஷம் -> "வளர்", கிருஷ்ண பக்ஷம் -> "தேய்"
     // -------------------------------------------------------------
     fun convertPakshamName(rawPaksham: String): String {
         return when {
@@ -181,7 +196,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // ASTROLOGICAL ELEMENT RESOLVER (TITLE + VALUE WITH "---")
+    // ASTROLOGICAL ELEMENT RESOLVER
     // -------------------------------------------------------------
     private fun resolveElement(elemKey: String, details: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
         val fallback = "---"
@@ -200,7 +215,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 1. UPDATE 2x1 WIDGET (Clock Half + Gregorian / Tamil Rows Half)
+    // 1. UPDATE 2x1 WIDGET
     // -------------------------------------------------------------
     @JvmOverloads
     fun update2x1(
@@ -219,10 +234,12 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
-        val bgBitmap = createWidgetBackgroundBitmap(context, 320, 160)
+        val themeConfig = ThemeManager.getActiveTheme(context)
+        val bgBitmap = createWidgetBackgroundBitmap(context, 320, 160, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context)
+        val colors = resolveWidgetColors(context, themeConfig)
+        val requiresShadow = themeConfig.requiresLegibilityShadow
 
         // Left Half: Clock Style
         val clockFace = ThemeManager.getClockFace(context)
@@ -234,6 +251,7 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
         // Right Half: Row 1 - Gregorian Date
@@ -241,12 +259,14 @@ object WidgetUpdateHelper {
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         // Right Half: Row 2 - Tamil Month & Date
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_month_day", "$tMonth $tDay")
-        views.safeSetTextColor(context, "tv_widget_tamil_month_day", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_tamil_month_day", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_tamil_month_day", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -265,7 +285,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 2. UPDATE 4x1 WIDGET (1/4 Clock + 3/4 Balance Area)
+    // 2. UPDATE 4x1 WIDGET
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x1(
@@ -284,12 +304,14 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
-        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 140)
+        val themeConfig = ThemeManager.getActiveTheme(context)
+        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 140, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context)
+        val colors = resolveWidgetColors(context, themeConfig)
+        val requiresShadow = themeConfig.requiresLegibilityShadow
 
-        // Left 1/4: Clock
+        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -299,28 +321,33 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
-        // Right 3/4 - Row 1: Gregorian Date + Tamil Weekday
+        // Gregorian Date + Weekday
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
-        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
-        // Right 3/4 - Row 2: Tamil Month & Date + Converted Paksham & Thithi
+        // Tamil Date + Paksham & Thithi
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
-        views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_tamil_date", requiresShadow)
 
         val convertedPaksham = convertPakshamName(data.paksha)
         val thithiStr = if (data.tithiName.isNotBlank()) data.tithiName else "---"
         views.safeSetText(context, "tv_widget_paksham_thithi", "$convertedPaksham • $thithiStr")
-        views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.primaryText)
+        views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.secondaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_paksham_thithi", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -339,7 +366,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 3. UPDATE 4x2 WIDGET (2x2 Clock Left + 2x2 Elements Area Right)
+    // 3. UPDATE 4x2 WIDGET
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x2(
@@ -358,12 +385,14 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
-        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280)
+        val themeConfig = ThemeManager.getActiveTheme(context)
+        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context)
+        val colors = resolveWidgetColors(context, themeConfig)
+        val requiresShadow = themeConfig.requiresLegibilityShadow
 
-        // 2x2 Left Side: Clock
+        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -373,47 +402,53 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
-        // 2x2 Right Side - Row 1: Gregorian Date + Tamil Weekday
+        // Header Rows
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
-        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
-        // Row 2: Tamil Month & Date
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
-        views.safeSetTextColor(context, "tv_widget_tamil_date", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_tamil_date", requiresShadow)
 
-        // Rows 3, 4, 5: 3 Options Selectable via Settings
+        // Astrological Elements Rows
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
         val elem3 = resolveElement(selectedKeys.getOrNull(2) ?: ThemeManager.ELEM_NAKSHATRA, data)
 
-        // Row 3
         views.safeSetText(context, "tv_widget_elem1_label", "${elem1.first} :")
-        views.safeSetTextColor(context, "tv_widget_elem1_label", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_elem1_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
         views.safeSetTextColor(context, "tv_widget_elem1_val", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem1_label", requiresShadow)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem1_val", requiresShadow)
 
-        // Row 4
         views.safeSetText(context, "tv_widget_elem2_label", "${elem2.first} :")
-        views.safeSetTextColor(context, "tv_widget_elem2_label", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_elem2_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
         views.safeSetTextColor(context, "tv_widget_elem2_val", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem2_label", requiresShadow)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem2_val", requiresShadow)
 
-        // Row 5
         views.safeSetText(context, "tv_widget_elem3_label", "${elem3.first} :")
-        views.safeSetTextColor(context, "tv_widget_elem3_label", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_elem3_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
         views.safeSetTextColor(context, "tv_widget_elem3_val", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem3_label", requiresShadow)
+        views.applyTextShadowIfRequired(context, "tv_widget_elem3_val", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -432,7 +467,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4. UPDATE 4x4 WIDGET (Top 2/3 Clock + Bottom 1/3 In 4 Rows)
+    // 4. UPDATE 4x4 WIDGET
     // -------------------------------------------------------------
     @JvmOverloads
     fun update4x4(
@@ -451,12 +486,14 @@ object WidgetUpdateHelper {
         val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
         db.close()
 
-        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 580)
+        val themeConfig = ThemeManager.getActiveTheme(context)
+        val bgBitmap = createWidgetBackgroundBitmap(context, 580, 580, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context)
+        val colors = resolveWidgetColors(context, themeConfig)
+        val requiresShadow = themeConfig.requiresLegibilityShadow
 
-        // Top 2/3: Clock
+        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
@@ -466,21 +503,25 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
-        // Bottom 1/3 - Row 1 (Fixed): Gregorian Date + Tamil Weekday + Tamil Month & Date
+        // Header Row
         val dateFormat = ThemeManager.getDateFormat4x4(context)
         views.safeSetText(context, "tv_widget_greg_date", formatEnglishDate(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
-        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentGold)
+        views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
         val tDateStr = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} $tDateStr")
-        views.safeSetTextColor(context, "tv_widget_tamil_full", colors.secondaryText)
+        views.safeSetTextColor(context, "tv_widget_tamil_full", colors.accentColor)
+        views.applyTextShadowIfRequired(context, "tv_widget_tamil_full", requiresShadow)
 
-        // Bottom 1/3 - Rows 2, 3, 4: 5 User Selected Options in Paragraph Form (" | ")
+        // Astrological Elements Paragraph Rows
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -488,20 +529,20 @@ object WidgetUpdateHelper {
         val elem4 = resolveElement(selectedKeys.getOrNull(3) ?: ThemeManager.ELEM_NALLA_NERAM, data)
         val elem5 = resolveElement(selectedKeys.getOrNull(4) ?: ThemeManager.ELEM_GOWRI_NALLA_NERAM, data)
 
-        // Row 2: First 2 elements
         val row2Text = "${elem1.first}: ${elem1.second}  |  ${elem2.first}: ${elem2.second}"
         views.safeSetText(context, "tv_widget_row2_paragraph", row2Text)
         views.safeSetTextColor(context, "tv_widget_row2_paragraph", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_row2_paragraph", requiresShadow)
 
-        // Row 3: Next 2 elements
         val row3Text = "${elem3.first}: ${elem3.second}  |  ${elem4.first}: ${elem4.second}"
         views.safeSetText(context, "tv_widget_row3_paragraph", row3Text)
         views.safeSetTextColor(context, "tv_widget_row3_paragraph", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_row3_paragraph", requiresShadow)
 
-        // Row 4: 5th element
         val row4Text = "${elem5.first}: ${elem5.second}"
         views.safeSetText(context, "tv_widget_row4_paragraph", row4Text)
         views.safeSetTextColor(context, "tv_widget_row4_paragraph", colors.primaryText)
+        views.applyTextShadowIfRequired(context, "tv_widget_row4_paragraph", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
