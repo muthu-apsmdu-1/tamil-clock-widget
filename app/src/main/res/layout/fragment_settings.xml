@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_settings_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,23 +13,23 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Page Heading -->
+        <!-- Main Title -->
         <TextView
             android:id="@+id/tv_settings_main_heading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Settings"
-            android:textSize="21sp"
+            android:text="அமைப்புகள் (Settings)"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
-        <!-- 1. APP BACKGROUND THEME SELECTION -->
+        <!-- ==================== 1. APP BACKGROUND ==================== -->
         <TextView
             android:id="@+id/tv_lbl_app_theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="App Background"
-            android:textSize="14.5sp"
+            android:text="பயன்பாட்டு பின்னணி (App Background)"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
@@ -37,86 +38,263 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="18dp" />
+            android:layout_marginBottom="16dp" />
 
         <View
-            android:id="@+id/divider_settings_1"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- 2. WIDGET BACKGROUND COLOR SELECTION -->
+        <!-- ==================== 2. WIDGET 6-BOX PRESETS ==================== -->
         <TextView
             android:id="@+id/tv_lbl_widget_theme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Widget Background"
-            android:textSize="14.5sp"
+            android:text="விட்ஜெட் தீம் முன்னமைப்புகள் (Widget Presets)"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="10dp" />
 
-        <RadioGroup
-            android:id="@+id/rg_widget_theme_options"
+        <!-- 6 Presets in 3 Rows x 2 Columns -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="18dp" />
+            android:layout_marginBottom="16dp">
+
+            <!-- Row 1: Midnight Gold & Heritage Maroon -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <FrameLayout
+                    android:id="@+id/box_preset_midnight_gold"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_midnight_gold"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Midnight Gold"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/box_preset_heritage_maroon"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_heritage_maroon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Heritage Maroon"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Row 2: Classic Mono & Neon Night -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <FrameLayout
+                    android:id="@+id/box_preset_classic_mono"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_classic_mono"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Classic Mono"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/box_preset_neon_night"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_neon_night"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Neon Night"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Row 3: Porcelain Blue & Porcelain Red -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:id="@+id/box_preset_porcelain_blue"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_porcelain_blue"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Porcelain Blue"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/box_preset_porcelain_red"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_preset_box_base"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tv_preset_porcelain_red"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="Porcelain Red"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ==================== 3. OUTER BORDER TOGGLE ==================== -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tv_lbl_outer_border"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="வெளிப்புற பார்டர் (Outer Border)"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_outer_border"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:checked="true" />
+        </RelativeLayout>
 
         <View
-            android:id="@+id/divider_settings_2"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- 3. WIDGET OPACITY ADJUSTMENT -->
-        <RelativeLayout
+        <!-- ==================== 4. OPACITY CAPSULE CARD ==================== -->
+        <LinearLayout
+            android:id="@+id/card_slider_capsule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:orientation="vertical"
+            android:background="@drawable/bg_slider_capsule_card"
+            android:padding="16dp"
+            android:layout_marginBottom="18dp">
 
-            <TextView
-                android:id="@+id/tv_lbl_widget_opacity"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Opacity"
-                android:textSize="14.5sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="10dp">
 
-            <TextView
-                android:id="@+id/tv_widget_opacity_val"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tv_lbl_widget_opacity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="பின்னணி ஒளிபுகாமை (Opacity)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_widget_opacity_val"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="100%"
+                    android:textColor="#FFDF00"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <SeekBar
+                android:id="@+id/seekbar_widget_opacity"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="85%"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-        </RelativeLayout>
+                android:max="100"
+                android:progress="100" />
+        </LinearLayout>
 
-        <SeekBar
-            android:id="@+id/seekbar_widget_opacity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="85"
-            android:layout_marginBottom="18dp" />
-
-        <!-- 4. WIDGET LIVE PREVIEW CARD -->
+        <!-- ==================== 5. LIVE PREVIEW ==================== -->
         <TextView
             android:id="@+id/tv_lbl_widget_preview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Live Preview"
+            android:text="நேரலை மாதிரி (Live Preview)"
             android:textSize="13sp"
             android:layout_marginBottom="8dp" />
 
         <FrameLayout
             android:id="@+id/frame_preview_wrapper"
             android:layout_width="match_parent"
-            android:layout_height="96dp"
-            android:elevation="2dp"
+            android:layout_height="100dp"
             android:padding="8dp">
 
             <ImageView
@@ -139,7 +317,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="தமிழ் நாட்காட்டி விட்ஜெட்"
-                    android:textSize="14sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -147,7 +325,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="நேரலை மாதிரி • 85%"
+                    android:text="நேரலை மாதிரி • 100%"
                     android:textSize="12sp" />
             </LinearLayout>
         </FrameLayout>
