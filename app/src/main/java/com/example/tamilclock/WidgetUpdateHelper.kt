@@ -11,6 +11,7 @@ import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -63,24 +64,6 @@ object WidgetUpdateHelper {
         }
     }
 
-    private fun RemoteViews.applyTextShadowIfRequired(
-        context: Context,
-        idName: String,
-        requiresShadow: Boolean
-    ) {
-        val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            if (requiresShadow) {
-                // Apply subtle dropshadow for transparency < 30%
-                setFloat(idName, "setShadowLayer", 4f)
-                // shadowColor = semi-transparent black #B3000000
-                setInt(idName, "setShadowColor", Color.argb(180, 0, 0, 0))
-            } else {
-                setFloat(idName, "setShadowLayer", 0f)
-            }
-        }
-    }
-
     // -------------------------------------------------------------
     // COLOR RESOLUTION FOR WIDGETS
     // -------------------------------------------------------------
@@ -115,12 +98,14 @@ object WidgetUpdateHelper {
 
     // -------------------------------------------------------------
     // DYNAMIC BACKGROUND BITMAP GENERATOR (COLOR + OPACITY + BORDER)
+    // Overload handles both callers with & without themeConfig
     // -------------------------------------------------------------
+    @JvmOverloads
     fun createWidgetBackgroundBitmap(
         context: Context,
         widthPx: Int,
         heightPx: Int,
-        themeConfig: ThemeManager.ThemeConfig
+        themeConfig: ThemeManager.ThemeConfig = ThemeManager.getActiveTheme(context)
     ): Bitmap {
         val w = widthPx.coerceAtLeast(10)
         val h = heightPx.coerceAtLeast(10)
@@ -239,7 +224,6 @@ object WidgetUpdateHelper {
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context, themeConfig)
-        val requiresShadow = themeConfig.requiresLegibilityShadow
 
         // Left Half: Clock Style
         val clockFace = ThemeManager.getClockFace(context)
@@ -251,7 +235,6 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
         // Right Half: Row 1 - Gregorian Date
@@ -259,14 +242,12 @@ object WidgetUpdateHelper {
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         // Right Half: Row 2 - Tamil Month & Date
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_month_day", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_month_day", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_tamil_month_day", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -309,7 +290,6 @@ object WidgetUpdateHelper {
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context, themeConfig)
-        val requiresShadow = themeConfig.requiresLegibilityShadow
 
         // Clock
         val clockFace = ThemeManager.getClockFace(context)
@@ -321,7 +301,6 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
         // Gregorian Date + Weekday
@@ -329,25 +308,21 @@ object WidgetUpdateHelper {
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
         // Tamil Date + Paksham & Thithi
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_tamil_date", requiresShadow)
 
         val convertedPaksham = convertPakshamName(data.paksha)
         val thithiStr = if (data.tithiName.isNotBlank()) data.tithiName else "---"
         views.safeSetText(context, "tv_widget_paksham_thithi", "$convertedPaksham • $thithiStr")
         views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.secondaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_paksham_thithi", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -390,7 +365,6 @@ object WidgetUpdateHelper {
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context, themeConfig)
-        val requiresShadow = themeConfig.requiresLegibilityShadow
 
         // Clock
         val clockFace = ThemeManager.getClockFace(context)
@@ -402,7 +376,6 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
         // Header Rows
@@ -410,18 +383,15 @@ object WidgetUpdateHelper {
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_tamil_date", requiresShadow)
 
         // Astrological Elements Rows
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
@@ -433,22 +403,16 @@ object WidgetUpdateHelper {
         views.safeSetTextColor(context, "tv_widget_elem1_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem1_val", elem1.second)
         views.safeSetTextColor(context, "tv_widget_elem1_val", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem1_label", requiresShadow)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem1_val", requiresShadow)
 
         views.safeSetText(context, "tv_widget_elem2_label", "${elem2.first} :")
         views.safeSetTextColor(context, "tv_widget_elem2_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem2_val", elem2.second)
         views.safeSetTextColor(context, "tv_widget_elem2_val", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem2_label", requiresShadow)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem2_val", requiresShadow)
 
         views.safeSetText(context, "tv_widget_elem3_label", "${elem3.first} :")
         views.safeSetTextColor(context, "tv_widget_elem3_label", colors.accentColor)
         views.safeSetText(context, "tv_widget_elem3_val", elem3.second)
         views.safeSetTextColor(context, "tv_widget_elem3_val", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem3_label", requiresShadow)
-        views.applyTextShadowIfRequired(context, "tv_widget_elem3_val", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
@@ -491,7 +455,6 @@ object WidgetUpdateHelper {
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
         val colors = resolveWidgetColors(context, themeConfig)
-        val requiresShadow = themeConfig.requiresLegibilityShadow
 
         // Clock
         val clockFace = ThemeManager.getClockFace(context)
@@ -503,23 +466,19 @@ object WidgetUpdateHelper {
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
             views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.applyTextShadowIfRequired(context, "tv_digital_clock", requiresShadow)
         }
 
         // Header Row
         val dateFormat = ThemeManager.getDateFormat4x4(context)
         views.safeSetText(context, "tv_widget_greg_date", formatEnglishDate(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_greg_date", requiresShadow)
 
         views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_weekday", requiresShadow)
 
         val tDateStr = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} $tDateStr")
         views.safeSetTextColor(context, "tv_widget_tamil_full", colors.accentColor)
-        views.applyTextShadowIfRequired(context, "tv_widget_tamil_full", requiresShadow)
 
         // Astrological Elements Paragraph Rows
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
@@ -532,17 +491,14 @@ object WidgetUpdateHelper {
         val row2Text = "${elem1.first}: ${elem1.second}  |  ${elem2.first}: ${elem2.second}"
         views.safeSetText(context, "tv_widget_row2_paragraph", row2Text)
         views.safeSetTextColor(context, "tv_widget_row2_paragraph", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_row2_paragraph", requiresShadow)
 
         val row3Text = "${elem3.first}: ${elem3.second}  |  ${elem4.first}: ${elem4.second}"
         views.safeSetText(context, "tv_widget_row3_paragraph", row3Text)
         views.safeSetTextColor(context, "tv_widget_row3_paragraph", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_row3_paragraph", requiresShadow)
 
         val row4Text = "${elem5.first}: ${elem5.second}"
         views.safeSetText(context, "tv_widget_row4_paragraph", row4Text)
         views.safeSetTextColor(context, "tv_widget_row4_paragraph", colors.primaryText)
-        views.applyTextShadowIfRequired(context, "tv_widget_row4_paragraph", requiresShadow)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) {
