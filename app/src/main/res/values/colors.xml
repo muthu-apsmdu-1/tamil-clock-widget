@@ -32,7 +32,7 @@
     <color name="card_border_subtle">#EFE8DC</color>
 
     <!-- Primary App Palette -->
-    <color name="gold_header_primary">#E5A910</color>
+
     <color name="gold_header_dark">#C68B04</color>
     <color name="crimson_card_bg">#5D0A14</color>
     <color name="crimson_text">#6A0DAD</color>
