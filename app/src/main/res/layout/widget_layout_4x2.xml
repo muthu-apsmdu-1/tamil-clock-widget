@@ -18,7 +18,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="8dp"
+        android:padding="4dp"
         android:weightSum="2">
 
         <!-- LEFT HALF: Exact 2x2 Square Clock Container (Weight 1) -->
@@ -40,21 +40,39 @@
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
-            <!-- Digital Clock: Big time font with half-size AM/PM bound via SpannableString -->
-            <TextView
-                android:id="@+id/tv_digital_clock"
+            <!-- Digital Clock: Enlarged digits with AM/PM placed below (Auto-syncs live) -->
+            <LinearLayout
+                android:id="@+id/container_digital_clock"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:includeFontPadding="false"
-                android:visibility="visible" />
+                android:visibility="visible">
+
+                <!-- Main Time Digits -->
+                <TextClock
+                    android:id="@+id/tv_digital_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textSize="42sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <!-- AM / PM Marker -->
+                <TextClock
+                    android:id="@+id/tv_digital_clock_ampm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
         </FrameLayout>
-
-
 
         <!-- RIGHT HALF: 5 Rows of Info (Exact 2x2 Area = Weight 1) -->
         <LinearLayout
@@ -79,7 +97,7 @@
                     android:id="@+id/tv_widget_greg_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -89,7 +107,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:textSize="10sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -107,7 +125,7 @@
                     android:id="@+id/tv_widget_tamil_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -125,7 +143,7 @@
                     android:id="@+id/tv_widget_elem1_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -135,7 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -153,7 +171,7 @@
                     android:id="@+id/tv_widget_elem2_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -163,7 +181,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -181,7 +199,7 @@
                     android:id="@+id/tv_widget_elem3_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -191,7 +209,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:textSize="8sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
