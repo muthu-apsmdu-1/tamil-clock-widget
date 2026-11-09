@@ -77,7 +77,6 @@ class FragmentSettings : Fragment() {
         Pair(ThemeManager.ELEM_FESTIVAL, "12. சிறப்பு / திருவிழா (Festival)")
     )
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -320,6 +319,14 @@ class FragmentSettings : Fragment() {
         val group = chipGroupElements4x2 ?: return
         group.removeAllViews()
 
+        // Boundary guard: Trim down if storage held more than 3
+        if (currentSet.size > 3) {
+            val trimmed = currentSet.take(3).toMutableSet()
+            currentSet.clear()
+            currentSet.addAll(trimmed)
+            ThemeManager.saveElements4x2(context, currentSet)
+        }
+
         tvCountElements4x2?.text = "(${currentSet.size}/3)"
 
         astrologicalOptions.forEach { (key, label) ->
@@ -328,22 +335,32 @@ class FragmentSettings : Fragment() {
                 isCheckable = true
                 isChecked = currentSet.contains(key)
                 tag = key
-                setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
+
+                setOnClickListener {
+                    if (this.isChecked) {
                         if (currentSet.size >= 3) {
                             this.isChecked = false
-                            Toast.makeText(context, "4x2 விட்ஜெட்டுக்கு அதிகபட்சம் 3 கூறுகளை மட்டுமே தேர்வு செய்யலாம்", Toast.LENGTH_SHORT).show()
-                            return@setOnCheckedChangeListener
+                            Toast.makeText(
+                                context,
+                                "4x2 விட்ஜெட்டுக்கு அதிகபட்சம் 3 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
                         }
                         currentSet.add(key)
                     } else {
                         if (currentSet.size <= 1) {
                             this.isChecked = true
-                            Toast.makeText(context, "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்", Toast.LENGTH_SHORT).show()
-                            return@setOnCheckedChangeListener
+                            Toast.makeText(
+                                context,
+                                "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
                         }
                         currentSet.remove(key)
                     }
+
                     tvCountElements4x2?.text = "(${currentSet.size}/3)"
                     ThemeManager.saveElements4x2(context, currentSet)
                     debounceWidgetUpdate()
@@ -362,6 +379,14 @@ class FragmentSettings : Fragment() {
         val group = chipGroupElements4x4 ?: return
         group.removeAllViews()
 
+        // Boundary guard: Trim down if storage held more than 5
+        if (currentSet.size > 5) {
+            val trimmed = currentSet.take(5).toMutableSet()
+            currentSet.clear()
+            currentSet.addAll(trimmed)
+            ThemeManager.saveElements4x4(context, currentSet)
+        }
+
         tvCountElements4x4?.text = "(${currentSet.size}/5)"
 
         astrologicalOptions.forEach { (key, label) ->
@@ -370,22 +395,32 @@ class FragmentSettings : Fragment() {
                 isCheckable = true
                 isChecked = currentSet.contains(key)
                 tag = key
-                setOnCheckedChangeListener { _, isChecked ->
-                    if (isChecked) {
+
+                setOnClickListener {
+                    if (this.isChecked) {
                         if (currentSet.size >= 5) {
                             this.isChecked = false
-                            Toast.makeText(context, "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்", Toast.LENGTH_SHORT).show()
-                            return@setOnCheckedChangeListener
+                            Toast.makeText(
+                                context,
+                                "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
                         }
                         currentSet.add(key)
                     } else {
                         if (currentSet.size <= 1) {
                             this.isChecked = true
-                            Toast.makeText(context, "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்", Toast.LENGTH_SHORT).show()
-                            return@setOnCheckedChangeListener
+                            Toast.makeText(
+                                context,
+                                "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
                         }
                         currentSet.remove(key)
                     }
+
                     tvCountElements4x4?.text = "(${currentSet.size}/5)"
                     ThemeManager.saveElements4x4(context, currentSet)
                     debounceWidgetUpdate()
