@@ -301,7 +301,19 @@ class TamilDatabaseHelper(context: Context) {
     )
 
     // ---------------------------------------------------------
-    // 8. GET COMPLETE DAILY PANCHANGAM
+    // 8. UNIFIED 3-COLUMN TABLE DATA MODEL (GOWRI / HORAI)
+    // ---------------------------------------------------------
+
+    data class TableSlotData(
+        val timeLabel: String,
+        val dayValue: String,
+        val nightValue: String,
+        val startMin: Int,
+        val endMin: Int
+    )
+
+    // ---------------------------------------------------------
+    // 9. GET COMPLETE DAILY PANCHANGAM
     // ---------------------------------------------------------
 
     fun getDayDetails(gregorianDate: String): DayPanchangDetails? {
@@ -407,7 +419,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 9. GET DAILY RASI PALAN
+    // 10. GET DAILY RASI PALAN
     // ---------------------------------------------------------
 
     fun getRasiDetails(gregorianDate: String): RasiPalanDetails? {
@@ -442,7 +454,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 10. GET GOWRI DAY / NIGHT ROW
+    // 11. GET GOWRI DAY / NIGHT ROW
     // ---------------------------------------------------------
 
     fun getGowriDetails(weekdayTa: String, kaalam: String): GowriDetails? {
@@ -472,7 +484,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 11. GET HORAI DAY / NIGHT ROW
+    // 12. GET HORAI DAY / NIGHT ROW
     // ---------------------------------------------------------
 
     fun getHoraiDetails(weekdayTa: String, kaalam: String): HoraiDetails? {
@@ -506,7 +518,79 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 12. CLOSE ALL DATABASE CONNECTIONS
+    // 13. GET GOWRI 3-COLUMN TABLE DATA (PAGAL & IRAVU)
+    // ---------------------------------------------------------
+
+    fun getGowriTableData(weekdayTa: String): List<TableSlotData> {
+        val list = mutableListOf<TableSlotData>()
+        val gowriTimes = listOf(
+            Triple("06:00 - 07:30", 360, 450),
+            Triple("07:30 - 09:00", 450, 540),
+            Triple("09:00 - 10:30", 540, 630),
+            Triple("10:30 - 12:00", 630, 720),
+            Triple("12:00 - 01:30", 720, 810),
+            Triple("01:30 - 03:00", 810, 900),
+            Triple("03:00 - 04:30", 900, 990),
+            Triple("04:30 - 06:00", 990, 1080)
+        )
+
+        val dayDetails = getGowriDetails(weekdayTa, "பகல்")
+        val nightDetails = getGowriDetails(weekdayTa, "இரவு")
+
+        gowriTimes.forEachIndexed { index, (timeLabel, startMin, endMin) ->
+            list.add(
+                TableSlotData(
+                    timeLabel = timeLabel,
+                    dayValue = dayDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
+                    nightValue = nightDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
+                    startMin = startMin,
+                    endMin = endMin
+                )
+            )
+        }
+        return list
+    }
+
+    // ---------------------------------------------------------
+    // 14. GET HORAI 3-COLUMN TABLE DATA (PAGAL & IRAVU)
+    // ---------------------------------------------------------
+
+    fun getHoraiTableData(weekdayTa: String): List<TableSlotData> {
+        val list = mutableListOf<TableSlotData>()
+        val horaiTimes = listOf(
+            Triple("06:00 - 07:00", 360, 420),
+            Triple("07:00 - 08:00", 420, 480),
+            Triple("08:00 - 09:00", 480, 540),
+            Triple("09:00 - 10:00", 540, 600),
+            Triple("10:00 - 11:00", 600, 660),
+            Triple("11:00 - 12:00", 660, 720),
+            Triple("12:00 - 01:00", 720, 780),
+            Triple("01:00 - 02:00", 780, 840),
+            Triple("02:00 - 03:00", 840, 900),
+            Triple("03:00 - 04:00", 900, 960),
+            Triple("04:00 - 05:00", 960, 1020),
+            Triple("05:00 - 06:00", 1020, 1080)
+        )
+
+        val dayDetails = getHoraiDetails(weekdayTa, "பகல்")
+        val nightDetails = getHoraiDetails(weekdayTa, "இரவு")
+
+        horaiTimes.forEachIndexed { index, (timeLabel, startMin, endMin) ->
+            list.add(
+                TableSlotData(
+                    timeLabel = timeLabel,
+                    dayValue = dayDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
+                    nightValue = nightDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
+                    startMin = startMin,
+                    endMin = endMin
+                )
+            )
+        }
+        return list
+    }
+
+    // ---------------------------------------------------------
+    // 15. CLOSE ALL DATABASE CONNECTIONS
     // ---------------------------------------------------------
 
     fun closeDatabases() {
