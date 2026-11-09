@@ -54,15 +54,32 @@ object ThemeManager {
     // -------------------------------------------------------------
     // ASTROLOGICAL ELEMENTS KEYS
     // -------------------------------------------------------------
-    const val ELEM_PAKSHAM = "paksham"
-    const val ELEM_THITHI = "thithi"
-    const val ELEM_NAKSHATRA = "nakshatra"
-    const val ELEM_KARNAM = "karnam"
-    const val ELEM_THYAJAM = "thyajam"
-    const val ELEM_NALLA_NERAM = "nalla_neram"
-    const val ELEM_GOWRI_NALLA_NERAM = "gowri_nalla_neram"
-    const val ELEM_SOOLAM = "soolam"
-    const val ELEM_SUNRISE_SET = "sunrise_set"
+// In ThemeManager.kt
+const val ELEM_PAKSHAM = "paksham"                         // 1. Paksham
+const val ELEM_THITHI = "thithi"                           // 2. Thithi & timing
+const val ELEM_NAKSHATRA = "nakshatra"                     // 3. Nakshatra & timing
+const val ELEM_AMIRTHATHI_YOGA = "amirthathi_yoga"         // 4. Amirthaitya yoga
+const val ELEM_NALLA_NERAM = "nalla_neram"                 // 5. Nalla neram
+const val ELEM_GOWRI_NALLA_NERAM = "gowri_nalla_neram"     // 6. Gowri nalla neram
+const val ELEM_RAHU_KALAM = "rahu_kalam"                   // 7. Rahu kalam
+const val ELEM_YEMAKANDAM = "yemakandam"                   // 8. Yemakandam
+const val ELEM_KULIGAI = "kuligai"                         // 9. Kuligai
+const val ELEM_SUNRISE_SET = "sunrise_sunset"              // 10. Sun rise / set timing
+const val ELEM_CHANDRASTAMA = "chandrastama"               // 11. Chandrastama
+const val ELEM_FESTIVAL = "festival"                       // 12. Festival
+
+// Default 3 for 4x2: Paksham, Thithi & timing, Nakshatra & timing
+val DEFAULT_ELEMENTS_4X2 = setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
+
+// Default 5 for 4x4: Priority 1 through 5
+val DEFAULT_ELEMENTS_4X4 = setOf(
+    ELEM_PAKSHAM,
+    ELEM_THITHI,
+    ELEM_NAKSHATRA,
+    ELEM_AMIRTHATHI_YOGA,
+    ELEM_NALLA_NERAM
+)
+
 
     // -------------------------------------------------------------
     // PREFERENCE KEYS
