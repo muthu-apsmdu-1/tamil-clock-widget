@@ -40,21 +40,39 @@
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
-            <!-- Digital Clock -->
-            <TextView
-                android:id="@+id/tv_digital_clock"
+            <!-- Digital Clock: Enlarged digits with AM/PM placed below (Auto-syncs live) -->
+            <LinearLayout
+                android:id="@+id/container_digital_clock"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:textSize="38sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:includeFontPadding="false"
-                android:visibility="visible" />
+                android:visibility="visible">
+
+                <!-- Main Time Digits -->
+                <TextClock
+                    android:id="@+id/tv_digital_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textSize="48sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+
+                <!-- AM / PM Marker -->
+                <TextClock
+                    android:id="@+id/tv_digital_clock_ampm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:format12Hour="a"
+                    android:format24Hour=""
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
         </FrameLayout>
-
-
 
         <!-- BOTTOM: Elements Area (Balanced 3 weight) -->
         <LinearLayout
@@ -79,7 +97,7 @@
                     android:id="@+id/tv_widget_greg_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -98,7 +116,7 @@
                     android:id="@+id/tv_widget_weekday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -117,7 +135,7 @@
                     android:id="@+id/tv_widget_tamil_full"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:includeFontPadding="false" />
@@ -134,7 +152,7 @@
                     android:id="@+id/tv_widget_row2_paragraph"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:gravity="center"
@@ -152,7 +170,7 @@
                     android:id="@+id/tv_widget_row3_paragraph"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:gravity="center"
@@ -170,7 +188,7 @@
                     android:id="@+id/tv_widget_row4_paragraph"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:gravity="center"
