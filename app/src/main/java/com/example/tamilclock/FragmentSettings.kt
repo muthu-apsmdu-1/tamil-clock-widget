@@ -330,28 +330,36 @@ class FragmentSettings : Fragment() {
         val currentStyle = ThemeManager.getClockFace(context)
         val palette = ThemeManager.getThemePalette(context)
         val density = context.resources.displayMetrics.density
+        val currentBg = ThemeManager.getAppBackgroundColor(context)
+        val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
+                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+
+        val borderCol = ContextCompat.getColor(context, R.color.settings_card_border)
+        val goldCol = palette.accentGold
+        val bgCol = palette.cardBackground
+        val textCol = if (isDark) Color.WHITE else palette.primaryHeader
 
         val isDigital = currentStyle == ThemeManager.CLOCK_DIGITAL
 
         // Digital Box
         boxClockDigital?.background = GradientDrawable().apply {
             cornerRadius = 12f * density
-            setColor(if (isDigital) palette.accentGold else palette.cardBackground)
-            setStroke(2, palette.cardBorder)
+            setColor(if (isDigital) goldCol else bgCol)
+            setStroke(2, if (isDigital) goldCol else borderCol)
         }
-        tvClockDigital?.setTextColor(if (isDigital) Color.BLACK else palette.primaryHeader)
-        tickClockDigital?.setTextColor(if (isDigital) Color.BLACK else palette.primaryHeader)
+        tvClockDigital?.setTextColor(if (isDigital) Color.BLACK else textCol)
+        tickClockDigital?.setTextColor(if (isDigital) Color.BLACK else textCol)
         tickClockDigital?.visibility = if (isDigital) View.VISIBLE else View.GONE
 
         // Analog Box
         val isAnalog = !isDigital
         boxClockAnalog?.background = GradientDrawable().apply {
             cornerRadius = 12f * density
-            setColor(if (isAnalog) palette.accentGold else palette.cardBackground)
-            setStroke(2, palette.cardBorder)
+            setColor(if (isAnalog) goldCol else bgCol)
+            setStroke(2, if (isAnalog) goldCol else borderCol)
         }
-        tvClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else palette.primaryHeader)
-        tickClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else palette.primaryHeader)
+        tvClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else textCol)
+        tickClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else textCol)
         tickClockAnalog?.visibility = if (isAnalog) View.VISIBLE else View.GONE
     }
 
@@ -400,7 +408,6 @@ class FragmentSettings : Fragment() {
         })
     }
 
-    // Changes the opacity slider capsule card background live based on active theme & opacity %
     private fun updateLiveSliderBackground() {
         val context = context ?: return
         val themeConfig = ThemeManager.getActiveTheme(context)
@@ -437,10 +444,14 @@ class FragmentSettings : Fragment() {
         tvCountElements4x2?.text = "(${currentSet.size}/3)"
         val palette = ThemeManager.getThemePalette(context)
         val density = context.resources.displayMetrics.density
+        val currentBg = ThemeManager.getAppBackgroundColor(context)
+        val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
+                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+        val normalTextCol = if (isDark) Color.WHITE else palette.primaryHeader
 
         astrologicalOptions.forEachIndexed { index, (key, label) ->
             val isSelected = currentSet.contains(key)
-            val row = createTableRow(context, label, isSelected, palette, density) {
+            val row = createTableRow(context, label, isSelected, palette.accentGold, normalTextCol, density) {
                 if (!isSelected) {
                     if (currentSet.size >= 3) {
                         Toast.makeText(
@@ -502,10 +513,14 @@ class FragmentSettings : Fragment() {
         tvCountElements4x4?.text = "(${currentSet.size}/5)"
         val palette = ThemeManager.getThemePalette(context)
         val density = context.resources.displayMetrics.density
+        val currentBg = ThemeManager.getAppBackgroundColor(context)
+        val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
+                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+        val normalTextCol = if (isDark) Color.WHITE else palette.primaryHeader
 
         astrologicalOptions.forEachIndexed { index, (key, label) ->
             val isSelected = currentSet.contains(key)
-            val row = createTableRow(context, label, isSelected, palette, density) {
+            val row = createTableRow(context, label, isSelected, palette.accentGold, normalTextCol, density) {
                 if (!isSelected) {
                     if (currentSet.size >= 5) {
                         Toast.makeText(
@@ -548,12 +563,12 @@ class FragmentSettings : Fragment() {
         }
     }
 
-    // Helper to generate a clean table row (Left: Title, Right: Tick Mark)
     private fun createTableRow(
         context: Context,
         label: String,
         isSelected: Boolean,
-        palette: ThemeManager.ThemePalette,
+        accentColor: Int,
+        normalTextColor: Int,
         density: Float,
         onClick: () -> Unit
     ): View {
@@ -574,7 +589,7 @@ class FragmentSettings : Fragment() {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
             text = label
             textSize = 13.5f
-            setTextColor(if (isSelected) palette.accentGold else palette.primaryHeader)
+            setTextColor(if (isSelected) accentColor else normalTextColor)
             if (isSelected) setTypeface(typeface, android.graphics.Typeface.BOLD)
         }
         rowLayout.addView(tvLabel)
@@ -586,7 +601,7 @@ class FragmentSettings : Fragment() {
             )
             text = "✓"
             textSize = 15f
-            setTextColor(palette.accentGold)
+            setTextColor(accentColor)
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
         }
