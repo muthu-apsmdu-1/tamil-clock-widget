@@ -182,22 +182,48 @@ object WidgetUpdateHelper {
 
     // -------------------------------------------------------------
     // ASTROLOGICAL ELEMENT RESOLVER
-    // -------------------------------------------------------------
-    private fun resolveElement(elemKey: String, details: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
-        val fallback = "---"
-        return when (elemKey) {
-            ThemeManager.ELEM_PAKSHAM -> Pair("பக்ஷம்", convertPakshamName(details.paksha))
-            ThemeManager.ELEM_THITHI -> Pair("திதி", if (details.tithiName.isNotBlank()) details.tithiName else fallback)
-            ThemeManager.ELEM_NAKSHATRA -> Pair("நட்சத்திரம்", if (details.nakshatraName.isNotBlank()) details.nakshatraName else fallback)
-            ThemeManager.ELEM_KARNAM -> Pair("கரணம்", if (details.karanaName.isNotBlank()) details.karanaName else fallback)
-            ThemeManager.ELEM_THYAJAM -> Pair("தியாகம்", if (details.tyajyamTime.isNotBlank()) details.tyajyamTime else fallback)
-            ThemeManager.ELEM_NALLA_NERAM -> Pair("நல்ல நேரம்", if (details.nallaNeramMorning.isNotBlank()) details.nallaNeramMorning else fallback)
-            ThemeManager.ELEM_GOWRI_NALLA_NERAM -> Pair("கௌரி", if (details.gowriMorning.isNotBlank()) details.gowriMorning else fallback)
-            ThemeManager.ELEM_SOOLAM -> Pair("சூலம்", if (details.soolam.isNotBlank()) details.soolam else fallback)
-            ThemeManager.ELEM_SUNRISE_SET -> Pair("உதயம்/மறைவு", "${details.sunrise} / ${details.sunset}")
-            else -> Pair(fallback, fallback)
-        }
+private fun resolveElement(key: String, data: PanchangData): Pair<String, String> {
+    return when (key) {
+        ThemeManager.ELEM_PAKSHAM -> 
+            Pair("பக்ஷம்", data.paksham.ifBlank { "—" })
+
+        ThemeManager.ELEM_THITHI -> 
+            Pair("திதி", if (data.thithiTime.isNotBlank()) "${data.thithi} (${data.thithiTime})" else data.thithi.ifBlank { "—" })
+
+        ThemeManager.ELEM_NAKSHATRA -> 
+            Pair("நட்சத்திரம்", if (data.nakshatraTime.isNotBlank()) "${data.nakshatra} (${data.nakshatraTime})" else data.nakshatra.ifBlank { "—" })
+
+        ThemeManager.ELEM_AMIRTHATHI_YOGA -> 
+            Pair("யோகம்", data.yogam.ifBlank { "—" })
+
+        ThemeManager.ELEM_NALLA_NERAM -> 
+            Pair("நல்ல நேரம்", data.nallaNeram.ifBlank { "—" })
+
+        ThemeManager.ELEM_GOWRI_NALLA_NERAM -> 
+            Pair("கௌரி நல்ல நேரம்", data.gowriNallaNeram.ifBlank { "—" })
+
+        ThemeManager.ELEM_RAHU_KALAM -> 
+            Pair("ராகு காலம்", data.rahuKalam.ifBlank { "—" })
+
+        ThemeManager.ELEM_YEMAKANDAM -> 
+            Pair("எமகண்டம்", data.emakandam.ifBlank { "—" })
+
+        ThemeManager.ELEM_KULIGAI -> 
+            Pair("குளிகை", data.kuligai.ifBlank { "—" })
+
+        ThemeManager.ELEM_SUNRISE_SET -> 
+            Pair("சூரியன்", "உதயம்: ${data.sunrise} | மறைவு: ${data.sunset}")
+
+        ThemeManager.ELEM_CHANDRASTAMA -> 
+            Pair("சந்திராஷ்டமம்", data.chandrashtamam.ifBlank { "இல்லை" })
+
+        ThemeManager.ELEM_FESTIVAL -> 
+            Pair("சிறப்பு", data.festival.ifBlank { "—" })
+
+        else -> Pair("", "")
     }
+}
+
 
     // -------------------------------------------------------------
     // 1. UPDATE 2x1 WIDGET
