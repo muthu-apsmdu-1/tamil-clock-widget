@@ -181,92 +181,132 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-// -------------------------------------------------------------
-// ASTROLOGICAL ELEMENT RESOLVER
-// -------------------------------------------------------------
-private fun resolveElement(key: String, data: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
-    return when (key) {
-        ThemeManager.ELEM_PAKSHAM -> {
-            val converted = convertPakshamName(data.paksha)
-            Pair("பக்ஷம்", if (converted.isNotBlank()) converted else "—")
+    // -------------------------------------------------------------
+    // ASTROLOGICAL ELEMENT RESOLVER (12 PRIORITIZED ELEMENTS)
+    // -------------------------------------------------------------
+    private fun getFieldString(obj: Any, vararg fieldNames: String): String {
+        for (name in fieldNames) {
+            try {
+                val field = obj.javaClass.getDeclaredField(name)
+                field.isAccessible = true
+                val value = field.get(obj)?.toString()?.trim()
+                if (!value.isNullOrBlank()) return value
+            } catch (_: Exception) {}
         }
-
-        ThemeManager.ELEM_THITHI -> {
-            val thithiName = data.tithiName.trim()
-            val thithiTime = data.tithiTime.trim()
-            val text = when {
-                thithiName.isNotBlank() && thithiTime.isNotBlank() -> "$thithiName ($thithiTime)"
-                thithiName.isNotBlank() -> thithiName
-                else -> "—"
-            }
-            Pair("திதி", text)
-        }
-
-        ThemeManager.ELEM_NAKSHATRA -> {
-            val nName = data.nakshatraName.trim()
-            val nTime = data.nakshatraTime.trim()
-            val text = when {
-                nName.isNotBlank() && nTime.isNotBlank() -> "$nName ($nTime)"
-                nName.isNotBlank() -> nName
-                else -> "—"
-            }
-            Pair("நட்சத்திரம்", text)
-        }
-
-        ThemeManager.ELEM_AMIRTHATHI_YOGA -> {
-            val yogamVal = data.yogam.trim()
-            Pair("யோகம்", if (yogamVal.isNotBlank()) yogamVal else "—")
-        }
-
-        ThemeManager.ELEM_NALLA_NERAM -> {
-            val nnVal = data.nallaNeram.trim()
-            Pair("நல்ல நேரம்", if (nnVal.isNotBlank()) nnVal else "—")
-        }
-
-        ThemeManager.ELEM_GOWRI_NALLA_NERAM -> {
-            val gowriVal = data.gowriNallaNeram.trim()
-            Pair("கௌரி", if (gowriVal.isNotBlank()) gowriVal else "—")
-        }
-
-        ThemeManager.ELEM_RAHU_KALAM -> {
-            val rahuVal = data.rahuKalam.trim()
-            Pair("ராகு காலம்", if (rahuVal.isNotBlank()) rahuVal else "—")
-        }
-
-        ThemeManager.ELEM_YEMAKANDAM -> {
-            val yemaVal = data.emakandam.trim()
-            Pair("எமகண்டம்", if (yemaVal.isNotBlank()) yemaVal else "—")
-        }
-
-        ThemeManager.ELEM_KULIGAI -> {
-            val kuliVal = data.kuligai.trim()
-            Pair("குளிகை", if (kuliVal.isNotBlank()) kuliVal else "—")
-        }
-
-        ThemeManager.ELEM_SUNRISE_SET -> {
-            val rise = data.sunrise.trim()
-            val set = data.sunset.trim()
-            val text = when {
-                rise.isNotBlank() && set.isNotBlank() -> "உதயம்: $rise | மறைவு: $set"
-                rise.isNotBlank() -> "உதயம்: $rise"
-                else -> "—"
-            }
-            Pair("சூரியன்", text)
-        }
-
-        ThemeManager.ELEM_CHANDRASTAMA -> {
-            val chandraVal = data.chandrashtamam.trim()
-            Pair("சந்திராஷ்டமம்", if (chandraVal.isNotBlank()) chandraVal else "இல்லை")
-        }
-
-        ThemeManager.ELEM_FESTIVAL -> {
-            val festVal = data.festival.trim()
-            Pair("சிறப்பு", if (festVal.isNotBlank()) festVal else "—")
-        }
-
-        else -> Pair("", "")
+        return ""
     }
-}
+
+    private fun resolveElement(key: String, data: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
+        return when (key) {
+            // 1. Paksham
+            ThemeManager.ELEM_PAKSHAM -> {
+                val rawPaksham = getFieldString(data, "paksha", "paksham")
+                val converted = convertPakshamName(rawPaksham)
+                Pair("பக்ஷம்", if (converted.isNotBlank()) converted else "—")
+            }
+
+            // 2. Thithi & timing
+            ThemeManager.ELEM_THITHI -> {
+                val tName = getFieldString(data, "tithiName", "tithi_name", "thithi")
+                val tTime = getFieldString(data, "tithiTime", "tithi_time", "tithiEndTime")
+                val text = when {
+                    tName.isNotBlank() && tTime.isNotBlank() -> "$tName ($tTime)"
+                    tName.isNotBlank() -> tName
+                    else -> "—"
+                }
+                Pair("திதி", text)
+            }
+
+            // 3. Nakshatra & timing
+            ThemeManager.ELEM_NAKSHATRA -> {
+                val nName = getFieldString(data, "nakshatraName", "nakshatra_name", "nakshatra")
+                val nTime = getFieldString(data, "nakshatraTime", "nakshatra_time", "nakshatraEndTime")
+                val text = when {
+                    nName.isNotBlank() && nTime.isNotBlank() -> "$nName ($nTime)"
+                    nName.isNotBlank() -> nName
+                    else -> "—"
+                }
+                Pair("நட்சத்திரம்", text)
+            }
+
+            // 4. Amirthaitya yoga (amritadi_yoga)
+            ThemeManager.ELEM_AMIRTHATHI_YOGA -> {
+                val yogam = getFieldString(data, "amritadiYoga", "amritadi_yoga", "yogaName", "yoga_name", "yogam")
+                Pair("யோகம்", if (yogam.isNotBlank()) yogam else "—")
+            }
+
+            // 5. Nalla neram (Morning & Evening)
+            ThemeManager.ELEM_NALLA_NERAM -> {
+                val morn = getFieldString(data, "nallaNeramMorning", "nallaNeramMorn", "nallaNeram", "nalla_neram")
+                val eve = getFieldString(data, "nallaNeramEvening", "nallaNeramEve")
+                val text = when {
+                    morn.isNotBlank() && eve.isNotBlank() -> "$morn, $eve"
+                    morn.isNotBlank() -> morn
+                    eve.isNotBlank() -> eve
+                    else -> "—"
+                }
+                Pair("நல்ல நேரம்", text)
+            }
+
+            // 6. Gowri nalla neram
+            ThemeManager.ELEM_GOWRI_NALLA_NERAM -> {
+                val morn = getFieldString(data, "gowriNallaNeram", "gowriMorning", "gowriMorn", "gowri_nalla_neram")
+                val eve = getFieldString(data, "gowriEvening", "gowriEve")
+                val text = when {
+                    morn.isNotBlank() && eve.isNotBlank() -> "$morn, $eve"
+                    morn.isNotBlank() -> morn
+                    eve.isNotBlank() -> eve
+                    else -> "—"
+                }
+                Pair("கௌரி", text)
+            }
+
+            // 7. Rahu kalam
+            ThemeManager.ELEM_RAHU_KALAM -> {
+                val rahuVal = getFieldString(data, "rahuKalam", "raguKalam", "rahu_kalam", "ragu_kalam", "rahu")
+                Pair("ராகு காலம்", if (rahuVal.isNotBlank()) rahuVal else "—")
+            }
+
+            // 8. Yemakandam
+            ThemeManager.ELEM_YEMAKANDAM -> {
+                val yemaVal = getFieldString(data, "emakandam", "yemagandam", "yemakandam", "emakandam_time")
+                Pair("எமகண்டம்", if (yemaVal.isNotBlank()) yemaVal else "—")
+            }
+
+            // 9. Kuligai
+            ThemeManager.ELEM_KULIGAI -> {
+                val kuliVal = getFieldString(data, "kuligai", "kulikai", "kuligai_time")
+                Pair("குளிகை", if (kuliVal.isNotBlank()) kuliVal else "—")
+            }
+
+            // 10. Sun rise / set timing
+            ThemeManager.ELEM_SUNRISE_SET -> {
+                val rise = getFieldString(data, "sunrise", "sunRise", "sunrise_time")
+                val set = getFieldString(data, "sunset", "sunSet", "sunset_time")
+                val text = when {
+                    rise.isNotBlank() && set.isNotBlank() -> "உதயம்: $rise | மறைவு: $set"
+                    rise.isNotBlank() -> "உதயம்: $rise"
+                    else -> "—"
+                }
+                Pair("சூரியன்", text)
+            }
+
+            // 11. Chandrastama (chandrashtamam_rasi)
+            ThemeManager.ELEM_CHANDRASTAMA -> {
+                val chandra = getFieldString(data, "chandrashtamamRasi", "chandrashtamam_rasi", "chandrashtamam")
+                Pair("சந்திராஷ்டமம்", if (chandra.isNotBlank()) chandra else "இல்லை")
+            }
+
+            // 12. Festival (festivals_events)
+            ThemeManager.ELEM_FESTIVAL -> {
+                val fest = getFieldString(data, "festivalsEvents", "festivals_events", "festival", "specialDay")
+                Pair("சிறப்பு", if (fest.isNotBlank()) fest else "—")
+            }
+
+            else -> Pair("", "")
+        }
+    }
+
 
 
     // -------------------------------------------------------------
