@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_settings_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,7 +48,7 @@
                 <FrameLayout
                     android:id="@+id/box_app_antique_sandal"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
                     android:background="@drawable/bg_preset_box_base"
@@ -64,12 +63,23 @@
                         android:text="சந்தனம்\n(Sandal)"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_app_antique_sandal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/box_app_bright_lemon"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginHorizontal="4dp"
                     android:background="@drawable/bg_preset_box_base"
@@ -84,12 +94,23 @@
                         android:text="எலுமிச்சை\n(Lemon)"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_app_bright_lemon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/box_app_midnight_violet"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:background="@drawable/bg_preset_box_base"
@@ -104,6 +125,17 @@
                         android:text="நள்ளிரவு\n(Violet)"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_app_midnight_violet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -116,7 +148,7 @@
                 <FrameLayout
                     android:id="@+id/box_app_off_white"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"
                     android:background="@drawable/bg_preset_box_base"
@@ -131,12 +163,23 @@
                         android:text="வெள்ளை\n(Off-White)"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_app_off_white"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
                     android:id="@+id/box_app_amoled_black"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="54dp"
                     android:layout_weight="1"
                     android:layout_marginStart="4dp"
                     android:background="@drawable/bg_preset_box_base"
@@ -151,6 +194,17 @@
                         android:text="அமோலெட்\n(AMOLED Black)"
                         android:textSize="11sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_app_amoled_black"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
         </LinearLayout>
@@ -202,6 +256,17 @@
                         android:text="Midnight Gold"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_midnight_gold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -222,6 +287,17 @@
                         android:text="Heritage Maroon"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_heritage_maroon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -250,6 +326,17 @@
                         android:text="Classic Mono"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_classic_mono"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -270,6 +357,17 @@
                         android:text="Neon Night"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_neon_night"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -297,6 +395,17 @@
                         android:text="Porcelain Blue"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_porcelain_blue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
 
                 <FrameLayout
@@ -317,11 +426,113 @@
                         android:text="Porcelain Red"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tick_preset_porcelain_red"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="4dp"
+                        android:text="✓"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ==================== 3. OUTER BORDER TOGGLE ==================== -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#22888888"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ==================== 3. CLOCK STYLE SWITCHER ==================== -->
+        <TextView
+            android:id="@+id/tv_lbl_clock_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="கடிகார நடை (Clock Style)"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <FrameLayout
+                android:id="@+id/box_clock_digital"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_preset_box_base"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_clock_digital"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="டிஜிட்டல் (Digital)"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tick_clock_digital"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="4dp"
+                    android:text="✓"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/box_clock_analog"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_preset_box_base"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_clock_analog"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="அனலாக் (Analog)"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tick_clock_analog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="4dp"
+                    android:text="✓"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#22888888"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ==================== 4. OUTER BORDER TOGGLE ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -352,7 +563,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 4. OPACITY CAPSULE CARD ==================== -->
+        <!-- ==================== 5. OPACITY CAPSULE CARD (LIVE ALPHA) ==================== -->
         <LinearLayout
             android:id="@+id/card_slider_capsule"
             android:layout_width="match_parent"
@@ -362,16 +573,17 @@
             android:padding="16dp"
             android:layout_marginBottom="18dp">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginBottom="10dp">
 
                 <TextView
                     android:id="@+id/tv_lbl_widget_opacity"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
+                    android:layout_weight="1"
                     android:text="பின்னணி ஒளிபுகாமை (Opacity)"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
@@ -381,12 +593,11 @@
                     android:id="@+id/tv_widget_opacity_val"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
                     android:text="100%"
                     android:textColor="#FFDF00"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-            </RelativeLayout>
+            </LinearLayout>
 
             <SeekBar
                 android:id="@+id/seekbar_widget_opacity"
@@ -402,7 +613,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 5. 4x2 OPTIONAL ELEMENTS (EXACTLY 3) ==================== -->
+        <!-- ==================== 6. 4x2 ELEMENTS TABLE (EXACTLY 3) ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -428,10 +639,12 @@
                 android:textStyle="bold" />
         </RelativeLayout>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_elements_4x2"
+        <!-- Dynamic Table Container for 4x2 -->
+        <LinearLayout
+            android:id="@+id/table_elements_4x2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="16dp" />
 
         <View
@@ -440,7 +653,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 6. 4x4 OPTIONAL ELEMENTS (EXACTLY 5) ==================== -->
+        <!-- ==================== 7. 4x4 ELEMENTS TABLE (EXACTLY 5) ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -466,10 +679,12 @@
                 android:textStyle="bold" />
         </RelativeLayout>
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group_elements_4x4"
+        <!-- Dynamic Table Container for 4x4 -->
+        <LinearLayout
+            android:id="@+id/table_elements_4x4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="16dp" />
 
         <View
@@ -478,7 +693,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 7. LIVE PREVIEW ==================== -->
+        <!-- ==================== 8. LIVE PREVIEW ==================== -->
         <TextView
             android:id="@+id/tv_lbl_widget_preview"
             android:layout_width="wrap_content"
