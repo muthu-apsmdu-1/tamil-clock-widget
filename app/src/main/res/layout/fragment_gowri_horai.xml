@@ -77,7 +77,7 @@
         android:orientation="horizontal"
         android:weightSum="10">
 
-        <!-- Column 1: நேரம் -->
+        <!-- Column 1: நேரம் time-->
         <TextView
             android:id="@+id/tv_col_header_time"
             android:layout_width="0dp"
