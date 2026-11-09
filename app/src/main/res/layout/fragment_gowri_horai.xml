@@ -4,26 +4,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="6dp">
+    android:padding="8dp">
 
-    <!-- Date Summary Strip -->
+    <!-- Top Date Summary Strip + Live Digital Clock (Today Only) -->
     <LinearLayout
         android:id="@+id/layout_dynamic_date_strip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="6dp"
         android:elevation="2dp"
-        android:gravity="center"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingHorizontal="10dp"
         android:paddingVertical="7dp">
 
         <TextView
             android:id="@+id/tv_header_strip_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:textSize="13.5sp" />
+
+        <TextView
+            android:id="@+id/tv_header_live_clock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
             android:textStyle="bold"
-            android:textSize="14sp" />
+            android:textSize="13sp"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- Sub-Tab Switcher: Gowri Palan vs Horai -->
@@ -31,7 +42,7 @@
         android:id="@+id/layout_sub_tabs"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginBottom="8dp"
         android:orientation="horizontal"
         android:weightSum="2">
 
@@ -58,7 +69,90 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Scrollable Tables Container -->
+    <!-- 3-Column Table Header: நேரம் | பகல் | இரவு -->
+    <LinearLayout
+        android:id="@+id/layout_table_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <!-- Column 1: நேரம் -->
+        <TextView
+            android:id="@+id/tv_col_header_time"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3.2"
+            android:gravity="center"
+            android:paddingVertical="6dp"
+            android:text="நேரம்"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#33FFFFFF" />
+
+        <!-- Column 2: பகல் -->
+        <LinearLayout
+            android:id="@+id/col_header_day"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3.4"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tv_col_header_day_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="பகல்"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_col_header_day_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(06:00 AM – 06:00 PM)"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#33FFFFFF" />
+
+        <!-- Column 3: இரவு -->
+        <LinearLayout
+            android:id="@+id/col_header_night"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3.4"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="4dp">
+
+            <TextView
+                android:id="@+id/tv_col_header_night_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="இரவு"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_col_header_night_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(06:00 PM – 06:00 AM)"
+                android:textSize="9sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Scrollable 3-Column Slot Rows -->
     <ScrollView
         android:id="@+id/scroll_gowri_horai"
         android:layout_width="match_parent"
@@ -66,90 +160,41 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <FrameLayout
+        <LinearLayout
+            android:id="@+id/container_table_rows"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- Table 1: Gowri Palan -->
-            <LinearLayout
-                android:id="@+id/layout_gowri_table"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
-
-                <TextView
-                    android:id="@+id/tv_gowri_day_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:gravity="center"
-                    android:text="பகல் கௌரி நேரம் (காலை 06:00 - மாலை 06:00)"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/container_gowri_day_slots"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-                <TextView
-                    android:id="@+id/tv_gowri_night_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="இரவு கௌரி நேரம் (மாலை 06:00 - காலை 06:00)"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/container_gowri_night_slots"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
-
-            <!-- Table 2: Horai -->
-            <LinearLayout
-                android:id="@+id/layout_horai_table"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/tv_horai_day_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:gravity="center"
-                    android:text="பகல் கிரக ஹோரை (காலை 06:00 - மாலை 06:00)"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/container_horai_day_slots"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-                <TextView
-                    android:id="@+id/tv_horai_night_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="28dp"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
-                    android:text="இரவு கிரக ஹோரை (மாலை 06:00 - காலை 06:00)"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/container_horai_night_slots"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
-
-        </FrameLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
     </ScrollView>
+
+    <!-- Bottom Legend Strip -->
+    <LinearLayout
+        android:id="@+id/layout_legend_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/tv_legend_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:text="குறிப்பு:"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_legend_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="நன்று – பச்சை நிறம்  |  தவிர்க்கவும் – சிவப்பு நிறம்"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
 </LinearLayout>
