@@ -5,13 +5,11 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.*
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.widget.RemoteViews
-import androidx.core.content.ContextCompat
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -38,30 +36,22 @@ object WidgetUpdateHelper {
     // -------------------------------------------------------------
     private fun RemoteViews.safeSetText(context: Context, idName: String, text: CharSequence) {
         val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            setTextViewText(resId, text)
-        }
+        if (resId != 0) setTextViewText(resId, text)
     }
 
     private fun RemoteViews.safeSetTextColor(context: Context, idName: String, color: Int) {
         val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            setTextColor(resId, color)
-        }
+        if (resId != 0) setTextColor(resId, color)
     }
 
     private fun RemoteViews.safeSetVisibility(context: Context, idName: String, visibility: Int) {
         val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            setViewVisibility(resId, visibility)
-        }
+        if (resId != 0) setViewVisibility(resId, visibility)
     }
 
     private fun RemoteViews.safeSetImageBitmap(context: Context, idName: String, bitmap: Bitmap) {
         val resId = context.resources.getIdentifier(idName, "id", context.packageName)
-        if (resId != 0) {
-            setImageViewBitmap(resId, bitmap)
-        }
+        if (resId != 0) setImageViewBitmap(resId, bitmap)
     }
 
     // -------------------------------------------------------------
@@ -86,7 +76,6 @@ object WidgetUpdateHelper {
                 accentColor = themeConfig.accentColor
             )
         } else {
-            // Dark Canvases (Black or Maroon)
             WidgetColorPalette(
                 isLightWidget = false,
                 primaryText = Color.WHITE,
@@ -98,7 +87,6 @@ object WidgetUpdateHelper {
 
     // -------------------------------------------------------------
     // DYNAMIC BACKGROUND BITMAP GENERATOR (COLOR + OPACITY + BORDER)
-    // Overload handles both callers with & without themeConfig
     // -------------------------------------------------------------
     @JvmOverloads
     fun createWidgetBackgroundBitmap(
@@ -115,14 +103,12 @@ object WidgetUpdateHelper {
         val cornerRadius = 32f
         val rect = RectF(4f, 4f, (w - 4).toFloat(), (h - 4).toFloat())
 
-        // 1. Draw Background Fill (Canvas Base + Alpha)
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = themeConfig.resolvedBackgroundColor
             style = Paint.Style.FILL
         }
         canvas.drawRoundRect(rect, cornerRadius, cornerRadius, bgPaint)
 
-        // 2. Draw Accent Outer Border if enabled
         if (themeConfig.isBorderEnabled) {
             val borderAlpha = ((themeConfig.opacityPercent / 100f).coerceAtLeast(0.4f) * 255).toInt()
             val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -137,29 +123,6 @@ object WidgetUpdateHelper {
         return bitmap
     }
 
-    // -------------------------------------------------------------
-    // DIGITAL CLOCK FORMATTER: BIG TIME + HALF-SIZE AM/PM
-    // -------------------------------------------------------------
-    fun formatDigitalTimeWithHalfAmPm(cal: Calendar): CharSequence {
-        val timePart = SimpleDateFormat("h:mm", Locale.ENGLISH).format(cal.time)
-        val amPmPart = SimpleDateFormat(" a", Locale.ENGLISH).format(cal.time)
-
-        val fullText = "$timePart$amPmPart"
-        val spannable = SpannableString(fullText)
-
-        val startAmPm = fullText.length - amPmPart.length
-        spannable.setSpan(
-            RelativeSizeSpan(0.5f),
-            startAmPm,
-            fullText.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        return spannable
-    }
-
-    // -------------------------------------------------------------
-    // DATE FORMATTER (06 - 11 - 2026 vs 06 Nov 26)
-    // -------------------------------------------------------------
     private fun formatEnglishDate(cal: Calendar, formatType: Int): String {
         return if (formatType == ThemeManager.DATE_FORMAT_TEXT) {
             SimpleDateFormat("dd MMM yy", Locale.ENGLISH).format(cal.time)
@@ -168,9 +131,6 @@ object WidgetUpdateHelper {
         }
     }
 
-    // -------------------------------------------------------------
-    // PAKSHAM NAME CONVERTER (ALL WIDGETS)
-    // -------------------------------------------------------------
     fun convertPakshamName(rawPaksham: String): String {
         return when {
             rawPaksham.contains("சுக்ல") || rawPaksham.contains("வளர்பிறை") -> "வளர்"
@@ -181,34 +141,167 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
+    // UNIFIED PANCHANG DATA HOLDER FOR WIDGETS
+    // -------------------------------------------------------------
+    data class WidgetPanchangData(
+        var tamilYear: String = "பராபவ",
+        var tamilMonth: String = "",
+        var tamilDate: Int = 0,
+        var weekdayTa: String = "",
+        var paksham: String = "",
+        var thithi: String = "",
+        var thithiTime: String = "",
+        var nakshatra: String = "",
+        var nakshatraTime: String = "",
+        var yogam: String = "",
+        var nallaNeram: String = "",
+        var gowriNallaNeram: String = "",
+        var rahuKalam: String = "",
+        var emakandam: String = "",
+        var kuligai: String = "",
+        var sunrise: String = "",
+        var sunset: String = "",
+        var chandrashtamam: String = "",
+        var festival: String = ""
+    )
+
+    // Helper to open existing copied SQLite databases safely
+    private fun openDatabaseSafely(context: Context, dbName: String): SQLiteDatabase? {
+        val dbFile = context.getDatabasePath(dbName)
+        if (dbFile.exists()) {
+            return SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+        }
+        val databasesDir = File(context.applicationInfo.dataDir, "databases")
+        val altFile = File(databasesDir, dbName)
+        if (altFile.exists()) {
+            return SQLiteDatabase.openDatabase(altFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+        }
+        return null
+    }
+
+    // Queries panchang_clcon.db, auspicious_periods.db, and sun_moon_timings.db directly
+    fun loadUnifiedWidgetData(context: Context, queryDate: String): WidgetPanchangData {
+        val result = WidgetPanchangData()
+
+        // 1. Fetch from panchang_clcon.db
+        try {
+            openDatabaseSafely(context, "panchang_clcon.db")?.use { db ->
+                val cursor = db.rawQuery(
+                    "SELECT tamil_year, tamil_month, tamil_date, weekday_ta, paksha, tithi_name, tithi_time, nakshatra_name, nakshatra_time, amritadi_yoga, chandrashtamam_rasi, festivals_events FROM panchangam_daily WHERE gregorian_date = ? LIMIT 1",
+                    arrayOf(queryDate)
+                )
+                if (cursor.moveToFirst()) {
+                    result.tamilYear = cursor.getString(0) ?: "பராபவ"
+                    result.tamilMonth = cursor.getString(1) ?: ""
+                    result.tamilDate = cursor.getInt(2)
+                    result.weekdayTa = cursor.getString(3) ?: ""
+                    result.paksham = cursor.getString(4) ?: ""
+                    result.thithi = cursor.getString(5) ?: ""
+                    result.thithiTime = cursor.getString(6) ?: ""
+                    result.nakshatra = cursor.getString(7) ?: ""
+                    result.nakshatraTime = cursor.getString(8) ?: ""
+                    result.yogam = cursor.getString(9) ?: ""
+                    result.chandrashtamam = cursor.getString(10) ?: ""
+                    result.festival = cursor.getString(11) ?: ""
+                }
+                cursor.close()
+            }
+        } catch (_: Exception) {}
+
+        // Fallback for weekday if panchang record wasn't found
+        if (result.weekdayTa.isBlank()) {
+            val cal = Calendar.getInstance()
+            result.weekdayTa = when (cal.get(Calendar.DAY_OF_WEEK)) {
+                Calendar.SUNDAY -> "ஞாயிறு"
+                Calendar.MONDAY -> "திங்கள்"
+                Calendar.TUESDAY -> "செவ்வாய்"
+                Calendar.WEDNESDAY -> "புதன்"
+                Calendar.THURSDAY -> "வியாழன்"
+                Calendar.FRIDAY -> "வெள்ளி"
+                Calendar.SATURDAY -> "சனி"
+                else -> ""
+            }
+        }
+
+        // 2. Fetch Auspicious Timings from auspicious_periods.db (Table: weekday_timings_summary)
+        try {
+            openDatabaseSafely(context, "auspicious_periods.db")?.use { db ->
+                val cursor = db.rawQuery(
+                    "SELECT nalla_neram_morning_start, nalla_neram_morning_end, nalla_neram_evening_start, nalla_neram_evening_end, gowri_day_start, gowri_day_end, gowri_night_start, gowri_night_end, raghu_start, raghu_end, emagandam_start, emagandam_end, kuligai_start, kuligai_end FROM weekday_timings_summary WHERE weekday_ta = ? LIMIT 1",
+                    arrayOf(result.weekdayTa)
+                )
+                if (cursor.moveToFirst()) {
+                    val nStartM = cursor.getString(0) ?: ""
+                    val nEndM = cursor.getString(1) ?: ""
+                    val nStartE = cursor.getString(2) ?: ""
+                    val nEndE = cursor.getString(3) ?: ""
+                    val mornStr = if (nStartM.isNotBlank() && nEndM.isNotBlank()) "$nStartM-$nEndM" else ""
+                    val eveStr = if (nStartE.isNotBlank() && nEndE.isNotBlank()) "$nStartE-$nEndE" else ""
+                    result.nallaNeram = when {
+                        mornStr.isNotBlank() && eveStr.isNotBlank() -> "$mornStr, $eveStr"
+                        mornStr.isNotBlank() -> mornStr
+                        else -> eveStr
+                    }
+
+                    val gStartD = cursor.getString(4) ?: ""
+                    val gEndD = cursor.getString(5) ?: ""
+                    val gStartN = cursor.getString(6) ?: ""
+                    val gEndN = cursor.getString(7) ?: ""
+                    val gDay = if (gStartD.isNotBlank() && gEndD.isNotBlank()) "$gStartD-$gEndD" else ""
+                    val gNight = if (gStartN.isNotBlank() && gEndN.isNotBlank()) "$gStartN-$gEndN" else ""
+                    result.gowriNallaNeram = when {
+                        gDay.isNotBlank() && gNight.isNotBlank() -> "$gDay, $gNight"
+                        gDay.isNotBlank() -> gDay
+                        else -> gNight
+                    }
+
+                    val rStart = cursor.getString(8) ?: ""
+                    val rEnd = cursor.getString(9) ?: ""
+                    result.rahuKalam = if (rStart.isNotBlank() && rEnd.isNotBlank()) "$rStart - $rEnd" else ""
+
+                    val eStart = cursor.getString(10) ?: ""
+                    val eEnd = cursor.getString(11) ?: ""
+                    result.emakandam = if (eStart.isNotBlank() && eEnd.isNotBlank()) "$eStart - $eEnd" else ""
+
+                    val kStart = cursor.getString(12) ?: ""
+                    val kEnd = cursor.getString(13) ?: ""
+                    result.kuligai = if (kStart.isNotBlank() && kEnd.isNotBlank()) "$kStart - $kEnd" else ""
+                }
+                cursor.close()
+            }
+        } catch (_: Exception) {}
+
+        // 3. Fetch Sun Timings from sun_moon_timings.db (Table: sun_moon_timings)
+        try {
+            openDatabaseSafely(context, "sun_moon_timings.db")?.use { db ->
+                val cursor = db.rawQuery(
+                    "SELECT sunrise, sunset FROM sun_moon_timings WHERE date_gregorian = ? LIMIT 1",
+                    arrayOf(queryDate)
+                )
+                if (cursor.moveToFirst()) {
+                    result.sunrise = cursor.getString(0) ?: ""
+                    result.sunset = cursor.getString(1) ?: ""
+                }
+                cursor.close()
+            }
+        } catch (_: Exception) {}
+
+        return result
+    }
+
     // -------------------------------------------------------------
     // ASTROLOGICAL ELEMENT RESOLVER (12 PRIORITIZED ELEMENTS)
     // -------------------------------------------------------------
-    private fun getFieldString(obj: Any, vararg fieldNames: String): String {
-        for (name in fieldNames) {
-            try {
-                val field = obj.javaClass.getDeclaredField(name)
-                field.isAccessible = true
-                val value = field.get(obj)?.toString()?.trim()
-                if (!value.isNullOrBlank()) return value
-            } catch (_: Exception) {}
-        }
-        return ""
-    }
-
-    private fun resolveElement(key: String, data: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
+    private fun resolveElement(key: String, data: WidgetPanchangData): Pair<String, String> {
         return when (key) {
-            // 1. Paksham
             ThemeManager.ELEM_PAKSHAM -> {
-                val rawPaksham = getFieldString(data, "paksha", "paksham")
-                val converted = convertPakshamName(rawPaksham)
+                val converted = convertPakshamName(data.paksham)
                 Pair("பக்ஷம்", if (converted.isNotBlank()) converted else "—")
             }
 
-            // 2. Thithi & timing
             ThemeManager.ELEM_THITHI -> {
-                val tName = getFieldString(data, "tithiName", "tithi_name", "thithi")
-                val tTime = getFieldString(data, "tithiTime", "tithi_time", "tithiEndTime")
+                val tName = data.thithi.trim()
+                val tTime = data.thithiTime.trim()
                 val text = when {
                     tName.isNotBlank() && tTime.isNotBlank() -> "$tName ($tTime)"
                     tName.isNotBlank() -> tName
@@ -217,10 +310,9 @@ object WidgetUpdateHelper {
                 Pair("திதி", text)
             }
 
-            // 3. Nakshatra & timing
             ThemeManager.ELEM_NAKSHATRA -> {
-                val nName = getFieldString(data, "nakshatraName", "nakshatra_name", "nakshatra")
-                val nTime = getFieldString(data, "nakshatraTime", "nakshatra_time", "nakshatraEndTime")
+                val nName = data.nakshatra.trim()
+                val nTime = data.nakshatraTime.trim()
                 val text = when {
                     nName.isNotBlank() && nTime.isNotBlank() -> "$nName ($nTime)"
                     nName.isNotBlank() -> nName
@@ -229,60 +321,33 @@ object WidgetUpdateHelper {
                 Pair("நட்சத்திரம்", text)
             }
 
-            // 4. Amirthaitya yoga (amritadi_yoga)
             ThemeManager.ELEM_AMIRTHATHI_YOGA -> {
-                val yogam = getFieldString(data, "amritadiYoga", "amritadi_yoga", "yogaName", "yoga_name", "yogam")
-                Pair("யோகம்", if (yogam.isNotBlank()) yogam else "—")
+                Pair("யோகம்", data.yogam.ifBlank { "—" })
             }
 
-            // 5. Nalla neram (Morning & Evening)
             ThemeManager.ELEM_NALLA_NERAM -> {
-                val morn = getFieldString(data, "nallaNeramMorning", "nallaNeramMorn", "nallaNeram", "nalla_neram")
-                val eve = getFieldString(data, "nallaNeramEvening", "nallaNeramEve")
-                val text = when {
-                    morn.isNotBlank() && eve.isNotBlank() -> "$morn, $eve"
-                    morn.isNotBlank() -> morn
-                    eve.isNotBlank() -> eve
-                    else -> "—"
-                }
-                Pair("நல்ல நேரம்", text)
+                Pair("நல்ல நேரம்", data.nallaNeram.ifBlank { "—" })
             }
 
-            // 6. Gowri nalla neram
             ThemeManager.ELEM_GOWRI_NALLA_NERAM -> {
-                val morn = getFieldString(data, "gowriNallaNeram", "gowriMorning", "gowriMorn", "gowri_nalla_neram")
-                val eve = getFieldString(data, "gowriEvening", "gowriEve")
-                val text = when {
-                    morn.isNotBlank() && eve.isNotBlank() -> "$morn, $eve"
-                    morn.isNotBlank() -> morn
-                    eve.isNotBlank() -> eve
-                    else -> "—"
-                }
-                Pair("கௌரி", text)
+                Pair("கௌரி", data.gowriNallaNeram.ifBlank { "—" })
             }
 
-            // 7. Rahu kalam
             ThemeManager.ELEM_RAHU_KALAM -> {
-                val rahuVal = getFieldString(data, "rahuKalam", "raguKalam", "rahu_kalam", "ragu_kalam", "rahu")
-                Pair("ராகு காலம்", if (rahuVal.isNotBlank()) rahuVal else "—")
+                Pair("ராகு காலம்", data.rahuKalam.ifBlank { "—" })
             }
 
-            // 8. Yemakandam
             ThemeManager.ELEM_YEMAKANDAM -> {
-                val yemaVal = getFieldString(data, "emakandam", "yemagandam", "yemakandam", "emakandam_time")
-                Pair("எமகண்டம்", if (yemaVal.isNotBlank()) yemaVal else "—")
+                Pair("எமகண்டம்", data.emakandam.ifBlank { "—" })
             }
 
-            // 9. Kuligai
             ThemeManager.ELEM_KULIGAI -> {
-                val kuliVal = getFieldString(data, "kuligai", "kulikai", "kuligai_time")
-                Pair("குளிகை", if (kuliVal.isNotBlank()) kuliVal else "—")
+                Pair("குளிகை", data.kuligai.ifBlank { "—" })
             }
 
-            // 10. Sun rise / set timing
             ThemeManager.ELEM_SUNRISE_SET -> {
-                val rise = getFieldString(data, "sunrise", "sunRise", "sunrise_time")
-                val set = getFieldString(data, "sunset", "sunSet", "sunset_time")
+                val rise = data.sunrise.trim()
+                val set = data.sunset.trim()
                 val text = when {
                     rise.isNotBlank() && set.isNotBlank() -> "உதயம்: $rise | மறைவு: $set"
                     rise.isNotBlank() -> "உதயம்: $rise"
@@ -291,23 +356,17 @@ object WidgetUpdateHelper {
                 Pair("சூரியன்", text)
             }
 
-            // 11. Chandrastama (chandrashtamam_rasi)
             ThemeManager.ELEM_CHANDRASTAMA -> {
-                val chandra = getFieldString(data, "chandrashtamamRasi", "chandrashtamam_rasi", "chandrashtamam")
-                Pair("சந்திராஷ்டமம்", if (chandra.isNotBlank()) chandra else "இல்லை")
+                Pair("சந்திராஷ்டமம்", data.chandrashtamam.ifBlank { "இல்லை" })
             }
 
-            // 12. Festival (festivals_events)
             ThemeManager.ELEM_FESTIVAL -> {
-                val fest = getFieldString(data, "festivalsEvents", "festivals_events", "festival", "specialDay")
-                Pair("சிறப்பு", if (fest.isNotBlank()) fest else "—")
+                Pair("சிறப்பு", data.festival.ifBlank { "—" })
             }
 
             else -> Pair("", "")
         }
     }
-
-
 
     // -------------------------------------------------------------
     // 1. UPDATE 2x1 WIDGET
@@ -324,10 +383,7 @@ object WidgetUpdateHelper {
 
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
-
-        val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
-        db.close()
+        val data = loadUnifiedWidgetData(context, queryDate)
 
         val themeConfig = ThemeManager.getActiveTheme(context)
         val bgBitmap = createWidgetBackgroundBitmap(context, 320, 160, themeConfig)
@@ -335,25 +391,24 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context, themeConfig)
 
-        // Left Half: Clock Style
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
             views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
         }
 
-        // Right Half: Row 1 - Gregorian Date
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
-        // Right Half: Row 2 - Tamil Month & Date
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_month_day", "$tMonth $tDay")
@@ -390,10 +445,7 @@ object WidgetUpdateHelper {
 
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
-
-        val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
-        db.close()
+        val data = loadUnifiedWidgetData(context, queryDate)
 
         val themeConfig = ThemeManager.getActiveTheme(context)
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 140, themeConfig)
@@ -401,19 +453,19 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context, themeConfig)
 
-        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
             views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
         }
 
-        // Gregorian Date + Weekday
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
@@ -423,14 +475,13 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_weekday", weekdayStr)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
 
-        // Tamil Date + Paksham & Thithi
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
         val tDay = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
 
-        val convertedPaksham = convertPakshamName(data.paksha)
-        val thithiStr = if (data.tithiName.isNotBlank()) data.tithiName else "---"
+        val convertedPaksham = convertPakshamName(data.paksham)
+        val thithiStr = if (data.thithi.isNotBlank()) data.thithi else "---"
         views.safeSetText(context, "tv_widget_paksham_thithi", "$convertedPaksham • $thithiStr")
         views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.secondaryText)
 
@@ -465,10 +516,7 @@ object WidgetUpdateHelper {
 
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
-
-        val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
-        db.close()
+        val data = loadUnifiedWidgetData(context, queryDate)
 
         val themeConfig = ThemeManager.getActiveTheme(context)
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280, themeConfig)
@@ -476,19 +524,19 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context, themeConfig)
 
-        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
             views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
         }
 
-        // Header Rows
         val dateFormat = ThemeManager.getDateFormat4x2(context)
         val gregDateStr = formatEnglishDate(cal, dateFormat)
         views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
@@ -503,7 +551,6 @@ object WidgetUpdateHelper {
         views.safeSetText(context, "tv_widget_tamil_date", "$tMonth $tDay")
         views.safeSetTextColor(context, "tv_widget_tamil_date", colors.accentColor)
 
-        // Astrological Elements Rows
         val selectedKeys = ThemeManager.getElements4x2(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
@@ -555,10 +602,7 @@ object WidgetUpdateHelper {
 
         val cal = Calendar.getInstance()
         val queryDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(cal.time)
-
-        val db = TamilDatabaseHelper(context)
-        val data = db.getDayDetails(queryDate) ?: TamilDatabaseHelper.DayPanchangDetails()
-        db.close()
+        val data = loadUnifiedWidgetData(context, queryDate)
 
         val themeConfig = ThemeManager.getActiveTheme(context)
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 580, themeConfig)
@@ -566,31 +610,32 @@ object WidgetUpdateHelper {
 
         val colors = resolveWidgetColors(context, themeConfig)
 
-        // Clock
         val clockFace = ThemeManager.getClockFace(context)
         if (clockFace == ThemeManager.CLOCK_ANALOG) {
             views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
             views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
         } else {
             views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
             views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetText(context, "tv_digital_clock", formatDigitalTimeWithHalfAmPm(cal))
             views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
         }
 
-        // Header Row
         val dateFormat = ThemeManager.getDateFormat4x4(context)
         views.safeSetText(context, "tv_widget_greg_date", formatEnglishDate(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
+        views.safeSetTextColor(context, "tv_widget_fixed_sep1", colors.accentColor)
         views.safeSetText(context, "tv_widget_weekday", data.weekdayTa)
         views.safeSetTextColor(context, "tv_widget_weekday", colors.accentColor)
 
+        views.safeSetTextColor(context, "tv_widget_fixed_sep2", colors.accentColor)
         val tDateStr = if (data.tamilDate > 0) data.tamilDate.toString() else "---"
         views.safeSetText(context, "tv_widget_tamil_full", "${data.tamilYear} • ${data.tamilMonth} $tDateStr")
         views.safeSetTextColor(context, "tv_widget_tamil_full", colors.accentColor)
 
-        // Astrological Elements Paragraph Rows
         val selectedKeys = ThemeManager.getElements4x4(context).toList()
         val elem1 = resolveElement(selectedKeys.getOrNull(0) ?: ThemeManager.ELEM_PAKSHAM, data)
         val elem2 = resolveElement(selectedKeys.getOrNull(1) ?: ThemeManager.ELEM_THITHI, data)
