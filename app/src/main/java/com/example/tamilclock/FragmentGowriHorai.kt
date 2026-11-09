@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
@@ -21,36 +22,50 @@ class FragmentGowriHorai : Fragment() {
         private const val REFRESH_INTERVAL = 30_000L
         private const val ARG_IS_HORAI = "arg_is_horai"
 
+        // Auspicious Gowri terms as stored in weekday_gowri table
+        private val AUSPICIOUS_GOWRI = setOf("அமிர்தம்", "லாபம்", "தனம்", "சுகம்", "உத்தி", "சுபம்")
+
+        // Auspicious Horai planets as stored in weekday_horai table
+        private val AUSPICIOUS_HORAI = setOf("குரு", "சுக்கிரன்", "புதன்", "சந்திரன்")
+
         fun newInstance(initialTabIsHorai: Boolean): FragmentGowriHorai {
-            val fragment = FragmentGowriHorai()
-            fragment.arguments = Bundle().apply {
-                putBoolean(ARG_IS_HORAI, initialTabIsHorai)
+            return FragmentGowriHorai().apply {
+                arguments = Bundle().apply {
+                    putBoolean(ARG_IS_HORAI, initialTabIsHorai)
+                }
             }
-            return fragment
         }
     }
 
     private lateinit var dbHelper: TamilDatabaseHelper
     private var rootLayout: LinearLayout? = null
 
+    // Date Strip & Live Clock
     private lateinit var layoutDateStrip: LinearLayout
     private lateinit var tvHeaderStripDate: TextView
+    private lateinit var tvHeaderLiveClock: TextView
 
+    // Sub-Tabs
     private lateinit var tabBtnGowri: TextView
     private lateinit var tabBtnHorai: TextView
 
-    private lateinit var layoutGowriTable: View
-    private lateinit var layoutHoraiTable: View
+    // 3-Column Table Header
+    private lateinit var layoutTableHeader: LinearLayout
+    private lateinit var tvColHeaderTime: TextView
+    private lateinit var colHeaderDay: LinearLayout
+    private lateinit var tvColHeaderDayTitle: TextView
+    private lateinit var tvColHeaderDaySub: TextView
+    private lateinit var colHeaderNight: LinearLayout
+    private lateinit var tvColHeaderNightTitle: TextView
+    private lateinit var tvColHeaderNightSub: TextView
 
-    private lateinit var tvGowriDayHeader: TextView
-    private lateinit var tvGowriNightHeader: TextView
-    private lateinit var tvHoraiDayHeader: TextView
-    private lateinit var tvHoraiNightHeader: TextView
+    // 3-Column Table Container
+    private lateinit var containerTableRows: LinearLayout
 
-    private lateinit var containerGowriDay: LinearLayout
-    private lateinit var containerGowriNight: LinearLayout
-    private lateinit var containerHoraiDay: LinearLayout
-    private lateinit var containerHoraiNight: LinearLayout
+    // Bottom Legend Footer Strip
+    private lateinit var layoutLegendFooter: LinearLayout
+    private lateinit var tvLegendBadge: TextView
+    private lateinit var tvLegendText: TextView
 
     private var isGowriSelected = true
     private var isSelectedDateToday = true
@@ -58,43 +73,10 @@ class FragmentGowriHorai : Fragment() {
 
     private val refreshHandler = Handler(Looper.getMainLooper())
 
-    data class SlotItem(
-        val timeRange: String,
-        val name: String,
-        val startMin: Int,
-        val endMin: Int,
-        val isAuspicious: Boolean
-    )
-
-    private val gowriTimeRanges = listOf(
-        Pair("06:00 - 07:30", Pair(360, 450)),
-        Pair("07:30 - 09:00", Pair(450, 540)),
-        Pair("09:00 - 10:30", Pair(540, 630)),
-        Pair("10:30 - 12:00", Pair(630, 720)),
-        Pair("12:00 - 01:30", Pair(720, 810)),
-        Pair("01:30 - 03:00", Pair(810, 900)),
-        Pair("03:00 - 04:30", Pair(900, 990)),
-        Pair("04:30 - 06:00", Pair(990, 1080))
-    )
-
-    private val horaiTimeRanges = listOf(
-        Pair("06:00 - 07:00", Pair(360, 420)),
-        Pair("07:00 - 08:00", Pair(420, 480)),
-        Pair("08:00 - 09:00", Pair(480, 540)),
-        Pair("09:00 - 10:00", Pair(540, 600)),
-        Pair("10:00 - 11:00", Pair(600, 660)),
-        Pair("11:00 - 12:00", Pair(660, 720)),
-        Pair("12:00 - 01:00", Pair(720, 780)),
-        Pair("01:00 - 02:00", Pair(780, 840)),
-        Pair("02:00 - 03:00", Pair(840, 900)),
-        Pair("03:00 - 04:00", Pair(900, 960)),
-        Pair("04:00 - 05:00", Pair(960, 1020)),
-        Pair("05:00 - 06:00", Pair(1020, 1080))
-    )
-
     private val timeTickRunnable = object : Runnable {
         override fun run() {
             if (!isAdded || view == null) return
+            updateLiveClockIfToday()
             highlightCurrentSlotIfToday()
             refreshHandler.postDelayed(this, REFRESH_INTERVAL)
         }
@@ -118,24 +100,32 @@ class FragmentGowriHorai : Fragment() {
             isGowriSelected = !startAsHorai
         }
 
+        // Top Summary Header Views
         layoutDateStrip = view.findViewById(R.id.layout_dynamic_date_strip)
         tvHeaderStripDate = view.findViewById(R.id.tv_header_strip_date)
+        tvHeaderLiveClock = view.findViewById(R.id.tv_header_live_clock)
 
+        // Sub Tabs
         tabBtnGowri = view.findViewById(R.id.tab_btn_gowri)
         tabBtnHorai = view.findViewById(R.id.tab_btn_horai)
 
-        layoutGowriTable = view.findViewById(R.id.layout_gowri_table)
-        layoutHoraiTable = view.findViewById(R.id.layout_horai_table)
+        // 3-Column Header
+        layoutTableHeader = view.findViewById(R.id.layout_table_header)
+        tvColHeaderTime = view.findViewById(R.id.tv_col_header_time)
+        colHeaderDay = view.findViewById(R.id.col_header_day)
+        tvColHeaderDayTitle = view.findViewById(R.id.tv_col_header_day_title)
+        tvColHeaderDaySub = view.findViewById(R.id.tv_col_header_day_sub)
+        colHeaderNight = view.findViewById(R.id.col_header_night)
+        tvColHeaderNightTitle = view.findViewById(R.id.tv_col_header_night_title)
+        tvColHeaderNightSub = view.findViewById(R.id.tv_col_header_night_sub)
 
-        tvGowriDayHeader = view.findViewById(R.id.tv_gowri_day_header)
-        tvGowriNightHeader = view.findViewById(R.id.tv_gowri_night_header)
-        tvHoraiDayHeader = view.findViewById(R.id.tv_horai_day_header)
-        tvHoraiNightHeader = view.findViewById(R.id.tv_horai_night_header)
+        // Rows Container
+        containerTableRows = view.findViewById(R.id.container_table_rows)
 
-        containerGowriDay = view.findViewById(R.id.container_gowri_day_slots)
-        containerGowriNight = view.findViewById(R.id.container_gowri_night_slots)
-        containerHoraiDay = view.findViewById(R.id.container_horai_day_slots)
-        containerHoraiNight = view.findViewById(R.id.container_horai_night_slots)
+        // Bottom Legend Footer
+        layoutLegendFooter = view.findViewById(R.id.layout_legend_footer)
+        tvLegendBadge = view.findViewById(R.id.tv_legend_badge)
+        tvLegendText = view.findViewById(R.id.tv_legend_text)
 
         tabBtnGowri.setOnClickListener { switchTab(true) }
         tabBtnHorai.setOnClickListener { switchTab(false) }
@@ -149,6 +139,7 @@ class FragmentGowriHorai : Fragment() {
         super.onResume()
         applyTheme()
         renderCurrentData()
+        updateLiveClockIfToday()
         refreshHandler.removeCallbacks(timeTickRunnable)
         refreshHandler.post(timeTickRunnable)
     }
@@ -174,6 +165,17 @@ class FragmentGowriHorai : Fragment() {
 
         if (!isAdded || view == null) return
         renderCurrentData()
+        updateLiveClockIfToday()
+    }
+
+    private fun updateLiveClockIfToday() {
+        if (!isSelectedDateToday) {
+            tvHeaderLiveClock.visibility = View.GONE
+            return
+        }
+        tvHeaderLiveClock.visibility = View.VISIBLE
+        val sdf = SimpleDateFormat("hh : mm a", Locale.ENGLISH)
+        tvHeaderLiveClock.text = sdf.format(Calendar.getInstance().time)
     }
 
     private fun renderCurrentData() {
@@ -195,7 +197,7 @@ class FragmentGowriHorai : Fragment() {
 
         tvHeaderStripDate.text = "$day - $month - $year, $tamilMonth $tamilDay, $weekday"
 
-        renderTables(weekday)
+        renderTableData(weekday)
         highlightCurrentSlotIfToday()
     }
 
@@ -209,35 +211,40 @@ class FragmentGowriHorai : Fragment() {
     private fun applyTheme() {
         val context = context ?: return
         val palette = ThemeManager.getThemePalette(context)
+        val isDark = isDarkThemeActive()
 
         rootLayout?.setBackgroundColor(palette.pageBackground)
-        layoutDateStrip.setBackgroundColor(palette.cardBackground)
-        tvHeaderStripDate.setTextColor(if (isDarkThemeActive()) Color.WHITE else palette.primaryHeader)
 
-        tvGowriDayHeader.setBackgroundColor(palette.primaryHeader)
-        tvGowriDayHeader.setTextColor(palette.accentGold)
+        // Top Summary Strip
+        layoutDateStrip.setBackgroundColor(palette.primaryHeader)
+        tvHeaderStripDate.setTextColor(palette.accentGold)
 
-        tvGowriNightHeader.setBackgroundColor(palette.secondaryHeader)
-        tvGowriNightHeader.setTextColor(palette.accentGold)
+        // Live Clock Pill
+        tvHeaderLiveClock.setBackgroundColor(palette.cardBackground)
+        tvHeaderLiveClock.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
 
-        tvHoraiDayHeader.setBackgroundColor(palette.primaryHeader)
-        tvHoraiDayHeader.setTextColor(palette.accentGold)
+        // 3-Column Table Header
+        layoutTableHeader.setBackgroundColor(palette.primaryHeader)
+        tvColHeaderTime.setTextColor(Color.WHITE)
+        tvColHeaderDayTitle.setTextColor(Color.WHITE)
+        tvColHeaderDaySub.setTextColor(palette.accentGold)
+        tvColHeaderNightTitle.setTextColor(Color.WHITE)
+        tvColHeaderNightSub.setTextColor(palette.accentGold)
 
-        tvHoraiNightHeader.setBackgroundColor(palette.secondaryHeader)
-        tvHoraiNightHeader.setTextColor(palette.accentGold)
+        // Bottom Legend Footer
+        tvLegendBadge.setBackgroundColor(palette.primaryHeader)
+        tvLegendBadge.setTextColor(palette.accentGold)
+        tvLegendText.setTextColor(if (isDark) Color.WHITE else palette.primaryText)
 
         styleTabs(palette)
     }
 
     private fun switchTab(showGowri: Boolean) {
         isGowriSelected = showGowri
-        layoutGowriTable.visibility = if (showGowri) View.VISIBLE else View.GONE
-        layoutHoraiTable.visibility = if (showGowri) View.GONE else View.VISIBLE
-
         val context = context ?: return
         val palette = ThemeManager.getThemePalette(context)
         styleTabs(palette)
-        highlightCurrentSlotIfToday()
+        renderCurrentData()
     }
 
     private fun styleTabs(palette: ThemeManager.AppThemePalette) {
@@ -256,63 +263,45 @@ class FragmentGowriHorai : Fragment() {
         }
     }
 
-    private fun renderTables(weekdayTa: String) {
-        containerGowriDay.removeAllViews()
-        containerGowriNight.removeAllViews()
-        containerHoraiDay.removeAllViews()
-        containerHoraiNight.removeAllViews()
+    private fun renderTableData(weekdayTa: String) {
+        containerTableRows.removeAllViews()
 
-        val gowriDay = dbHelper.getGowriDetails(weekdayTa, "பகல்")
-        val gowriNight = dbHelper.getGowriDetails(weekdayTa, "இரவு")
-        populateSlotContainer(containerGowriDay, gowriDay?.slots, gowriTimeRanges, isGowri = true, isNight = false)
-        populateSlotContainer(containerGowriNight, gowriNight?.slots, gowriTimeRanges, isGowri = true, isNight = true)
+        val slotData = if (isGowriSelected) {
+            dbHelper.getGowriTableData(weekdayTa)
+        } else {
+            dbHelper.getHoraiTableData(weekdayTa)
+        }
 
-        val horaiDay = dbHelper.getHoraiDetails(weekdayTa, "பகல்")
-        val horaiNight = dbHelper.getHoraiDetails(weekdayTa, "இரவு")
-        populateSlotContainer(containerHoraiDay, horaiDay?.slots, horaiTimeRanges, isGowri = false, isNight = false)
-        populateSlotContainer(containerHoraiNight, horaiNight?.slots, horaiTimeRanges, isGowri = false, isNight = true)
-    }
-
-    private fun populateSlotContainer(
-        container: LinearLayout,
-        slots: List<String>?,
-        rangeDefs: List<Pair<String, Pair<Int, Int>>>,
-        isGowri: Boolean,
-        isNight: Boolean
-    ) {
-        if (slots.isNullOrEmpty()) {
-            val emptyTv = TextView(requireContext()).apply {
-                text = "---"
-                gravity = Gravity.CENTER
-                textSize = 14f
-                setTextColor(if (isDarkThemeActive()) Color.WHITE else Color.parseColor("#9E9E9E"))
-                setPadding(0, 16, 0, 16)
+        slotData.forEachIndexed { index, item ->
+            val isDayGood = if (isGowriSelected) {
+                AUSPICIOUS_GOWRI.contains(item.dayValue.trim())
+            } else {
+                AUSPICIOUS_HORAI.contains(item.dayValue.trim())
             }
-            container.addView(emptyTv)
-            return
-        }
 
-        val baseOffset = if (isNight) 720 else 0
+            val isNightGood = if (isGowriSelected) {
+                AUSPICIOUS_GOWRI.contains(item.nightValue.trim())
+            } else {
+                AUSPICIOUS_HORAI.contains(item.nightValue.trim())
+            }
 
-        slots.forEachIndexed { index, nameValue ->
-            val rangeDef = rangeDefs.getOrNull(index)
-            val timeText = rangeDef?.first ?: "---"
-            val sMin = ((rangeDef?.second?.first ?: 0) + baseOffset) % 1440
-            val eMin = ((rangeDef?.second?.second ?: 0) + baseOffset) % 1440
-
-            val isGood = if (isGowri) isGowriGood(nameValue) else isHoraiGood(nameValue)
-            val item = SlotItem(
-                timeRange = timeText,
-                name = if (nameValue.isBlank()) "---" else nameValue,
-                startMin = sMin,
-                endMin = if (eMin == 0 && isNight) 1440 else eMin,
-                isAuspicious = isGood
+            containerTableRows.addView(
+                create3ColumnRowView(
+                    item = item,
+                    isDayGood = isDayGood,
+                    isNightGood = isNightGood,
+                    isAlternate = index % 2 == 1
+                )
             )
-            container.addView(createSlotRowView(item))
         }
     }
 
-    private fun createSlotRowView(item: SlotItem): View {
+    private fun create3ColumnRowView(
+        item: TamilDatabaseHelper.TableSlotData,
+        isDayGood: Boolean,
+        isNightGood: Boolean,
+        isAlternate: Boolean
+    ): View {
         val context = requireContext()
         val palette = ThemeManager.getThemePalette(context)
         val isDark = isDarkThemeActive()
@@ -322,40 +311,66 @@ class FragmentGowriHorai : Fragment() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(0, 3, 0, 3)
-            }
-            setBackgroundColor(palette.cardBackground)
-            setPadding(14, 12, 14, 12)
-            elevation = 1f
+            )
+            weightSum = 10f
+            setBackgroundColor(if (isAlternate) palette.cardBackground else palette.pageBackground)
             tag = item
         }
 
-        val textColor = if (isDark) {
-            Color.WHITE
-        } else {
-            if (item.isAuspicious) Color.parseColor("#2E7D32") else Color.parseColor("#C62828")
-        }
-
+        // Col 1: Time Range
         val tvTime = TextView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f)
-            text = item.timeRange
-            textSize = 13f
-            setTextColor(textColor)
+            id = R.id.tv_col_header_time
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.2f)
+            text = item.timeLabel
+            textSize = 12.5f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(4, 10, 4, 10)
+            setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
         }
 
-        val tvName = TextView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f)
-            text = item.name
-            textSize = 13.5f
-            gravity = Gravity.END
-            setTextColor(textColor)
+        val divider1 = View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(1, LinearLayout.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(palette.emptyCellBackground)
+        }
+
+        // Col 2: Day Slot Value
+        val dayColor = if (isDayGood) Color.parseColor("#008A20") else Color.parseColor("#D31212")
+        val tvDay = TextView(context).apply {
+            id = R.id.col_header_day
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.4f)
+            text = item.dayValue
+            textSize = 14.5f
             typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(4, 10, 4, 10)
+            setTextColor(dayColor)
+        }
+
+        val divider2 = View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(1, LinearLayout.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(palette.emptyCellBackground)
+        }
+
+        // Col 3: Night Slot Value
+        val nightColor = if (isNightGood) Color.parseColor("#008A20") else Color.parseColor("#D31212")
+        val tvNight = TextView(context).apply {
+            id = R.id.col_header_night
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.4f)
+            text = item.nightValue
+            textSize = 14.5f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            setPadding(4, 10, 4, 10)
+            setTextColor(nightColor)
         }
 
         row.addView(tvTime)
-        row.addView(tvName)
+        row.addView(divider1)
+        row.addView(tvDay)
+        row.addView(divider2)
+        row.addView(tvNight)
+
         return row
     }
 
@@ -365,47 +380,37 @@ class FragmentGowriHorai : Fragment() {
         val now = Calendar.getInstance()
         val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
         val palette = ThemeManager.getThemePalette(requireContext())
+        val isDayTime = currentMinutes in 360..1079 // 06:00 AM to 05:59 PM
 
-        val activeContainers = if (isGowriSelected) {
-            listOf(containerGowriDay, containerGowriNight)
-        } else {
-            listOf(containerHoraiDay, containerHoraiNight)
-        }
+        for (i in 0 until containerTableRows.childCount) {
+            val row = containerTableRows.getChildAt(i) as? LinearLayout ?: continue
+            val item = row.tag as? TamilDatabaseHelper.TableSlotData ?: continue
 
-        for (container in activeContainers) {
-            for (i in 0 until container.childCount) {
-                val row = container.getChildAt(i)
-                val item = row.tag as? SlotItem ?: continue
+            val tvDayCell = row.findViewById<TextView>(R.id.col_header_day)
+            val tvNightCell = row.findViewById<TextView>(R.id.col_header_night)
 
-                val isActive = if (item.endMin > item.startMin) {
-                    currentMinutes in item.startMin until item.endMin
-                } else {
-                    currentMinutes >= item.startMin || currentMinutes < item.endMin
-                }
+            val nightStart = (item.startMin + 720) % 1440
+            val nightEnd = if (item.endMin + 720 == 1440) 1440 else (item.endMin + 720) % 1440
 
-                if (isSelectedDateToday && isActive) {
-                    row.setBackgroundColor(palette.sundayHighlight)
-                } else {
-                    row.setBackgroundColor(palette.cardBackground)
-                }
+            val isDayActive = currentMinutes in item.startMin until item.endMin
+            val isNightActive = if (nightEnd > nightStart) {
+                currentMinutes in nightStart until nightEnd
+            } else {
+                currentMinutes >= nightStart || currentMinutes < nightEnd
+            }
+
+            if (isSelectedDateToday && isDayTime && isDayActive) {
+                tvDayCell?.setBackgroundColor(palette.sundayHighlight)
+            } else {
+                tvDayCell?.setBackgroundColor(Color.TRANSPARENT)
+            }
+
+            if (isSelectedDateToday && !isDayTime && isNightActive) {
+                tvNightCell?.setBackgroundColor(palette.sundayHighlight)
+            } else {
+                tvNightCell?.setBackgroundColor(Color.TRANSPARENT)
             }
         }
-    }
-
-    private fun isGowriGood(name: String): Boolean {
-        return name.contains("லாபம்") ||
-            name.contains("சுகம்") ||
-            name.contains("அமிர்தம்") ||
-            name.contains("உத்தி") ||
-            name.contains("சுபம்") ||
-            name.contains("தனம்")
-    }
-
-    private fun isHoraiGood(planet: String): Boolean {
-        return planet.contains("குரு") ||
-            planet.contains("சுக்கிரன்") ||
-            planet.contains("புதன்") ||
-            planet.contains("சந்திரன்")
     }
 
     private fun getTamilDayName(dayOfWeek: Int): String {
