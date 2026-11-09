@@ -1,16 +1,19 @@
 package com.example.tamilclock
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -18,8 +21,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 
 class FragmentSettings : Fragment() {
 
@@ -28,21 +29,31 @@ class FragmentSettings : Fragment() {
     private var tvLblAppTheme: TextView? = null
 
     private var tvLblWidgetTheme: TextView? = null
+    private var tvLblClockStyle: TextView? = null
     private var tvLblOuterBorder: TextView? = null
     private var switchOuterBorder: SwitchCompat? = null
 
+    private var cardSliderCapsule: LinearLayout? = null
     private var tvLblWidgetOpacity: TextView? = null
     private var tvWidgetOpacityVal: TextView? = null
     private var seekBarOpacity: SeekBar? = null
 
-    // 4x2 and 4x4 Astrological Elements Selectors
+    // Clock style switcher
+    private var boxClockDigital: FrameLayout? = null
+    private var tvClockDigital: TextView? = null
+    private var tickClockDigital: TextView? = null
+    private var boxClockAnalog: FrameLayout? = null
+    private var tvClockAnalog: TextView? = null
+    private var tickClockAnalog: TextView? = null
+
+    // 4x2 and 4x4 Table Selectors
     private var tvLblElements4x2: TextView? = null
     private var tvCountElements4x2: TextView? = null
-    private var chipGroupElements4x2: ChipGroup? = null
+    private var tableElements4x2: LinearLayout? = null
 
     private var tvLblElements4x4: TextView? = null
     private var tvCountElements4x4: TextView? = null
-    private var chipGroupElements4x4: ChipGroup? = null
+    private var tableElements4x4: LinearLayout? = null
 
     // Preview views
     private var tvLblWidgetPreview: TextView? = null
@@ -51,17 +62,17 @@ class FragmentSettings : Fragment() {
     private var tvPreviewTitle: TextView? = null
     private var tvPreviewSub: TextView? = null
 
-    // 5 App Background Theme Boxes: Pair<BoxContainer, LabelTextView>
-    private val appBoxes = mutableMapOf<String, Pair<FrameLayout, TextView>>()
+    // 5 App Background Theme Boxes: Triple<Container, LabelText, TickText>
+    private val appBoxes = mutableMapOf<String, Triple<FrameLayout, TextView, TextView>>()
 
-    // 6 Widget Preset Boxes: Pair<BoxContainer, LabelTextView>
-    private val presetBoxes = mutableMapOf<ThemeManager.Preset, Pair<FrameLayout, TextView>>()
+    // 6 Widget Preset Boxes: Triple<Container, LabelText, TickText>
+    private val presetBoxes = mutableMapOf<ThemeManager.Preset, Triple<FrameLayout, TextView, TextView>>()
 
-    // Debounce handler for IPC updates
+    // Debounce handler
     private val debounceHandler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
-    // 12 Astrological Elements ordered strictly by user priority
+    // 12 Astrological Elements ordered strictly by priority
     private val astrologicalOptions = listOf(
         Pair(ThemeManager.ELEM_PAKSHAM, "1. பக்ஷம் (Paksham)"),
         Pair(ThemeManager.ELEM_THITHI, "2. திதி நேரம் (Thithi & Timing)"),
@@ -90,10 +101,11 @@ class FragmentSettings : Fragment() {
         bindViews(view)
         setupAppBoxes(view)
         setupPresetBoxes(view)
+        setupClockStyleSwitcher()
         setupBorderSwitch()
         setupOpacitySeekBar()
-        setupElements4x2()
-        setupElements4x4()
+        renderElementsTable4x2()
+        renderElementsTable4x4()
         applyDynamicTheming()
     }
 
@@ -115,20 +127,29 @@ class FragmentSettings : Fragment() {
         tvLblAppTheme = view.findViewById(R.id.tv_lbl_app_theme)
 
         tvLblWidgetTheme = view.findViewById(R.id.tv_lbl_widget_theme)
+        tvLblClockStyle = view.findViewById(R.id.tv_lbl_clock_style)
         tvLblOuterBorder = view.findViewById(R.id.tv_lbl_outer_border)
         switchOuterBorder = view.findViewById(R.id.switch_outer_border)
 
+        cardSliderCapsule = view.findViewById(R.id.card_slider_capsule)
         tvLblWidgetOpacity = view.findViewById(R.id.tv_lbl_widget_opacity)
         tvWidgetOpacityVal = view.findViewById(R.id.tv_widget_opacity_val)
         seekBarOpacity = view.findViewById(R.id.seekbar_widget_opacity)
 
+        boxClockDigital = view.findViewById(R.id.box_clock_digital)
+        tvClockDigital = view.findViewById(R.id.tv_clock_digital)
+        tickClockDigital = view.findViewById(R.id.tick_clock_digital)
+        boxClockAnalog = view.findViewById(R.id.box_clock_analog)
+        tvClockAnalog = view.findViewById(R.id.tv_clock_analog)
+        tickClockAnalog = view.findViewById(R.id.tick_clock_analog)
+
         tvLblElements4x2 = view.findViewById(R.id.tv_lbl_elements_4x2)
         tvCountElements4x2 = view.findViewById(R.id.tv_count_elements_4x2)
-        chipGroupElements4x2 = view.findViewById(R.id.chip_group_elements_4x2)
+        tableElements4x2 = view.findViewById(R.id.table_elements_4x2)
 
         tvLblElements4x4 = view.findViewById(R.id.tv_lbl_elements_4x4)
         tvCountElements4x4 = view.findViewById(R.id.tv_count_elements_4x4)
-        chipGroupElements4x4 = view.findViewById(R.id.chip_group_elements_4x4)
+        tableElements4x4 = view.findViewById(R.id.table_elements_4x4)
 
         tvLblWidgetPreview = view.findViewById(R.id.tv_lbl_widget_preview)
         framePreviewWrapper = view.findViewById(R.id.frame_preview_wrapper)
@@ -138,32 +159,37 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 1. APP BACKGROUND 5-BOX SETUP
+    // 1. APP BACKGROUND SETUP (5 BOXES WITH TICK)
     // -------------------------------------------------------------
     private fun setupAppBoxes(view: View) {
-        appBoxes[ThemeManager.APP_COLOR_ANTIQUE_SANDAL] = Pair(
+        appBoxes[ThemeManager.APP_COLOR_ANTIQUE_SANDAL] = Triple(
             view.findViewById(R.id.box_app_antique_sandal),
-            view.findViewById(R.id.tv_app_antique_sandal)
+            view.findViewById(R.id.tv_app_antique_sandal),
+            view.findViewById(R.id.tick_app_antique_sandal)
         )
-        appBoxes[ThemeManager.APP_COLOR_BRIGHT_LEMON] = Pair(
+        appBoxes[ThemeManager.APP_COLOR_BRIGHT_LEMON] = Triple(
             view.findViewById(R.id.box_app_bright_lemon),
-            view.findViewById(R.id.tv_app_bright_lemon)
+            view.findViewById(R.id.tv_app_bright_lemon),
+            view.findViewById(R.id.tick_app_bright_lemon)
         )
-        appBoxes[ThemeManager.APP_COLOR_MIDNIGHT_VIOLET] = Pair(
+        appBoxes[ThemeManager.APP_COLOR_MIDNIGHT_VIOLET] = Triple(
             view.findViewById(R.id.box_app_midnight_violet),
-            view.findViewById(R.id.tv_app_midnight_violet)
+            view.findViewById(R.id.tv_app_midnight_violet),
+            view.findViewById(R.id.tick_app_midnight_violet)
         )
-        appBoxes[ThemeManager.APP_COLOR_OFF_WHITE] = Pair(
+        appBoxes[ThemeManager.APP_COLOR_OFF_WHITE] = Triple(
             view.findViewById(R.id.box_app_off_white),
-            view.findViewById(R.id.tv_app_off_white)
+            view.findViewById(R.id.tv_app_off_white),
+            view.findViewById(R.id.tick_app_off_white)
         )
-        appBoxes[ThemeManager.APP_COLOR_AMOLED_BLACK] = Pair(
+        appBoxes[ThemeManager.APP_COLOR_AMOLED_BLACK] = Triple(
             view.findViewById(R.id.box_app_amoled_black),
-            view.findViewById(R.id.tv_app_amoled_black)
+            view.findViewById(R.id.tv_app_amoled_black),
+            view.findViewById(R.id.tick_app_amoled_black)
         )
 
-        appBoxes.forEach { (colorHex, pair) ->
-            pair.first.setOnClickListener {
+        appBoxes.forEach { (colorHex, triple) ->
+            triple.first.setOnClickListener {
                 ThemeManager.saveAppBackgroundColor(requireContext(), colorHex)
                 applyDynamicTheming()
                 (activity as? MainActivity)?.loadDayData()
@@ -175,13 +201,16 @@ class FragmentSettings : Fragment() {
         val context = context ?: return
         val currentAppBg = ThemeManager.getAppBackgroundColor(context)
 
-        appBoxes.forEach { (hex, pair) ->
-            val (container, text) = pair
+        appBoxes.forEach { (hex, triple) ->
+            val (container, text, tick) = triple
             val isSelected = hex.equals(currentAppBg, ignoreCase = true)
             val baseColor = Color.parseColor(hex)
-
             val isDarkCard = hex == ThemeManager.APP_COLOR_AMOLED_BLACK || hex == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
-            text.setTextColor(if (isDarkCard) Color.WHITE else Color.parseColor("#2C1A14"))
+            val contentColor = if (isDarkCard) Color.WHITE else Color.parseColor("#2C1A14")
+
+            text.setTextColor(contentColor)
+            tick.setTextColor(contentColor)
+            tick.visibility = if (isSelected) View.VISIBLE else View.GONE
 
             val drawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -200,39 +229,46 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 2. WIDGET 6-PRESET SETUP
+    // 2. WIDGET PRESET SETUP (6 BOXES WITH TICK)
     // -------------------------------------------------------------
     private fun setupPresetBoxes(view: View) {
-        presetBoxes[ThemeManager.Preset.MIDNIGHT_GOLD] = Pair(
+        presetBoxes[ThemeManager.Preset.MIDNIGHT_GOLD] = Triple(
             view.findViewById(R.id.box_preset_midnight_gold),
-            view.findViewById(R.id.tv_preset_midnight_gold)
+            view.findViewById(R.id.tv_preset_midnight_gold),
+            view.findViewById(R.id.tick_preset_midnight_gold)
         )
-        presetBoxes[ThemeManager.Preset.HERITAGE_MAROON] = Pair(
+        presetBoxes[ThemeManager.Preset.HERITAGE_MAROON] = Triple(
             view.findViewById(R.id.box_preset_heritage_maroon),
-            view.findViewById(R.id.tv_preset_heritage_maroon)
+            view.findViewById(R.id.tv_preset_heritage_maroon),
+            view.findViewById(R.id.tick_preset_heritage_maroon)
         )
-        presetBoxes[ThemeManager.Preset.CLASSIC_MONO] = Pair(
+        presetBoxes[ThemeManager.Preset.CLASSIC_MONO] = Triple(
             view.findViewById(R.id.box_preset_classic_mono),
-            view.findViewById(R.id.tv_preset_classic_mono)
+            view.findViewById(R.id.tv_preset_classic_mono),
+            view.findViewById(R.id.tick_preset_classic_mono)
         )
-        presetBoxes[ThemeManager.Preset.NEON_NIGHT] = Pair(
+        presetBoxes[ThemeManager.Preset.NEON_NIGHT] = Triple(
             view.findViewById(R.id.box_preset_neon_night),
-            view.findViewById(R.id.tv_preset_neon_night)
+            view.findViewById(R.id.tv_preset_neon_night),
+            view.findViewById(R.id.tick_preset_neon_night)
         )
-        presetBoxes[ThemeManager.Preset.PORCELAIN_BLUE] = Pair(
+        presetBoxes[ThemeManager.Preset.PORCELAIN_BLUE] = Triple(
             view.findViewById(R.id.box_preset_porcelain_blue),
-            view.findViewById(R.id.tv_preset_porcelain_blue)
+            view.findViewById(R.id.tv_preset_porcelain_blue),
+            view.findViewById(R.id.tick_preset_porcelain_blue)
         )
-        presetBoxes[ThemeManager.Preset.PORCELAIN_RED] = Pair(
+        presetBoxes[ThemeManager.Preset.PORCELAIN_RED] = Triple(
             view.findViewById(R.id.box_preset_porcelain_red),
-            view.findViewById(R.id.tv_preset_porcelain_red)
+            view.findViewById(R.id.tv_preset_porcelain_red),
+            view.findViewById(R.id.tick_preset_porcelain_red)
         )
 
-        presetBoxes.forEach { (preset, pair) ->
-            pair.first.setOnClickListener {
+        presetBoxes.forEach { (preset, triple) ->
+            triple.first.setOnClickListener {
                 val context = requireContext()
                 ThemeManager.savePreset(context, preset)
                 renderPresetBoxes()
+                updateLiveSliderBackground()
                 updateWidgetPreview()
                 debounceWidgetUpdate()
             }
@@ -243,14 +279,16 @@ class FragmentSettings : Fragment() {
         val context = context ?: return
         val currentPreset = ThemeManager.getSelectedPreset(context)
 
-        presetBoxes.forEach { (preset, pair) ->
-            val (container, text) = pair
+        presetBoxes.forEach { (preset, triple) ->
+            val (container, text, tick) = triple
             val isSelected = preset == currentPreset
 
             val bgColor = ContextCompat.getColor(context, preset.bgResId)
             val accentColor = ContextCompat.getColor(context, preset.accentResId)
 
             text.setTextColor(accentColor)
+            tick.setTextColor(accentColor)
+            tick.visibility = if (isSelected) View.VISIBLE else View.GONE
 
             val drawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -269,7 +307,56 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 3. OUTER BORDER SWITCH & OPACITY SLIDER
+    // 3. CLOCK STYLE SWITCHER (DIGITAL vs ANALOG)
+    // -------------------------------------------------------------
+    private fun setupClockStyleSwitcher() {
+        boxClockDigital?.setOnClickListener {
+            val context = requireContext()
+            ThemeManager.saveClockFace(context, ThemeManager.CLOCK_DIGITAL)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+        boxClockAnalog?.setOnClickListener {
+            val context = requireContext()
+            ThemeManager.saveClockFace(context, ThemeManager.CLOCK_ANALOG)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+        renderClockStyleSwitcher()
+    }
+
+    private fun renderClockStyleSwitcher() {
+        val context = context ?: return
+        val currentStyle = ThemeManager.getClockFace(context)
+        val palette = ThemeManager.getThemePalette(context)
+        val density = context.resources.displayMetrics.density
+
+        val isDigital = currentStyle == ThemeManager.CLOCK_DIGITAL
+
+        // Digital Box
+        boxClockDigital?.background = GradientDrawable().apply {
+            cornerRadius = 12f * density
+            setColor(if (isDigital) palette.accentGold else palette.cardBackground)
+            setStroke(2, palette.cardBorder)
+        }
+        tvClockDigital?.setTextColor(if (isDigital) Color.BLACK else palette.primaryHeader)
+        tickClockDigital?.setTextColor(if (isDigital) Color.BLACK else palette.primaryHeader)
+        tickClockDigital?.visibility = if (isDigital) View.VISIBLE else View.GONE
+
+        // Analog Box
+        val isAnalog = !isDigital
+        boxClockAnalog?.background = GradientDrawable().apply {
+            cornerRadius = 12f * density
+            setColor(if (isAnalog) palette.accentGold else palette.cardBackground)
+            setStroke(2, palette.cardBorder)
+        }
+        tvClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else palette.primaryHeader)
+        tickClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else palette.primaryHeader)
+        tickClockAnalog?.visibility = if (isAnalog) View.VISIBLE else View.GONE
+    }
+
+    // -------------------------------------------------------------
+    // 4. OUTER BORDER SWITCH & LIVE OPACITY SLIDER
     // -------------------------------------------------------------
     private fun setupBorderSwitch() {
         val context = context ?: return
@@ -289,12 +376,15 @@ class FragmentSettings : Fragment() {
 
         seekBarOpacity?.progress = currentOpacity
         tvWidgetOpacityVal?.text = "$currentOpacity%"
+        updateLiveSliderBackground()
 
         seekBarOpacity?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val clamped = progress.coerceIn(0, 100)
                 tvWidgetOpacityVal?.text = "$clamped%"
                 tvPreviewSub?.text = "நேரலை மாதிரி • $clamped%"
+                updateLiveSliderBackground()
+
                 if (fromUser) {
                     ThemeManager.saveWidgetOpacity(requireContext(), clamped)
                     updateWidgetPreview()
@@ -310,16 +400,33 @@ class FragmentSettings : Fragment() {
         })
     }
 
-    // -------------------------------------------------------------
-    // 4. 4x2 SELECTION LOGIC (EXACTLY 3)
-    // -------------------------------------------------------------
-    private fun setupElements4x2() {
+    // Changes the opacity slider capsule card background live based on active theme & opacity %
+    private fun updateLiveSliderBackground() {
         val context = context ?: return
-        val currentSet = ThemeManager.getElements4x2(context).toMutableSet()
-        val group = chipGroupElements4x2 ?: return
-        group.removeAllViews()
+        val themeConfig = ThemeManager.getActiveTheme(context)
+        val density = context.resources.displayMetrics.density
 
-        // Boundary guard: Trim down if storage held more than 3
+        val alphaInt = ((themeConfig.opacityPercent / 100f).coerceIn(0.15f, 1f) * 255).toInt()
+        val baseBg = themeConfig.resolvedBackgroundColor
+        val liveColor = Color.argb(alphaInt, Color.red(baseBg), Color.green(baseBg), Color.blue(baseBg))
+
+        val bg = GradientDrawable().apply {
+            cornerRadius = 16f * density
+            setColor(liveColor)
+            setStroke(2, themeConfig.accentColor)
+        }
+        cardSliderCapsule?.background = bg
+    }
+
+    // -------------------------------------------------------------
+    // 5. TABLE FORMAT: 4x2 SELECTION LOGIC (EXACTLY 3)
+    // -------------------------------------------------------------
+    private fun renderElementsTable4x2() {
+        val context = context ?: return
+        val container = tableElements4x2 ?: return
+        val currentSet = ThemeManager.getElements4x2(context).toMutableSet()
+        container.removeAllViews()
+
         if (currentSet.size > 3) {
             val trimmed = currentSet.take(3).toMutableSet()
             currentSet.clear()
@@ -328,58 +435,63 @@ class FragmentSettings : Fragment() {
         }
 
         tvCountElements4x2?.text = "(${currentSet.size}/3)"
+        val palette = ThemeManager.getThemePalette(context)
+        val density = context.resources.displayMetrics.density
 
-        astrologicalOptions.forEach { (key, label) ->
-            val chip = Chip(context).apply {
-                text = label
-                isCheckable = true
-                isChecked = currentSet.contains(key)
-                tag = key
-
-                setOnClickListener {
-                    if (this.isChecked) {
-                        if (currentSet.size >= 3) {
-                            this.isChecked = false
-                            Toast.makeText(
-                                context,
-                                "4x2 விட்ஜெட்டுக்கு அதிகபட்சம் 3 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
-                        }
-                        currentSet.add(key)
-                    } else {
-                        if (currentSet.size <= 1) {
-                            this.isChecked = true
-                            Toast.makeText(
-                                context,
-                                "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
-                        }
-                        currentSet.remove(key)
+        astrologicalOptions.forEachIndexed { index, (key, label) ->
+            val isSelected = currentSet.contains(key)
+            val row = createTableRow(context, label, isSelected, palette, density) {
+                if (!isSelected) {
+                    if (currentSet.size >= 3) {
+                        Toast.makeText(
+                            context,
+                            "4x2 விட்ஜெட்டுக்கு அதிகபட்சம் 3 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@createTableRow
                     }
-
-                    tvCountElements4x2?.text = "(${currentSet.size}/3)"
-                    ThemeManager.saveElements4x2(context, currentSet)
-                    debounceWidgetUpdate()
+                    currentSet.add(key)
+                } else {
+                    if (currentSet.size <= 1) {
+                        Toast.makeText(
+                            context,
+                            "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@createTableRow
+                    }
+                    currentSet.remove(key)
                 }
+
+                tvCountElements4x2?.text = "(${currentSet.size}/3)"
+                ThemeManager.saveElements4x2(context, currentSet)
+                renderElementsTable4x2()
+                debounceWidgetUpdate()
             }
-            group.addView(chip)
+            container.addView(row)
+
+            if (index < astrologicalOptions.size - 1) {
+                val divider = View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (1 * density).toInt()
+                    )
+                    setBackgroundColor(Color.parseColor("#15888888"))
+                }
+                container.addView(divider)
+            }
         }
     }
 
     // -------------------------------------------------------------
-    // 5. 4x4 SELECTION LOGIC (EXACTLY 5)
+    // 6. TABLE FORMAT: 4x4 SELECTION LOGIC (EXACTLY 5)
     // -------------------------------------------------------------
-    private fun setupElements4x4() {
+    private fun renderElementsTable4x4() {
         val context = context ?: return
+        val container = tableElements4x4 ?: return
         val currentSet = ThemeManager.getElements4x4(context).toMutableSet()
-        val group = chipGroupElements4x4 ?: return
-        group.removeAllViews()
+        container.removeAllViews()
 
-        // Boundary guard: Trim down if storage held more than 5
         if (currentSet.size > 5) {
             val trimmed = currentSet.take(5).toMutableSet()
             currentSet.clear()
@@ -388,46 +500,99 @@ class FragmentSettings : Fragment() {
         }
 
         tvCountElements4x4?.text = "(${currentSet.size}/5)"
+        val palette = ThemeManager.getThemePalette(context)
+        val density = context.resources.displayMetrics.density
 
-        astrologicalOptions.forEach { (key, label) ->
-            val chip = Chip(context).apply {
-                text = label
-                isCheckable = true
-                isChecked = currentSet.contains(key)
-                tag = key
-
-                setOnClickListener {
-                    if (this.isChecked) {
-                        if (currentSet.size >= 5) {
-                            this.isChecked = false
-                            Toast.makeText(
-                                context,
-                                "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
-                        }
-                        currentSet.add(key)
-                    } else {
-                        if (currentSet.size <= 1) {
-                            this.isChecked = true
-                            Toast.makeText(
-                                context,
-                                "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@setOnClickListener
-                        }
-                        currentSet.remove(key)
+        astrologicalOptions.forEachIndexed { index, (key, label) ->
+            val isSelected = currentSet.contains(key)
+            val row = createTableRow(context, label, isSelected, palette, density) {
+                if (!isSelected) {
+                    if (currentSet.size >= 5) {
+                        Toast.makeText(
+                            context,
+                            "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@createTableRow
                     }
-
-                    tvCountElements4x4?.text = "(${currentSet.size}/5)"
-                    ThemeManager.saveElements4x4(context, currentSet)
-                    debounceWidgetUpdate()
+                    currentSet.add(key)
+                } else {
+                    if (currentSet.size <= 1) {
+                        Toast.makeText(
+                            context,
+                            "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@createTableRow
+                    }
+                    currentSet.remove(key)
                 }
+
+                tvCountElements4x4?.text = "(${currentSet.size}/5)"
+                ThemeManager.saveElements4x4(context, currentSet)
+                renderElementsTable4x4()
+                debounceWidgetUpdate()
             }
-            group.addView(chip)
+            container.addView(row)
+
+            if (index < astrologicalOptions.size - 1) {
+                val divider = View(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (1 * density).toInt()
+                    )
+                    setBackgroundColor(Color.parseColor("#15888888"))
+                }
+                container.addView(divider)
+            }
         }
+    }
+
+    // Helper to generate a clean table row (Left: Title, Right: Tick Mark)
+    private fun createTableRow(
+        context: Context,
+        label: String,
+        isSelected: Boolean,
+        palette: ThemeManager.ThemePalette,
+        density: Float,
+        onClick: () -> Unit
+    ): View {
+        val rowLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding((12 * density).toInt(), (10 * density).toInt(), (12 * density).toInt(), (10 * density).toInt())
+            isClickable = true
+            isFocusable = true
+            background = GradientDrawable().apply {
+                cornerRadius = 8f * density
+                setColor(if (isSelected) Color.parseColor("#18B26A00") else Color.TRANSPARENT)
+            }
+            setOnClickListener { onClick() }
+        }
+
+        val tvLabel = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            text = label
+            textSize = 13.5f
+            setTextColor(if (isSelected) palette.accentGold else palette.primaryHeader)
+            if (isSelected) setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+        rowLayout.addView(tvLabel)
+
+        val tvTick = TextView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            text = "✓"
+            textSize = 15f
+            setTextColor(palette.accentGold)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+        }
+        rowLayout.addView(tvTick)
+
+        return rowLayout
     }
 
     private fun debounceWidgetUpdate(immediate: Boolean = false) {
@@ -445,7 +610,7 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 6. THEME RESOLUTION & PREVIEW
+    // 7. THEME RESOLUTION & PREVIEW
     // -------------------------------------------------------------
     private fun applyDynamicTheming() {
         val context = context ?: return
@@ -463,6 +628,7 @@ class FragmentSettings : Fragment() {
         tvHeading?.setTextColor(headingColor)
         tvLblAppTheme?.setTextColor(labelColor)
         tvLblWidgetTheme?.setTextColor(labelColor)
+        tvLblClockStyle?.setTextColor(labelColor)
         tvLblOuterBorder?.setTextColor(labelColor)
         tvLblElements4x2?.setTextColor(labelColor)
         tvLblElements4x4?.setTextColor(labelColor)
@@ -476,6 +642,10 @@ class FragmentSettings : Fragment() {
 
         renderAppBoxes()
         renderPresetBoxes()
+        renderClockStyleSwitcher()
+        updateLiveSliderBackground()
+        renderElementsTable4x2()
+        renderElementsTable4x4()
         updateWidgetPreview()
     }
 
