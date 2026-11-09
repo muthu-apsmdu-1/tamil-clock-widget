@@ -181,44 +181,88 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // ASTROLOGICAL ELEMENT RESOLVER
-private fun resolveElement(key: String, data: PanchangData): Pair<String, String> {
+// -------------------------------------------------------------
+// ASTROLOGICAL ELEMENT RESOLVER
+// -------------------------------------------------------------
+private fun resolveElement(key: String, data: TamilDatabaseHelper.DayPanchangDetails): Pair<String, String> {
     return when (key) {
-        ThemeManager.ELEM_PAKSHAM -> 
-            Pair("பக்ஷம்", data.paksham.ifBlank { "—" })
+        ThemeManager.ELEM_PAKSHAM -> {
+            val converted = convertPakshamName(data.paksha)
+            Pair("பக்ஷம்", if (converted.isNotBlank()) converted else "—")
+        }
 
-        ThemeManager.ELEM_THITHI -> 
-            Pair("திதி", if (data.thithiTime.isNotBlank()) "${data.thithi} (${data.thithiTime})" else data.thithi.ifBlank { "—" })
+        ThemeManager.ELEM_THITHI -> {
+            val thithiName = data.tithiName.trim()
+            val thithiTime = data.tithiTime.trim()
+            val text = when {
+                thithiName.isNotBlank() && thithiTime.isNotBlank() -> "$thithiName ($thithiTime)"
+                thithiName.isNotBlank() -> thithiName
+                else -> "—"
+            }
+            Pair("திதி", text)
+        }
 
-        ThemeManager.ELEM_NAKSHATRA -> 
-            Pair("நட்சத்திரம்", if (data.nakshatraTime.isNotBlank()) "${data.nakshatra} (${data.nakshatraTime})" else data.nakshatra.ifBlank { "—" })
+        ThemeManager.ELEM_NAKSHATRA -> {
+            val nName = data.nakshatraName.trim()
+            val nTime = data.nakshatraTime.trim()
+            val text = when {
+                nName.isNotBlank() && nTime.isNotBlank() -> "$nName ($nTime)"
+                nName.isNotBlank() -> nName
+                else -> "—"
+            }
+            Pair("நட்சத்திரம்", text)
+        }
 
-        ThemeManager.ELEM_AMIRTHATHI_YOGA -> 
-            Pair("யோகம்", data.yogam.ifBlank { "—" })
+        ThemeManager.ELEM_AMIRTHATHI_YOGA -> {
+            val yogamVal = data.yogam.trim()
+            Pair("யோகம்", if (yogamVal.isNotBlank()) yogamVal else "—")
+        }
 
-        ThemeManager.ELEM_NALLA_NERAM -> 
-            Pair("நல்ல நேரம்", data.nallaNeram.ifBlank { "—" })
+        ThemeManager.ELEM_NALLA_NERAM -> {
+            val nnVal = data.nallaNeram.trim()
+            Pair("நல்ல நேரம்", if (nnVal.isNotBlank()) nnVal else "—")
+        }
 
-        ThemeManager.ELEM_GOWRI_NALLA_NERAM -> 
-            Pair("கௌரி நல்ல நேரம்", data.gowriNallaNeram.ifBlank { "—" })
+        ThemeManager.ELEM_GOWRI_NALLA_NERAM -> {
+            val gowriVal = data.gowriNallaNeram.trim()
+            Pair("கௌரி", if (gowriVal.isNotBlank()) gowriVal else "—")
+        }
 
-        ThemeManager.ELEM_RAHU_KALAM -> 
-            Pair("ராகு காலம்", data.rahuKalam.ifBlank { "—" })
+        ThemeManager.ELEM_RAHU_KALAM -> {
+            val rahuVal = data.rahuKalam.trim()
+            Pair("ராகு காலம்", if (rahuVal.isNotBlank()) rahuVal else "—")
+        }
 
-        ThemeManager.ELEM_YEMAKANDAM -> 
-            Pair("எமகண்டம்", data.emakandam.ifBlank { "—" })
+        ThemeManager.ELEM_YEMAKANDAM -> {
+            val yemaVal = data.emakandam.trim()
+            Pair("எமகண்டம்", if (yemaVal.isNotBlank()) yemaVal else "—")
+        }
 
-        ThemeManager.ELEM_KULIGAI -> 
-            Pair("குளிகை", data.kuligai.ifBlank { "—" })
+        ThemeManager.ELEM_KULIGAI -> {
+            val kuliVal = data.kuligai.trim()
+            Pair("குளிகை", if (kuliVal.isNotBlank()) kuliVal else "—")
+        }
 
-        ThemeManager.ELEM_SUNRISE_SET -> 
-            Pair("சூரியன்", "உதயம்: ${data.sunrise} | மறைவு: ${data.sunset}")
+        ThemeManager.ELEM_SUNRISE_SET -> {
+            val rise = data.sunrise.trim()
+            val set = data.sunset.trim()
+            val text = when {
+                rise.isNotBlank() && set.isNotBlank() -> "உதயம்: $rise | மறைவு: $set"
+                rise.isNotBlank() -> "உதயம்: $rise"
+                else -> "—"
+            }
+            Pair("சூரியன்", text)
+        }
 
-        ThemeManager.ELEM_CHANDRASTAMA -> 
-            Pair("சந்திராஷ்டமம்", data.chandrashtamam.ifBlank { "இல்லை" })
+        ThemeManager.ELEM_CHANDRASTAMA -> {
+            val chandraVal = data.chandrashtamam.trim()
+            Pair("சந்திராஷ்டமம்", if (chandraVal.isNotBlank()) chandraVal else "இல்லை")
+        }
 
-        ThemeManager.ELEM_FESTIVAL -> 
-            Pair("சிறப்பு", data.festival.ifBlank { "—" })
+        ThemeManager.ELEM_FESTIVAL -> {
+            val festVal = data.festival.trim()
+            Pair("சிறப்பு", if (festVal.isNotBlank()) festVal else "—")
+        }
 
         else -> Pair("", "")
     }
