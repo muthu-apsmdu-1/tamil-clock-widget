@@ -61,18 +61,22 @@ class FragmentSettings : Fragment() {
     private val debounceHandler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
-    // Astrological Elements Available
+    // 12 Astrological Elements ordered strictly by user priority
     private val astrologicalOptions = listOf(
-        Pair(ThemeManager.ELEM_PAKSHAM, "பக்ஷம்"),
-        Pair(ThemeManager.ELEM_THITHI, "திதி"),
-        Pair(ThemeManager.ELEM_NAKSHATRA, "நட்சத்திரம்"),
-        Pair(ThemeManager.ELEM_KARNAM, "கரணம்"),
-        Pair(ThemeManager.ELEM_THYAJAM, "தியாகம்"),
-        Pair(ThemeManager.ELEM_NALLA_NERAM, "நல்ல நேரம்"),
-        Pair(ThemeManager.ELEM_GOWRI_NALLA_NERAM, "கௌரி நல்ல நேரம்"),
-        Pair(ThemeManager.ELEM_SOOLAM, "சூலம்"),
-        Pair(ThemeManager.ELEM_SUNRISE_SET, "உதயம்/மறைவு")
+        Pair(ThemeManager.ELEM_PAKSHAM, "1. பக்ஷம் (Paksham)"),
+        Pair(ThemeManager.ELEM_THITHI, "2. திதி நேரம் (Thithi & Timing)"),
+        Pair(ThemeManager.ELEM_NAKSHATRA, "3. நட்சத்திரம் நேரம் (Nakshatra & Timing)"),
+        Pair(ThemeManager.ELEM_AMIRTHATHI_YOGA, "4. அமிர்தாதி யோகம் (Amirthaitya Yoga)"),
+        Pair(ThemeManager.ELEM_NALLA_NERAM, "5. நல்ல நேரம் (Nalla Neram)"),
+        Pair(ThemeManager.ELEM_GOWRI_NALLA_NERAM, "6. கௌரி நல்ல நேரம் (Gowri Nalla Neram)"),
+        Pair(ThemeManager.ELEM_RAHU_KALAM, "7. ராகு காலம் (Rahu Kalam)"),
+        Pair(ThemeManager.ELEM_YEMAKANDAM, "8. எமகண்டம் (Yemakandam)"),
+        Pair(ThemeManager.ELEM_KULIGAI, "9. குளிகை (Kuligai)"),
+        Pair(ThemeManager.ELEM_SUNRISE_SET, "10. சூரிய உதயம் / மறைவு (Sun Rise/Set)"),
+        Pair(ThemeManager.ELEM_CHANDRASTAMA, "11. சந்திராஷ்டமம் (Chandrastama)"),
+        Pair(ThemeManager.ELEM_FESTIVAL, "12. சிறப்பு / திருவிழா (Festival)")
     )
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
