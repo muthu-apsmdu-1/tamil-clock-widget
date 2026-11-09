@@ -11,21 +11,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class FragmentSettings : Fragment() {
 
     private var rootScrollView: ScrollView? = null
     private var tvHeading: TextView? = null
     private var tvLblAppTheme: TextView? = null
-    private var rgAppThemes: RadioGroup? = null
 
     private var tvLblWidgetTheme: TextView? = null
     private var tvLblOuterBorder: TextView? = null
@@ -35,26 +35,43 @@ class FragmentSettings : Fragment() {
     private var tvWidgetOpacityVal: TextView? = null
     private var seekBarOpacity: SeekBar? = null
 
+    // 4x2 and 4x4 Astrological Elements Selectors
+    private var tvLblElements4x2: TextView? = null
+    private var tvCountElements4x2: TextView? = null
+    private var chipGroupElements4x2: ChipGroup? = null
+
+    private var tvLblElements4x4: TextView? = null
+    private var tvCountElements4x4: TextView? = null
+    private var chipGroupElements4x4: ChipGroup? = null
+
+    // Preview views
     private var tvLblWidgetPreview: TextView? = null
     private var framePreviewWrapper: FrameLayout? = null
     private var ivPreviewWidgetBg: ImageView? = null
     private var tvPreviewTitle: TextView? = null
     private var tvPreviewSub: TextView? = null
 
-    // 6 Preset Containers and Labels
+    // 5 App Background Theme Boxes: Pair<BoxContainer, LabelTextView>
+    private val appBoxes = mutableMapOf<String, Pair<FrameLayout, TextView>>()
+
+    // 6 Widget Preset Boxes: Pair<BoxContainer, LabelTextView>
     private val presetBoxes = mutableMapOf<ThemeManager.Preset, Pair<FrameLayout, TextView>>()
 
     // Debounce handler for IPC updates
     private val debounceHandler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
-    // 5 App Background Choices
-    private val appThemeOptions = listOf(
-        Pair(ThemeManager.APP_COLOR_ANTIQUE_SANDAL, "பண்டைய சந்தனம் (Antique Sandal)"),
-        Pair(ThemeManager.APP_COLOR_BRIGHT_LEMON, "எலுமிச்சை மஞ்சள் (Bright Lemon)"),
-        Pair(ThemeManager.APP_COLOR_MIDNIGHT_VIOLET, "நள்ளிரவு ஊதா (Midnight Violet)"),
-        Pair(ThemeManager.APP_COLOR_OFF_WHITE, "மங்கலான வெள்ளை (Off-White)"),
-        Pair(ThemeManager.APP_COLOR_AMOLED_BLACK, "அமோலெட் கருப்பு (AMOLED Black)")
+    // Astrological Elements Available
+    private val astrologicalOptions = listOf(
+        Pair(ThemeManager.ELEM_PAKSHAM, "பக்ஷம்"),
+        Pair(ThemeManager.ELEM_THITHI, "திதி"),
+        Pair(ThemeManager.ELEM_NAKSHATRA, "நட்சத்திரம்"),
+        Pair(ThemeManager.ELEM_KARNAM, "கரணம்"),
+        Pair(ThemeManager.ELEM_THYAJAM, "தியாகம்"),
+        Pair(ThemeManager.ELEM_NALLA_NERAM, "நல்ல நேரம்"),
+        Pair(ThemeManager.ELEM_GOWRI_NALLA_NERAM, "கௌரி நல்ல நேரம்"),
+        Pair(ThemeManager.ELEM_SOOLAM, "சூலம்"),
+        Pair(ThemeManager.ELEM_SUNRISE_SET, "உதயம்/மறைவு")
     )
 
     override fun onCreateView(
@@ -68,10 +85,12 @@ class FragmentSettings : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bindViews(view)
-        setupAppThemeSelection()
+        setupAppBoxes(view)
         setupPresetBoxes(view)
         setupBorderSwitch()
         setupOpacitySeekBar()
+        setupElements4x2()
+        setupElements4x4()
         applyDynamicTheming()
     }
 
@@ -82,6 +101,7 @@ class FragmentSettings : Fragment() {
 
     override fun onDestroyView() {
         updateRunnable?.let { debounceHandler.removeCallbacks(it) }
+        appBoxes.clear()
         presetBoxes.clear()
         super.onDestroyView()
     }
@@ -90,7 +110,6 @@ class FragmentSettings : Fragment() {
         rootScrollView = view.findViewById(R.id.scroll_settings_root)
         tvHeading = view.findViewById(R.id.tv_settings_main_heading)
         tvLblAppTheme = view.findViewById(R.id.tv_lbl_app_theme)
-        rgAppThemes = view.findViewById(R.id.rg_app_theme_options)
 
         tvLblWidgetTheme = view.findViewById(R.id.tv_lbl_widget_theme)
         tvLblOuterBorder = view.findViewById(R.id.tv_lbl_outer_border)
@@ -100,6 +119,14 @@ class FragmentSettings : Fragment() {
         tvWidgetOpacityVal = view.findViewById(R.id.tv_widget_opacity_val)
         seekBarOpacity = view.findViewById(R.id.seekbar_widget_opacity)
 
+        tvLblElements4x2 = view.findViewById(R.id.tv_lbl_elements_4x2)
+        tvCountElements4x2 = view.findViewById(R.id.tv_count_elements_4x2)
+        chipGroupElements4x2 = view.findViewById(R.id.chip_group_elements_4x2)
+
+        tvLblElements4x4 = view.findViewById(R.id.tv_lbl_elements_4x4)
+        tvCountElements4x4 = view.findViewById(R.id.tv_count_elements_4x4)
+        chipGroupElements4x4 = view.findViewById(R.id.chip_group_elements_4x4)
+
         tvLblWidgetPreview = view.findViewById(R.id.tv_lbl_widget_preview)
         framePreviewWrapper = view.findViewById(R.id.frame_preview_wrapper)
         ivPreviewWidgetBg = view.findViewById(R.id.iv_preview_widget_bg)
@@ -107,6 +134,71 @@ class FragmentSettings : Fragment() {
         tvPreviewSub = view.findViewById(R.id.tv_preview_sub)
     }
 
+    // -------------------------------------------------------------
+    // 1. APP BACKGROUND 5-BOX SETUP
+    // -------------------------------------------------------------
+    private fun setupAppBoxes(view: View) {
+        appBoxes[ThemeManager.APP_COLOR_ANTIQUE_SANDAL] = Pair(
+            view.findViewById(R.id.box_app_antique_sandal),
+            view.findViewById(R.id.tv_app_antique_sandal)
+        )
+        appBoxes[ThemeManager.APP_COLOR_BRIGHT_LEMON] = Pair(
+            view.findViewById(R.id.box_app_bright_lemon),
+            view.findViewById(R.id.tv_app_bright_lemon)
+        )
+        appBoxes[ThemeManager.APP_COLOR_MIDNIGHT_VIOLET] = Pair(
+            view.findViewById(R.id.box_app_midnight_violet),
+            view.findViewById(R.id.tv_app_midnight_violet)
+        )
+        appBoxes[ThemeManager.APP_COLOR_OFF_WHITE] = Pair(
+            view.findViewById(R.id.box_app_off_white),
+            view.findViewById(R.id.tv_app_off_white)
+        )
+        appBoxes[ThemeManager.APP_COLOR_AMOLED_BLACK] = Pair(
+            view.findViewById(R.id.box_app_amoled_black),
+            view.findViewById(R.id.tv_app_amoled_black)
+        )
+
+        appBoxes.forEach { (colorHex, pair) ->
+            pair.first.setOnClickListener {
+                ThemeManager.saveAppBackgroundColor(requireContext(), colorHex)
+                applyDynamicTheming()
+                (activity as? MainActivity)?.loadDayData()
+            }
+        }
+    }
+
+    private fun renderAppBoxes() {
+        val context = context ?: return
+        val currentAppBg = ThemeManager.getAppBackgroundColor(context)
+
+        appBoxes.forEach { (hex, pair) ->
+            val (container, text) = pair
+            val isSelected = hex.equals(currentAppBg, ignoreCase = true)
+            val baseColor = Color.parseColor(hex)
+
+            val isDarkCard = hex == ThemeManager.APP_COLOR_AMOLED_BLACK || hex == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+            text.setTextColor(if (isDarkCard) Color.WHITE else Color.parseColor("#2C1A14"))
+
+            val drawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = 14f * context.resources.displayMetrics.density
+                setColor(baseColor)
+                if (isSelected) {
+                    val strokeColor = ContextCompat.getColor(context, R.color.selection_gold_indicator)
+                    setStroke(6, strokeColor)
+                } else {
+                    val borderColor = ContextCompat.getColor(context, R.color.settings_card_border)
+                    setStroke(2, borderColor)
+                }
+            }
+            container.background = drawable
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 2. WIDGET 6-PRESET SETUP
+    // -------------------------------------------------------------
     private fun setupPresetBoxes(view: View) {
         presetBoxes[ThemeManager.Preset.MIDNIGHT_GOLD] = Pair(
             view.findViewById(R.id.box_preset_midnight_gold),
@@ -173,6 +265,9 @@ class FragmentSettings : Fragment() {
         }
     }
 
+    // -------------------------------------------------------------
+    // 3. OUTER BORDER SWITCH & OPACITY SLIDER
+    // -------------------------------------------------------------
     private fun setupBorderSwitch() {
         val context = context ?: return
         val borderEnabled = ThemeManager.isBorderEnabled(context)
@@ -212,6 +307,90 @@ class FragmentSettings : Fragment() {
         })
     }
 
+    // -------------------------------------------------------------
+    // 4. 4x2 SELECTION LOGIC (EXACTLY 3)
+    // -------------------------------------------------------------
+    private fun setupElements4x2() {
+        val context = context ?: return
+        val currentSet = ThemeManager.getElements4x2(context).toMutableSet()
+        val group = chipGroupElements4x2 ?: return
+        group.removeAllViews()
+
+        tvCountElements4x2?.text = "(${currentSet.size}/3)"
+
+        astrologicalOptions.forEach { (key, label) ->
+            val chip = Chip(context).apply {
+                text = label
+                isCheckable = true
+                isChecked = currentSet.contains(key)
+                tag = key
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        if (currentSet.size >= 3) {
+                            this.isChecked = false
+                            Toast.makeText(context, "4x2 விட்ஜெட்டுக்கு அதிகபட்சம் 3 கூறுகளை மட்டுமே தேர்வு செய்யலாம்", Toast.LENGTH_SHORT).show()
+                            return@setOnCheckedChangeListener
+                        }
+                        currentSet.add(key)
+                    } else {
+                        if (currentSet.size <= 1) {
+                            this.isChecked = true
+                            Toast.makeText(context, "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்", Toast.LENGTH_SHORT).show()
+                            return@setOnCheckedChangeListener
+                        }
+                        currentSet.remove(key)
+                    }
+                    tvCountElements4x2?.text = "(${currentSet.size}/3)"
+                    ThemeManager.saveElements4x2(context, currentSet)
+                    debounceWidgetUpdate()
+                }
+            }
+            group.addView(chip)
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 5. 4x4 SELECTION LOGIC (EXACTLY 5)
+    // -------------------------------------------------------------
+    private fun setupElements4x4() {
+        val context = context ?: return
+        val currentSet = ThemeManager.getElements4x4(context).toMutableSet()
+        val group = chipGroupElements4x4 ?: return
+        group.removeAllViews()
+
+        tvCountElements4x4?.text = "(${currentSet.size}/5)"
+
+        astrologicalOptions.forEach { (key, label) ->
+            val chip = Chip(context).apply {
+                text = label
+                isCheckable = true
+                isChecked = currentSet.contains(key)
+                tag = key
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        if (currentSet.size >= 5) {
+                            this.isChecked = false
+                            Toast.makeText(context, "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்", Toast.LENGTH_SHORT).show()
+                            return@setOnCheckedChangeListener
+                        }
+                        currentSet.add(key)
+                    } else {
+                        if (currentSet.size <= 1) {
+                            this.isChecked = true
+                            Toast.makeText(context, "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்", Toast.LENGTH_SHORT).show()
+                            return@setOnCheckedChangeListener
+                        }
+                        currentSet.remove(key)
+                    }
+                    tvCountElements4x4?.text = "(${currentSet.size}/5)"
+                    ThemeManager.saveElements4x4(context, currentSet)
+                    debounceWidgetUpdate()
+                }
+            }
+            group.addView(chip)
+        }
+    }
+
     private fun debounceWidgetUpdate(immediate: Boolean = false) {
         updateRunnable?.let { debounceHandler.removeCallbacks(it) }
         val action = Runnable {
@@ -226,34 +405,9 @@ class FragmentSettings : Fragment() {
         }
     }
 
-    private fun setupAppThemeSelection() {
-        val context = context ?: return
-        val currentAppTheme = ThemeManager.getAppBackgroundColor(context)
-        val rg = rgAppThemes ?: return
-        rg.removeAllViews()
-
-        appThemeOptions.forEach { pair ->
-            val rb = RadioButton(context).apply {
-                id = View.generateViewId()
-                text = pair.second
-                textSize = 14f
-                tag = pair.first
-                isChecked = pair.first.equals(currentAppTheme, ignoreCase = true)
-                setPadding(12, 10, 12, 10)
-            }
-            rg.addView(rb)
-        }
-
-        rg.setOnCheckedChangeListener { group, checkedId ->
-            val selectedRb = group.findViewById<RadioButton>(checkedId)
-            val selectedHex = selectedRb?.tag as? String ?: return@setOnCheckedChangeListener
-
-            ThemeManager.saveAppBackgroundColor(requireContext(), selectedHex)
-            applyDynamicTheming()
-            (activity as? MainActivity)?.loadDayData()
-        }
-    }
-
+    // -------------------------------------------------------------
+    // 6. THEME RESOLUTION & PREVIEW
+    // -------------------------------------------------------------
     private fun applyDynamicTheming() {
         val context = context ?: return
         val palette = ThemeManager.getThemePalette(context)
@@ -266,23 +420,14 @@ class FragmentSettings : Fragment() {
 
         val headingColor = if (isDark) Color.WHITE else palette.primaryHeader
         val labelColor = if (isDark) Color.WHITE else palette.secondaryHeader
-        val radioTextColor = if (isDark) Color.WHITE else palette.primaryText
 
         tvHeading?.setTextColor(headingColor)
         tvLblAppTheme?.setTextColor(labelColor)
         tvLblWidgetTheme?.setTextColor(labelColor)
         tvLblOuterBorder?.setTextColor(labelColor)
+        tvLblElements4x2?.setTextColor(labelColor)
+        tvLblElements4x4?.setTextColor(labelColor)
         tvLblWidgetPreview?.setTextColor(labelColor)
-
-        val radioTint = ColorStateList.valueOf(palette.accentGold)
-        rgAppThemes?.let { group ->
-            for (i in 0 until group.childCount) {
-                (group.getChildAt(i) as? RadioButton)?.apply {
-                    setTextColor(radioTextColor)
-                    buttonTintList = radioTint
-                }
-            }
-        }
 
         switchOuterBorder?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
         switchOuterBorder?.trackTintList = ColorStateList.valueOf(Color.parseColor("#80B26A00"))
@@ -290,6 +435,7 @@ class FragmentSettings : Fragment() {
         seekBarOpacity?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
         seekBarOpacity?.progressTintList = ColorStateList.valueOf(palette.accentGold)
 
+        renderAppBoxes()
         renderPresetBoxes()
         updateWidgetPreview()
     }
