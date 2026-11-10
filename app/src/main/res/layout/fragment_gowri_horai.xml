@@ -153,19 +153,21 @@
     </LinearLayout>
 
     <!-- Scrollable 3-Column Slot Rows -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_gowri_horai"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        android:overScrollMode="always">
 
         <LinearLayout
             android:id="@+id/container_table_rows"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Bottom Legend Strip -->
     <LinearLayout
