@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -22,10 +23,7 @@ class FragmentGowriHorai : Fragment() {
         private const val REFRESH_INTERVAL = 30_000L
         private const val ARG_IS_HORAI = "arg_is_horai"
 
-        // Auspicious Gowri terms as stored in weekday_gowri table
         private val AUSPICIOUS_GOWRI = setOf("அமிர்தம்", "லாபம்", "தனம்", "சுகம்", "உத்தி", "சுபம்")
-
-        // Auspicious Horai planets as stored in weekday_horai table
         private val AUSPICIOUS_HORAI = setOf("குரு", "சுக்கிரன்", "புதன்", "சந்திரன்")
 
         fun newInstance(initialTabIsHorai: Boolean): FragmentGowriHorai {
@@ -59,7 +57,8 @@ class FragmentGowriHorai : Fragment() {
     private lateinit var tvColHeaderNightTitle: TextView
     private lateinit var tvColHeaderNightSub: TextView
 
-    // 3-Column Table Container
+    // Scroll & Container
+    private var scrollGowriHorai: NestedScrollView? = null
     private lateinit var containerTableRows: LinearLayout
 
     // Bottom Legend Footer Strip
@@ -119,7 +118,8 @@ class FragmentGowriHorai : Fragment() {
         tvColHeaderNightTitle = view.findViewById(R.id.tv_col_header_night_title)
         tvColHeaderNightSub = view.findViewById(R.id.tv_col_header_night_sub)
 
-        // Rows Container
+        // Scroll & Rows Container
+        scrollGowriHorai = view.findViewById(R.id.scroll_gowri_horai)
         containerTableRows = view.findViewById(R.id.container_table_rows)
 
         // Bottom Legend Footer
@@ -215,15 +215,12 @@ class FragmentGowriHorai : Fragment() {
 
         rootLayout?.setBackgroundColor(palette.pageBackground)
 
-        // Top Summary Strip
         layoutDateStrip.setBackgroundColor(palette.primaryHeader)
         tvHeaderStripDate.setTextColor(palette.accentGold)
 
-        // Live Clock Pill
         tvHeaderLiveClock.setBackgroundColor(palette.cardBackground)
         tvHeaderLiveClock.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
 
-        // 3-Column Table Header
         layoutTableHeader.setBackgroundColor(palette.primaryHeader)
         tvColHeaderTime.setTextColor(Color.WHITE)
         tvColHeaderDayTitle.setTextColor(Color.WHITE)
@@ -231,7 +228,6 @@ class FragmentGowriHorai : Fragment() {
         tvColHeaderNightTitle.setTextColor(Color.WHITE)
         tvColHeaderNightSub.setTextColor(palette.accentGold)
 
-        // Bottom Legend Footer
         tvLegendBadge.setBackgroundColor(palette.primaryHeader)
         tvLegendBadge.setTextColor(palette.accentGold)
         tvLegendText.setTextColor(if (isDark) Color.WHITE else palette.primaryText)
@@ -304,6 +300,7 @@ class FragmentGowriHorai : Fragment() {
     ): View {
         val context = requireContext()
         val palette = ThemeManager.getThemePalette(context)
+        val density = resources.displayMetrics.density
         val isDark = isDarkThemeActive()
 
         val row = LinearLayout(context).apply {
@@ -317,15 +314,15 @@ class FragmentGowriHorai : Fragment() {
             tag = item
         }
 
-        // Col 1: Time Range
+        // Col 1: Time Range (wrap_content height with symmetric padding)
         val tvTime = TextView(context).apply {
             id = R.id.tv_col_header_time
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.2f)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3.2f)
             text = item.timeLabel
             textSize = 12.5f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(4, 10, 4, 10)
+            setPadding(4, (10 * density).toInt(), 4, (10 * density).toInt())
             setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
         }
 
@@ -334,16 +331,16 @@ class FragmentGowriHorai : Fragment() {
             setBackgroundColor(palette.emptyCellBackground)
         }
 
-        // Col 2: Day Slot Value
+        // Col 2: Day Slot Value (wrap_content height with symmetric padding)
         val dayColor = if (isDayGood) Color.parseColor("#008A20") else Color.parseColor("#D31212")
         val tvDay = TextView(context).apply {
             id = R.id.col_header_day
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.4f)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3.4f)
             text = item.dayValue
-            textSize = 14.5f
+            textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(4, 10, 4, 10)
+            setPadding(4, (10 * density).toInt(), 4, (10 * density).toInt())
             setTextColor(dayColor)
         }
 
@@ -352,16 +349,16 @@ class FragmentGowriHorai : Fragment() {
             setBackgroundColor(palette.emptyCellBackground)
         }
 
-        // Col 3: Night Slot Value
+        // Col 3: Night Slot Value (wrap_content height with symmetric padding)
         val nightColor = if (isNightGood) Color.parseColor("#008A20") else Color.parseColor("#D31212")
         val tvNight = TextView(context).apply {
             id = R.id.col_header_night
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 3.4f)
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3.4f)
             text = item.nightValue
-            textSize = 14.5f
+            textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            setPadding(4, 10, 4, 10)
+            setPadding(4, (10 * density).toInt(), 4, (10 * density).toInt())
             setTextColor(nightColor)
         }
 
