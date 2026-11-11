@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Diagonal double-headed arrows matching 21627.jpg -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFDF00"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M15,4 L20,4 L20,9 M20,4 L13.5,10.5 M9,20 L4,20 L4,15 M4,20 L10.5,13.5" />
+</vector>
