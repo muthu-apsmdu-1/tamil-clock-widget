@@ -24,11 +24,14 @@ class FragmentPanchangam : Fragment() {
     private var currentCalendar: Calendar = Calendar.getInstance()
     private var rootScrollView: ScrollView? = null
 
-    // Top Header & Capsule
+    // Top Header & Capsule Views
     private lateinit var tvBigGregorianDate: TextView
     private lateinit var tcBannerTime: TextClock
-    private lateinit var tcBannerAmPm: TextClock
     private lateinit var viewDivider: View
+    private lateinit var btnPrevDay: ImageButton
+    private lateinit var btnNextDay: ImageButton
+
+    // Date Strip Views
     private lateinit var tvBannerTamilYear: TextView
     private lateinit var tvBannerTamilMonth: TextView
     private lateinit var tvBannerTamilDate: TextView
@@ -108,6 +111,11 @@ class FragmentPanchangam : Fragment() {
     private lateinit var lblExpFestivals: TextView
     private lateinit var tvExpFestivals: TextView
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dbHelper = TamilDatabaseHelper(requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -118,11 +126,11 @@ class FragmentPanchangam : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dbHelper = TamilDatabaseHelper(requireContext())
         rootScrollView = view.findViewById(R.id.scroll_panchangam)
 
         bindViews(view)
         setupToggleListeners()
+        setupDayNavigationButtons()
         applyThemeAndRender()
     }
 
@@ -131,11 +139,24 @@ class FragmentPanchangam : Fragment() {
         applyThemeAndRender()
     }
 
+    override fun onDestroyView() {
+        rootScrollView = null
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        if (::dbHelper.isInitialized) {
+            dbHelper.close()
+        }
+        super.onDestroy()
+    }
+
     private fun bindViews(view: View) {
         tvBigGregorianDate = view.findViewById(R.id.tv_big_gregorian_date)
         tcBannerTime = view.findViewById(R.id.tc_banner_time)
-        tcBannerAmPm = view.findViewById(R.id.tc_banner_ampm)
         viewDivider = view.findViewById(R.id.view_capsule_divider)
+        btnPrevDay = view.findViewById(R.id.btn_prev_day)
+        btnNextDay = view.findViewById(R.id.btn_next_day)
 
         tvBannerTamilYear = view.findViewById(R.id.tv_banner_tamil_year)
         tvBannerTamilMonth = view.findViewById(R.id.tv_banner_tamil_month)
@@ -224,6 +245,20 @@ class FragmentPanchangam : Fragment() {
         }
     }
 
+    private fun setupDayNavigationButtons() {
+        btnPrevDay.setOnClickListener {
+            currentCalendar.add(Calendar.DAY_OF_MONTH, -1)
+            applyThemeAndRender()
+            (activity as? MainActivity)?.syncSelectedDate(currentCalendar)
+        }
+
+        btnNextDay.setOnClickListener {
+            currentCalendar.add(Calendar.DAY_OF_MONTH, 1)
+            applyThemeAndRender()
+            (activity as? MainActivity)?.syncSelectedDate(currentCalendar)
+        }
+    }
+
     fun updateDate(cal: Calendar) {
         currentCalendar = cal.clone() as Calendar
         if (isAdded && view != null) {
@@ -278,57 +313,60 @@ class FragmentPanchangam : Fragment() {
             view.findViewById<View?>(id)?.setBackgroundColor(palette.cardBackground)
         }
 
-        view.findViewById<View?>(R.id.tv_simple_chandrashtamam)?.setBackgroundColor(palette.sundayHighlight)
-        view.findViewById<View?>(R.id.card_exp_chandrashtamam)?.setBackgroundColor(palette.sundayHighlight)
+        // Fixed Chandrashtamam Colors (Deep Wine Burgundy & Gold, non-shifting across themes)
+        tvSimpleChandrashtamam.setBackgroundColor(Color.parseColor("#3E0007"))
+        tvSimpleChandrashtamam.setTextColor(Color.parseColor("#FFDF00"))
+        view.findViewById<View?>(R.id.card_exp_chandrashtamam)?.setBackgroundColor(Color.parseColor("#3E0007"))
+        lblExpChandrashtamam.setTextColor(Color.parseColor("#FFDF00"))
+        tvExpChandrashtamam.setTextColor(Color.parseColor("#FFDF00"))
 
         // 2. Header Colors
-        tvBigGregorianDate.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#081E7D"))
+        tvBigGregorianDate.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
         viewDivider.setBackgroundColor(palette.accentGold)
-        tcBannerTime.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#0D5C2E"))
-        tcBannerAmPm.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#0D5C2E"))
+        tcBannerTime.setTextColor(if (isDark) palette.accentGold else palette.primaryHeader)
 
-        tvBannerTamilYear.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#8A0B1A"))
-        tvBannerTamilMonth.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#8A0B1A"))
-        tvBannerTamilDate.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#8A0B1A"))
-        tvBannerTamilWeekday.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#8A0B1A"))
+        tvBannerTamilYear.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
+        tvBannerTamilMonth.setTextColor(if (isDark) palette.accentGold else palette.secondaryHeader)
+        tvBannerTamilDate.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
+        tvBannerTamilWeekday.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
 
-        tvBannerEngMonth.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#081E7D"))
-        tvBannerEngWeekday.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#081E7D"))
+        tvBannerEngMonth.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
+        tvBannerEngWeekday.setTextColor(if (isDark) palette.accentGold else palette.secondaryHeader)
 
+        // Rasi Header Bar
         tvRasiTitle.setBackgroundColor(palette.primaryHeader)
         tvRasiTitle.setTextColor(palette.accentGold)
-        tvExpModeTitle.setTextColor(palette.primaryHeader)
-        btnToggleExpand.setColorFilter(palette.primaryHeader)
-        btnToggleCollapse.setColorFilter(palette.primaryHeader)
 
-        // 3. Simple Mode Chips: Labels = Dark Blue, Timings = Pink
-        val darkBlue = Color.parseColor("#081E7D")
-        val pink = Color.parseColor("#D81B60")
+        tvExpModeTitle.setTextColor(if (isDark) Color.WHITE else palette.primaryHeader)
+        btnToggleExpand.setColorFilter(palette.accentGold)
+        btnToggleCollapse.setColorFilter(palette.accentGold)
 
-        lblSimpleNalla.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleNallaMorn.setTextColor(if (isDark) Color.WHITE else pink)
-        tvSimpleNallaEve.setTextColor(if (isDark) Color.WHITE else pink)
+        // 3. Simple Mode Chips: Theme Adaptive Label + Solid Value Contrast
+        val labelCol = if (isDark) Color.WHITE else palette.primaryHeader
+        val timingCol = if (isDark) palette.accentGold else Color.parseColor("#8A0B1A")
 
-        lblSimpleGowri.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleGowriMorn.setTextColor(if (isDark) Color.WHITE else pink)
-        tvSimpleGowriEve.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleNalla.setTextColor(labelCol)
+        tvSimpleNallaMorn.setTextColor(timingCol)
+        tvSimpleNallaEve.setTextColor(timingCol)
 
-        lblSimpleRahu.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleRahu.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleGowri.setTextColor(labelCol)
+        tvSimpleGowriMorn.setTextColor(timingCol)
+        tvSimpleGowriEve.setTextColor(timingCol)
 
-        lblSimpleYamagandam.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleYamagandam.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleRahu.setTextColor(labelCol)
+        tvSimpleRahu.setTextColor(timingCol)
 
-        lblSimpleKuligai.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleKuligai.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleYamagandam.setTextColor(labelCol)
+        tvSimpleYamagandam.setTextColor(timingCol)
 
-        lblSimpleSoolam.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleSoolam.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleKuligai.setTextColor(labelCol)
+        tvSimpleKuligai.setTextColor(timingCol)
 
-        lblSimpleParikaram.setTextColor(if (isDark) Color.WHITE else darkBlue)
-        tvSimpleParikaram.setTextColor(if (isDark) Color.WHITE else pink)
+        lblSimpleSoolam.setTextColor(labelCol)
+        tvSimpleSoolam.setTextColor(timingCol)
 
-        tvSimpleChandrashtamam.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#C62828"))
+        lblSimpleParikaram.setTextColor(labelCol)
+        tvSimpleParikaram.setTextColor(timingCol)
 
         // Universal Rasi Grid 12 Houses
         val rasiViews = listOf(
@@ -338,10 +376,10 @@ class FragmentPanchangam : Fragment() {
             tvRasiMagaram, tvRasiKumbam, tvRasiMeenam
         )
         for (rv in rasiViews) {
-            rv.setTextColor(if (isDark) Color.WHITE else palette.primaryText)
+            rv.setTextColor(if (isDark) Color.WHITE else Color.parseColor("#1A1A1A"))
         }
 
-        // 4. Expanded Mode Semantic Colors (Green Auspicious / Red Inauspicious)
+        // 4. Expanded Mode Semantic Colors
         val green = Color.parseColor("#2E7D32")
         val red = Color.parseColor("#C62828")
 
@@ -356,9 +394,6 @@ class FragmentPanchangam : Fragment() {
 
         lblExpYoga.setTextColor(if (isDark) Color.WHITE else green)
         tvExpAmritadiYoga.setTextColor(if (isDark) Color.WHITE else green)
-
-        lblExpChandrashtamam.setTextColor(if (isDark) Color.WHITE else red)
-        tvExpChandrashtamam.setTextColor(if (isDark) Color.WHITE else red)
 
         lblExpNalla.setTextColor(if (isDark) Color.WHITE else green)
         tvExpNallaNeram.setTextColor(if (isDark) Color.WHITE else green)
@@ -387,10 +422,10 @@ class FragmentPanchangam : Fragment() {
         lblExpFestivals.setTextColor(if (isDark) Color.WHITE else red)
         tvExpFestivals.setTextColor(if (isDark) Color.WHITE else green)
 
-        renderDatabaseDetails(isDark)
+        renderDatabaseDetails(isDark, palette)
     }
 
-    private fun renderDatabaseDetails(isDark: Boolean) {
+    private fun renderDatabaseDetails(isDark: Boolean, palette: ThemeManager.AppThemePalette) {
         val dateKey = String.format(
             Locale.ENGLISH,
             "%04d-%02d-%02d",
@@ -400,12 +435,10 @@ class FragmentPanchangam : Fragment() {
         )
 
         val dayFormat = SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH)
-        val engMonthFormat = SimpleDateFormat("MMMM", Locale.ENGLISH)
-        val engWeekdayFormat = SimpleDateFormat("EEEE", Locale.ENGLISH)
 
         tvBigGregorianDate.text = dayFormat.format(currentCalendar.time)
-        tvBannerEngMonth.text = engMonthFormat.format(currentCalendar.time)
-        tvBannerEngWeekday.text = engWeekdayFormat.format(currentCalendar.time)
+        tvBannerEngMonth.text = SimpleDateFormat("MMMM", Locale.ENGLISH).format(currentCalendar.time)
+        tvBannerEngWeekday.text = SimpleDateFormat("EEEE", Locale.ENGLISH).format(currentCalendar.time)
 
         val dayData = dbHelper.getDayDetails(dateKey)
         if (dayData == null) {
@@ -418,7 +451,7 @@ class FragmentPanchangam : Fragment() {
         tvBannerTamilDate.text = if (dayData.tamilDate > 0) dayData.tamilDate.toString() else "---"
         tvBannerTamilWeekday.text = dayData.weekdayTa
 
-        buildSimpleSummarySpannable(dayData, isDark)
+        buildSimpleSummarySpannable(dayData, isDark, palette)
 
         tvSimpleNallaMorn.text = "காலை: ${dayData.nallaNeramMorningStart} - ${dayData.nallaNeramMorningEnd}"
         tvSimpleNallaEve.text = "மாலை: ${dayData.nallaNeramEveningStart} - ${dayData.nallaNeramEveningEnd}"
@@ -434,7 +467,7 @@ class FragmentPanchangam : Fragment() {
         tvSimpleParikaram.text = dayData.parikaram
         tvSimpleChandrashtamam.text = "சந்திராஷ்டமம் : ${dayData.chandrashtamamRasi}"
 
-        // Rasi 12 Houses (Bottom for BOTH modes)
+        // Rasi 12 Houses
         tvRasiMesham.text = "மேஷம்\n${dayData.rasiMesham}"
         tvRasiRishabam.text = "ரிஷபம்\n${dayData.rasiRishabam}"
         tvRasiMithunam.text = "மிதுனம்\n${dayData.rasiMithunam}"
@@ -472,9 +505,13 @@ class FragmentPanchangam : Fragment() {
         tvExpFestivals.text = if (dayData.festivalsEvents.isNotBlank()) dayData.festivalsEvents else "---"
     }
 
-    private fun buildSimpleSummarySpannable(dayData: TamilDatabaseHelper.DayPanchangDetails, isDark: Boolean) {
-        val darkBlue = Color.parseColor("#081E7D")
-        val pink = Color.parseColor("#D81B60")
+    private fun buildSimpleSummarySpannable(
+        dayData: TamilDatabaseHelper.DayPanchangDetails,
+        isDark: Boolean,
+        palette: ThemeManager.AppThemePalette
+    ) {
+        val labelCol = if (isDark) Color.WHITE else palette.primaryHeader
+        val valCol = if (isDark) palette.accentGold else Color.parseColor("#8A0B1A")
 
         val sb = SpannableStringBuilder()
 
@@ -483,7 +520,7 @@ class FragmentPanchangam : Fragment() {
             sb.append(label)
             val endLabel = sb.length
             sb.setSpan(
-                ForegroundColorSpan(if (isDark) Color.WHITE else darkBlue),
+                ForegroundColorSpan(labelCol),
                 startLabel,
                 endLabel,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -493,7 +530,7 @@ class FragmentPanchangam : Fragment() {
             sb.append(" $value")
             val endVal = sb.length
             sb.setSpan(
-                ForegroundColorSpan(if (isDark) Color.WHITE else pink),
+                ForegroundColorSpan(valCol),
                 startVal,
                 endVal,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -573,10 +610,5 @@ class FragmentPanchangam : Fragment() {
         tvExpSoolam.text = "சூலம் : $dash"
         tvExpParikaram.text = "பரிகாரம் : $dash"
         tvExpFestivals.text = dash
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dbHelper.close()
     }
 }
