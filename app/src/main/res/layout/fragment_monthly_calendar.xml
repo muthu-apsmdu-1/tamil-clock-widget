@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="4dp">
+    android:padding="6dp">
 
     <!-- Header Navigation Section -->
     <LinearLayout
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="4dp">
+        android:paddingVertical="4dp">
 
         <ImageButton
             android:id="@+id/btn_prev_month"
@@ -29,13 +29,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
 
             <TextView
                 android:id="@+id/tv_month_year_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="19sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:gravity="center" />
 
@@ -43,6 +45,7 @@
                 android:id="@+id/tv_tamil_month_year_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:gravity="center" />
@@ -57,13 +60,14 @@
             android:contentDescription="Next Month" />
     </LinearLayout>
 
-    <!-- Scrollable 7x(1+5) Grid Table -->
+    <!-- Scrollable 7x(Columns) Grid Table -->
     <ScrollView
         android:id="@+id/scroll_grid_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="vertical">
 
         <TableLayout
             android:id="@+id/table_calendar_grid"
