@@ -1,7 +1,6 @@
 package com.example.tamilclock
 
 import android.app.DatePickerDialog
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
@@ -33,7 +32,6 @@ class FragmentMonthlyCalendar : Fragment() {
 
     companion object {
         private const val TAG = "MonthlyCalendar"
-        private const val DATE_COLUMNS = 5
         private const val ROW_COUNT = 7
     }
 
@@ -48,13 +46,22 @@ class FragmentMonthlyCalendar : Fragment() {
         }
     }
 
+    // 1. LIFECYCLE FIX: Initialize dbHelper in onCreate (once per Fragment lifecycle)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dbHelper = TamilDatabaseHelper(requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dbHelper = TamilDatabaseHelper(requireContext())
-        val view = inflater.inflate(R.layout.fragment_monthly_calendar, container, false)
+        val view = inflater.inflate(
+            R.layout.fragment_monthly_calendar,
+            container,
+            false
+        )
 
         rootLayout = view.findViewById(R.id.root_monthly_calendar)
         tvMonthYearTitle = view.findViewById(R.id.tv_month_year_title)
@@ -90,6 +97,24 @@ class FragmentMonthlyCalendar : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        rootLayout = null
+        tvMonthYearTitle = null
+        tvTamilMonthYearHeader = null
+        btnPrev = null
+        btnNext = null
+        gridTable = null
+    }
+
+    // 2. LIFECYCLE FIX: Close dbHelper only when the Fragment itself is destroyed
+    override fun onDestroy() {
+        if (::dbHelper.isInitialized) {
+            dbHelper.close()
+        }
+        super.onDestroy()
+    }
+
     private fun showDatePicker() {
         val dpd = DatePickerDialog(
             requireContext(),
@@ -97,6 +122,7 @@ class FragmentMonthlyCalendar : Fragment() {
                 displayCalendar.set(Calendar.DAY_OF_MONTH, 1)
                 displayCalendar.set(Calendar.YEAR, year)
                 displayCalendar.set(Calendar.MONTH, month)
+
                 val maxDay = displayCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
                 displayCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth.coerceAtMost(maxDay))
                 renderCalendar()
@@ -116,8 +142,8 @@ class FragmentMonthlyCalendar : Fragment() {
         table.removeAllViews()
 
         val palette = ThemeManager.getThemePalette(context)
-        root.setBackgroundColor(palette.pageBackground)
 
+        root.setBackgroundColor(palette.pageBackground)
         tvMonthYearTitle?.setTextColor(palette.primaryHeader)
         tvTamilMonthYearHeader?.setTextColor(palette.secondaryHeader)
         btnPrev?.setColorFilter(palette.primaryHeader)
@@ -135,46 +161,55 @@ class FragmentMonthlyCalendar : Fragment() {
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, 1)
         }
-        val daysInMonth = firstDayCal.getActualMaximum(Calendar.DAY_OF_MONTH)
 
-        val dayBuckets = Array(ROW_COUNT) { mutableListOf<CalendarDayCell>() }
+        val daysInMonth = firstDayCal.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val firstDayOfWeek = firstDayCal.get(Calendar.DAY_OF_WEEK)
+        val firstDayOffset = firstDayOfWeek - 1
+        val totalSlotsNeeded = firstDayOffset + daysInMonth
+        val numCols = maxOf(5, (totalSlotsNeeded + 6) / 7)
+
+        val gridMatrix = Array(ROW_COUNT) {
+            arrayOfNulls<CalendarDayCell>(numCols)
+        }
+
         var prevTamilMonth = ""
 
         for (day in 1..daysInMonth) {
             val queryDate = String.format(Locale.ENGLISH, "%04d-%02d-%02d", year, month + 1, day)
             val details = dbHelper.getDayDetails(queryDate)
-
-            var isTamilStart = false
             val tMonth = details?.tamilMonth ?: "---"
-            val tDay = details?.tamilDay ?: 0
+            val tDay = details?.tamilDate ?: 0
 
-            if (tMonth.isNotEmpty() && tMonth != "---") {
-                if (tDay == 1 || (prevTamilMonth.isNotEmpty() && prevTamilMonth != "---" && tMonth != prevTamilMonth)) {
-                    isTamilStart = true
-                }
+            if (day == 1) {
+                prevTamilMonth = tMonth
+            }
+
+            val isNewMonthStart = (day == 1) || (
+                tMonth.isNotBlank() &&
+                tMonth != "---" &&
+                tMonth != prevTamilMonth
+            )
+
+            if (tMonth.isNotBlank() && tMonth != "---") {
                 prevTamilMonth = tMonth
             }
 
             val tempCal = firstDayCal.clone() as Calendar
             tempCal.set(Calendar.DAY_OF_MONTH, day)
             val dayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK)
-            val rowIndex = dayOfWeek - 1
+            val row = dayOfWeek - 1
+            val col = ((day - 1) + firstDayOffset) / 7
 
-            val cellData = CalendarDayCell(
-                gregorianDay = day,
-                gregorianDate = queryDate,
-                tamilDay = tDay,
-                tamilMonth = tMonth,
-                isEnglishMonthStart = (day == 1),
-                isTamilMonthStart = isTamilStart,
-                festivals = details?.festivalsEvents ?: details?.festivals ?: "",
-                tithi = details?.tithiName ?: details?.tithi ?: "---",
-                paksha = details?.paksha ?: details?.paksham ?: "---",
-                isSunday = (rowIndex == 0),
-                dayOfWeek = dayOfWeek
-            )
-
-            dayBuckets[rowIndex].add(cellData)
+            if (row in 0 until ROW_COUNT && col in 0 until numCols) {
+                gridMatrix[row][col] = CalendarDayCell(
+                    gregorianDay = day,
+                    gregorianDate = queryDate,
+                    tamilDay = tDay,
+                    tamilMonth = tMonth,
+                    isTamilMonthTransition = isNewMonthStart,
+                    isSunday = (row == 0)
+                )
+            }
         }
 
         val weekdayHeaders = listOf(
@@ -187,7 +222,7 @@ class FragmentMonthlyCalendar : Fragment() {
             Pair("SAT", "சனி")
         )
 
-        val minRowHeight = dp(62)
+        val minRowHeight = dp(60)
 
         for (r in 0 until ROW_COUNT) {
             val tableRow = TableRow(context).apply {
@@ -206,31 +241,14 @@ class FragmentMonthlyCalendar : Fragment() {
             )
             tableRow.addView(headerCell)
 
-            val occurrences = dayBuckets[r]
-            val slots = arrayOfNulls<CalendarDayCell>(DATE_COLUMNS)
-
-            if (occurrences.size >= 5) {
-                slots[0] = occurrences[4]
-                slots[1] = occurrences[0]
-                slots[2] = occurrences[1]
-                slots[3] = occurrences[2]
-                slots[4] = occurrences[3]
-            } else {
-                val firstDay = occurrences.firstOrNull()?.gregorianDay ?: 1
-                val startSlot = if (firstDay > 7) 1 else 0
-
-                occurrences.forEachIndexed { index, cell ->
-                    val target = startSlot + index
-                    if (target < DATE_COLUMNS) {
-                        slots[target] = cell
-                    }
-                }
+            for (c in 0 until numCols) {
+                tableRow.addView(
+                    createDateCellView(
+                        gridMatrix[r][c],
+                        palette
+                    )
+                )
             }
-
-            for (c in 0 until DATE_COLUMNS) {
-                tableRow.addView(createDateCellView(slots[c], palette))
-            }
-
             table.addView(tableRow)
         }
     }
@@ -242,12 +260,20 @@ class FragmentMonthlyCalendar : Fragment() {
         palette: ThemeManager.AppThemePalette
     ): View {
         return CardView(requireContext()).apply {
-            layoutParams = TableRow.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 0.95f).apply {
+            layoutParams = TableRow.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0.95f
+            ).apply {
                 setMargins(dp(1), dp(2), dp(1), dp(2))
             }
+
             radius = dp(5).toFloat()
-            cardElevation = dp(2).toFloat()
-            setCardBackgroundColor(if (isSunday) palette.sundayHighlight else palette.cardBackground)
+            cardElevation = dp(1).toFloat()
+            setCardBackgroundColor(
+                if (isSunday) palette.sundayHighlight
+                else palette.cardBackground
+            )
 
             val container = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL
@@ -257,9 +283,9 @@ class FragmentMonthlyCalendar : Fragment() {
 
             val tvEng = TextView(requireContext()).apply {
                 text = eng
-                textSize = 13f
+                textSize = 12.5f
                 typeface = Typeface.DEFAULT_BOLD
-                setTextColor(if (isSunday) Color.parseColor("#D32F2F") else palette.primaryHeader)
+                setTextColor(if (isSunday) palette.accentGold else palette.primaryHeader)
                 gravity = Gravity.CENTER
                 maxLines = 1
             }
@@ -268,7 +294,7 @@ class FragmentMonthlyCalendar : Fragment() {
                 text = tam
                 textSize = 9.5f
                 typeface = Typeface.DEFAULT_BOLD
-                setTextColor(if (isSunday) Color.parseColor("#B71C1C") else palette.secondaryHeader)
+                setTextColor(palette.secondaryHeader)
                 gravity = Gravity.CENTER
                 maxLines = 1
             }
@@ -284,11 +310,17 @@ class FragmentMonthlyCalendar : Fragment() {
         palette: ThemeManager.AppThemePalette
     ): View {
         val card = CardView(requireContext()).apply {
-            layoutParams = TableRow.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).apply {
+            layoutParams = TableRow.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                1f
+            ).apply {
                 setMargins(dp(1), dp(2), dp(1), dp(2))
             }
+
             radius = dp(5).toFloat()
-            cardElevation = if (cell != null) dp(2).toFloat() else 0f
+            cardElevation = if (cell != null) 1.5f * resources.displayMetrics.density else 0f
+
             setCardBackgroundColor(
                 when {
                     cell == null -> palette.emptyCellBackground
@@ -303,83 +335,68 @@ class FragmentMonthlyCalendar : Fragment() {
             return card
         }
 
-        val contentLayout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(dp(2), dp(2), dp(2), dp(2))
+        val frameCell = FrameLayout(requireContext()).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT
+            )
+            setPadding(dp(4), dp(4), dp(4), dp(4))
         }
-
-        val badge = getFestivalBadge(cell)
-        val tvTopBadge = TextView(requireContext()).apply {
-            text = badge
-            textSize = 8f
-            maxLines = 1
-            setTextColor(palette.accentGold)
-            gravity = Gravity.CENTER
-            visibility = if (badge.isNotEmpty()) View.VISIBLE else View.INVISIBLE
-        }
-        contentLayout.addView(tvTopBadge)
 
         val tvEnglish = TextView(requireContext()).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
+            )
             text = cell.gregorianDay.toString()
-            textSize = 20f
+            textSize = 21f
             typeface = Typeface.DEFAULT_BOLD
-            setTextColor(if (cell.isSunday) Color.parseColor("#C62828") else palette.primaryHeader)
-            gravity = Gravity.CENTER
             maxLines = 1
+            includeFontPadding = false
+            setTextColor(if (cell.isSunday) palette.accentGold else palette.primaryHeader)
         }
-        contentLayout.addView(tvEnglish)
+        frameCell.addView(tvEnglish)
 
         val tvTamil = TextView(requireContext()).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM or Gravity.END
+            )
             textSize = 9.5f
             typeface = Typeface.DEFAULT_BOLD
+            maxLines = 1
+            includeFontPadding = false
             setTextColor(palette.secondaryHeader)
-            gravity = Gravity.CENTER
-            maxLines = 2
 
             text = when {
-                (cell.isEnglishMonthStart || cell.isTamilMonthStart) && cell.tamilMonth.isNotEmpty() && cell.tamilMonth != "---" -> {
+                cell.isTamilMonthTransition &&
+                cell.tamilMonth.isNotEmpty() &&
+                cell.tamilMonth != "---" -> {
                     "${cell.tamilMonth} ${cell.tamilDay}"
                 }
-                cell.tamilDay > 0 -> cell.tamilDay.toString()
-                else -> "---"
+                cell.tamilDay > 0 -> {
+                    cell.tamilDay.toString()
+                }
+                else -> ""
             }
         }
-        contentLayout.addView(tvTamil)
+        frameCell.addView(tvTamil)
 
-        card.addView(contentLayout)
-        card.setOnClickListener { navigateToHomeWithDate(cell.gregorianDate) }
+        card.addView(frameCell)
+        card.setOnClickListener {
+            navigateToHomeWithDate(cell.gregorianDate)
+        }
         return card
     }
 
-    private fun getFestivalBadge(cell: CalendarDayCell): String {
-        val fest = cell.festivals
-        val tithi = cell.tithi
-
-        return when {
-            fest.contains("மாட்டுப் பொங்கல்", true) -> "🐂 மாட்டுப் பொங்கல்"
-            fest.contains("பொங்கல்", true) || fest.contains("Pongal", true) -> "🌾 பொங்கல்"
-            fest.contains("தீபாவளி", true) -> "🪔 தீபாவளி"
-            fest.contains("குடியரசு", true) || fest.contains("Republic", true) -> "🇮🇳 குடியரசு"
-            fest.contains("ஆங்கில புத்தாண்டு", true) || (cell.gregorianDay == 1 && cell.isEnglishMonthStart) -> "✨ புத்தாண்டு"
-            fest.contains("சுதந்திர", true) || fest.contains("Independence", true) -> "🇮🇳 சுதந்திர தினம்"
-            fest.contains("விநாயகர்", true) -> "🐘 விநாயகர் சதுர்த்தி"
-            fest.contains("கிருஷ்ண", true) || fest.contains("கோகுலாஷ்டமி", true) -> "🪈 ஜெயந்தி"
-            fest.contains("சிவராத்திரி", true) -> "🔱 சிவராத்திரி"
-            fest.contains("கார்த்திகை", true) -> "🪔 கார்த்திகை"
-            tithi.contains("அமாவாசை", true) -> "🌑 அமாவாசை"
-            tithi.contains("பௌர்ணமி", true) -> "🌕 பௌர்ணமி"
-            tithi.contains("ஏகாதசி", true) || fest.contains("ஏகாதசி", true) -> "🕉️ ஏகாதசி"
-            tithi.contains("பிரதோஷம்", true) || fest.contains("பிரதோஷம்", true) -> "🔱 பிரதோஷம்"
-            tithi.contains("சங்கடஹர", true) || fest.contains("சங்கடஹர", true) -> "🐘 சதுர்த்தி"
-            tithi.contains("சஷ்டி", true) || fest.contains("சஷ்டி", true) -> "⚡ சஷ்டி"
-            fest.isNotBlank() && fest != "---" -> fest.split(",", "/", " ").firstOrNull { it.isNotBlank() } ?: "⭐"
-            else -> ""
-        }
-    }
-
     private fun showEmptyCellToast() {
-        val toast = Toast.makeText(requireContext(), "please select correct date", Toast.LENGTH_SHORT)
+        val toast = Toast.makeText(
+            requireContext(),
+            "please select correct date",
+            Toast.LENGTH_SHORT
+        )
         toast.show()
         Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, 2000)
     }
@@ -407,11 +424,11 @@ class FragmentMonthlyCalendar : Fragment() {
 
     private fun navigateToHomeWithDate(dateString: String) {
         val act = activity ?: return
-
         try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).apply { isLenient = false }
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).apply {
+                isLenient = false
+            }
             val parsedDate = sdf.parse(dateString) ?: return
-
             val targetCal = Calendar.getInstance().apply {
                 time = parsedDate
                 set(Calendar.HOUR_OF_DAY, 0)
@@ -424,7 +441,10 @@ class FragmentMonthlyCalendar : Fragment() {
             val loadMethod = act.javaClass.methods.firstOrNull { method ->
                 method.name in methodNames &&
                 method.parameterTypes.size == 1 &&
-                (method.parameterTypes[0] == Calendar::class.java || method.parameterTypes[0] == String::class.java)
+                (
+                    method.parameterTypes[0] == Calendar::class.java ||
+                    method.parameterTypes[0] == String::class.java
+                )
             }
 
             if (loadMethod != null) {
@@ -444,22 +464,12 @@ class FragmentMonthlyCalendar : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        dbHelper.close()
-    }
-
     data class CalendarDayCell(
         val gregorianDay: Int,
         val gregorianDate: String,
         val tamilDay: Int,
         val tamilMonth: String,
-        val isEnglishMonthStart: Boolean,
-        val isTamilMonthStart: Boolean,
-        val festivals: String,
-        val tithi: String,
-        val paksha: String,
-        val isSunday: Boolean,
-        val dayOfWeek: Int
+        val isTamilMonthTransition: Boolean,
+        val isSunday: Boolean
     )
 }
