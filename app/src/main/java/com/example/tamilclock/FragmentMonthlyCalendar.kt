@@ -34,6 +34,7 @@ class FragmentMonthlyCalendar : Fragment() {
     companion object {
         private const val TAG = "MonthlyCalendar"
         private const val ROW_COUNT = 7
+        private const val KEY_DISPLAY_CAL_MILLIS = "key_display_cal_millis"
     }
 
     private fun dp(value: Int): Int {
@@ -41,8 +42,13 @@ class FragmentMonthlyCalendar : Fragment() {
     }
 
     fun updateDate(cal: Calendar) {
-        displayCalendar.time = cal.time
-        if (isAdded && gridTable != null) {
+        val monthChanged =
+            displayCalendar.get(Calendar.YEAR) != cal.get(Calendar.YEAR) ||
+            displayCalendar.get(Calendar.MONTH) != cal.get(Calendar.MONTH)
+
+        displayCalendar.timeInMillis = cal.timeInMillis
+
+        if (monthChanged && isAdded && gridTable != null) {
             renderCalendar()
         }
     }
@@ -50,6 +56,14 @@ class FragmentMonthlyCalendar : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dbHelper = TamilDatabaseHelper(requireContext())
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_DISPLAY_CAL_MILLIS)) {
+            displayCalendar.timeInMillis = savedInstanceState.getLong(KEY_DISPLAY_CAL_MILLIS)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(KEY_DISPLAY_CAL_MILLIS, displayCalendar.timeInMillis)
     }
 
     override fun onCreateView(
@@ -159,6 +173,7 @@ class FragmentMonthlyCalendar : Fragment() {
         tvMonthYearTitle?.text = engMonthName.uppercase(Locale.ENGLISH)
 
         val firstDayCal = Calendar.getInstance().apply {
+            clear()
             set(Calendar.YEAR, year)
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, 1)
@@ -231,7 +246,7 @@ class FragmentMonthlyCalendar : Fragment() {
             "---"
         }
 
-        // Row 3: Corresponding Tamil Month Name(s) (e.g., ஐப்பசி - கார்த்திகை)
+        // Row 3: Corresponding Tamil Month Name(s)
         tvTamilMonthYearHeader?.text = if (distinctTamilMonths.isNotEmpty()) {
             distinctTamilMonths.joinToString(" - ")
         } else {
@@ -390,21 +405,21 @@ class FragmentMonthlyCalendar : Fragment() {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.END
             )
-            textSize = 9.5f
+            val isTransition = cell.isTamilMonthTransition &&
+                cell.tamilMonth.isNotBlank() &&
+                cell.tamilMonth != "---" &&
+                cell.tamilDay > 0
+
+            textSize = if (isTransition) 8.5f else 9.5f
+            maxLines = if (isTransition) 2 else 1
+            gravity = Gravity.END
             typeface = Typeface.DEFAULT_BOLD
-            maxLines = 1
             includeFontPadding = false
             setTextColor(palette.secondaryHeader)
 
             text = when {
-                cell.isTamilMonthTransition &&
-                cell.tamilMonth.isNotEmpty() &&
-                cell.tamilMonth != "---" -> {
-                    "${cell.tamilMonth} ${cell.tamilDay}"
-                }
-                cell.tamilDay > 0 -> {
-                    cell.tamilDay.toString()
-                }
+                isTransition -> "${cell.tamilMonth} ${cell.tamilDay}"
+                cell.tamilDay > 0 -> cell.tamilDay.toString()
                 else -> ""
             }
         }
@@ -455,25 +470,7 @@ class FragmentMonthlyCalendar : Fragment() {
 
             if (act is MainActivity) {
                 act.navigatedFromMonthlyCalendar = true
-            }
-
-            val methodNames = listOf("loadDayData", "updateSelectedDate", "setSelectedDate")
-            val loadMethod = act.javaClass.methods.firstOrNull { method ->
-                method.name in methodNames &&
-                method.parameterTypes.size == 1 &&
-                (
-                    method.parameterTypes[0] == Calendar::class.java ||
-                    method.parameterTypes[0] == String::class.java
-                )
-            }
-
-            if (loadMethod != null) {
-                when (loadMethod.parameterTypes[0]) {
-                    Calendar::class.java -> loadMethod.invoke(act, targetCal)
-                    String::class.java -> loadMethod.invoke(act, dateString)
-                }
-            } else {
-                Log.w(TAG, "No compatible MainActivity date-update method found")
+                act.updateSelectedDate(targetCal)
             }
 
             val rootDecor = act.window?.decorView
