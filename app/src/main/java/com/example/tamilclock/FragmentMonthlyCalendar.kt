@@ -25,6 +25,7 @@ class FragmentMonthlyCalendar : Fragment() {
 
     private var rootLayout: LinearLayout? = null
     private var tvMonthYearTitle: TextView? = null
+    private var tvTamilYearHeader: TextView? = null
     private var tvTamilMonthYearHeader: TextView? = null
     private var btnPrev: ImageButton? = null
     private var btnNext: ImageButton? = null
@@ -46,7 +47,6 @@ class FragmentMonthlyCalendar : Fragment() {
         }
     }
 
-    // 1. LIFECYCLE FIX: Initialize dbHelper in onCreate (once per Fragment lifecycle)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dbHelper = TamilDatabaseHelper(requireContext())
@@ -65,6 +65,7 @@ class FragmentMonthlyCalendar : Fragment() {
 
         rootLayout = view.findViewById(R.id.root_monthly_calendar)
         tvMonthYearTitle = view.findViewById(R.id.tv_month_year_title)
+        tvTamilYearHeader = view.findViewById(R.id.tv_tamil_year_header)
         tvTamilMonthYearHeader = view.findViewById(R.id.tv_tamil_month_year_header)
         btnPrev = view.findViewById(R.id.btn_prev_month)
         btnNext = view.findViewById(R.id.btn_next_month)
@@ -101,13 +102,13 @@ class FragmentMonthlyCalendar : Fragment() {
         super.onDestroyView()
         rootLayout = null
         tvMonthYearTitle = null
+        tvTamilYearHeader = null
         tvTamilMonthYearHeader = null
         btnPrev = null
         btnNext = null
         gridTable = null
     }
 
-    // 2. LIFECYCLE FIX: Close dbHelper only when the Fragment itself is destroyed
     override fun onDestroy() {
         if (::dbHelper.isInitialized) {
             dbHelper.close()
@@ -145,16 +146,17 @@ class FragmentMonthlyCalendar : Fragment() {
 
         root.setBackgroundColor(palette.pageBackground)
         tvMonthYearTitle?.setTextColor(palette.primaryHeader)
+        tvTamilYearHeader?.setTextColor(palette.secondaryHeader)
         tvTamilMonthYearHeader?.setTextColor(palette.secondaryHeader)
-        btnPrev?.setColorFilter(palette.primaryHeader)
-        btnNext?.setColorFilter(palette.primaryHeader)
+        btnPrev?.setColorFilter(palette.accentGold)
+        btnNext?.setColorFilter(palette.accentGold)
 
         val year = displayCalendar.get(Calendar.YEAR)
         val month = displayCalendar.get(Calendar.MONTH)
 
+        // Row 1: English Month + Year
         val engMonthName = SimpleDateFormat("MMMM yyyy", Locale.ENGLISH).format(displayCalendar.time)
         tvMonthYearTitle?.text = engMonthName.uppercase(Locale.ENGLISH)
-        tvTamilMonthYearHeader?.text = getTamilMonthHeader(year, month + 1)
 
         val firstDayCal = Calendar.getInstance().apply {
             set(Calendar.YEAR, year)
@@ -173,12 +175,22 @@ class FragmentMonthlyCalendar : Fragment() {
         }
 
         var prevTamilMonth = ""
+        val distinctTamilYears = LinkedHashSet<String>()
+        val distinctTamilMonths = LinkedHashSet<String>()
 
         for (day in 1..daysInMonth) {
             val queryDate = String.format(Locale.ENGLISH, "%04d-%02d-%02d", year, month + 1, day)
             val details = dbHelper.getDayDetails(queryDate)
+            val tYear = details?.tamilYear ?: "---"
             val tMonth = details?.tamilMonth ?: "---"
             val tDay = details?.tamilDate ?: 0
+
+            if (tYear.isNotBlank() && tYear != "---") {
+                distinctTamilYears.add(tYear)
+            }
+            if (tMonth.isNotBlank() && tMonth != "---") {
+                distinctTamilMonths.add(tMonth)
+            }
 
             if (day == 1) {
                 prevTamilMonth = tMonth
@@ -210,6 +222,20 @@ class FragmentMonthlyCalendar : Fragment() {
                     isSunday = (row == 0)
                 )
             }
+        }
+
+        // Row 2: Corresponding Tamil Year Name(s)
+        tvTamilYearHeader?.text = if (distinctTamilYears.isNotEmpty()) {
+            distinctTamilYears.joinToString(" - ")
+        } else {
+            "---"
+        }
+
+        // Row 3: Corresponding Tamil Month Name(s) (e.g., ஐப்பசி - கார்த்திகை)
+        tvTamilMonthYearHeader?.text = if (distinctTamilMonths.isNotEmpty()) {
+            distinctTamilMonths.joinToString(" - ")
+        } else {
+            "---"
         }
 
         val weekdayHeaders = listOf(
@@ -401,16 +427,6 @@ class FragmentMonthlyCalendar : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({ toast.cancel() }, 2000)
     }
 
-    private fun getTamilMonthHeader(year: Int, month: Int): String {
-        val midDate = String.format(Locale.ENGLISH, "%04d-%02d-15", year, month)
-        val data = dbHelper.getDayDetails(midDate)
-        return if (data != null && data.tamilMonth.isNotEmpty() && data.tamilMonth != "---") {
-            "${data.tamilYear} • ${data.tamilMonth}"
-        } else {
-            "---"
-        }
-    }
-
     private fun findViewPagerInView(view: View): ViewPager2? {
         if (view is ViewPager2) return view
         if (view is ViewGroup) {
@@ -435,6 +451,10 @@ class FragmentMonthlyCalendar : Fragment() {
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
+            }
+
+            if (act is MainActivity) {
+                act.navigatedFromMonthlyCalendar = true
             }
 
             val methodNames = listOf("loadDayData", "updateSelectedDate", "setSelectedDate")
