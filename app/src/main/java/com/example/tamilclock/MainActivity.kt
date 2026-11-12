@@ -22,6 +22,9 @@ class MainActivity : AppCompatActivity() {
 
     val selectedCalendar: Calendar = Calendar.getInstance()
 
+    // Flag to intercept Back button and return to Monthly Calendar when navigated from there
+    var navigatedFromMonthlyCalendar: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
@@ -72,10 +75,16 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // If not on Home (Index 2), return to Home first; else exit
-                if (viewPager.currentItem != MainPagerAdapter.PAGE_PANCHANGAM) {
+                if (navigatedFromMonthlyCalendar && viewPager.currentItem == MainPagerAdapter.PAGE_PANCHANGAM) {
+                    // Return to Monthly Calendar instead of exiting the app
+                    navigatedFromMonthlyCalendar = false
+                    viewPager.setCurrentItem(MainPagerAdapter.PAGE_MONTHLY_CALENDAR, true)
+                } else if (viewPager.currentItem != MainPagerAdapter.PAGE_PANCHANGAM) {
+                    // Return to Home (Index 2) from any other tab
+                    navigatedFromMonthlyCalendar = false
                     viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, true)
                 } else {
+                    // Normal exit from Home
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 }
@@ -90,17 +99,27 @@ class MainActivity : AppCompatActivity() {
 
         // Default screen on launch: Home Page (Index 2)
         viewPager.setCurrentItem(MainPagerAdapter.PAGE_PANCHANGAM, false)
+
+        // Reset monthly navigation flag if the user manually swipes away from Home
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                if (position != MainPagerAdapter.PAGE_PANCHANGAM) {
+                    navigatedFromMonthlyCalendar = false
+                }
+            }
+        })
     }
 
     private fun setupTopNavigationToolbar() {
         // Buttons in exact sequence:
-        // 1. Prev (<<)
+        // 1. Prev Page (<<)
         // 2. About App (☰) -> Index 0
         // 3. Monthly Calendar (🗓️) -> Index 1
         // 4. Home / Day Panchang (🏠) -> Index 2
         // 5. Gowri & Horai (☸) -> Index 3
         // 6. Settings (⚙) -> Index 4
-        // 7. Next (>>)
+        // 7. Next Page (>>)
         val btnPrev = findViewById<TextView?>(R.id.btn_action_prev)
         val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)
         val btnCalendar = findViewById<TextView?>(R.id.btn_action_datepicker)
@@ -109,11 +128,12 @@ class MainActivity : AppCompatActivity() {
         val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)
         val btnNext = findViewById<TextView?>(R.id.btn_action_next)
 
-        // 1. Previous Day
+        // 1. Previous Page (<<)
         btnPrev?.setOnClickListener {
-            selectedCalendar.add(Calendar.DAY_OF_MONTH, -1)
-            loadDayData()
-            updateWidgets()
+            val current = viewPager.currentItem
+            if (current > 0) {
+                viewPager.setCurrentItem(current - 1, true)
+            }
         }
 
         // 2. About App Page (☰) -> Index 0
@@ -145,6 +165,7 @@ class MainActivity : AppCompatActivity() {
 
         // 4. Home Page (🏠) -> Index 2 (Day Panchang)
         btnHome?.setOnClickListener {
+            navigatedFromMonthlyCalendar = false
             selectedCalendar.time = Calendar.getInstance().time
             loadDayData()
             updateWidgets()
@@ -161,11 +182,12 @@ class MainActivity : AppCompatActivity() {
             viewPager.setCurrentItem(MainPagerAdapter.PAGE_SETTINGS, true)
         }
 
-        // 7. Next Day
+        // 7. Next Page (>>)
         btnNext?.setOnClickListener {
-            selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
-            loadDayData()
-            updateWidgets()
+            val current = viewPager.currentItem
+            if (current < MainPagerAdapter.TOTAL_PAGES - 1) {
+                viewPager.setCurrentItem(current + 1, true)
+            }
         }
     }
 
@@ -177,6 +199,10 @@ class MainActivity : AppCompatActivity() {
         selectedCalendar.time = cal.time
         loadDayData()
         updateWidgets()
+    }
+
+    fun syncSelectedDate(cal: Calendar) {
+        updateSelectedDate(cal)
     }
 
     private fun updateWidgets() {
