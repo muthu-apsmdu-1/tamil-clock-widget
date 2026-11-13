@@ -1,202 +1,310 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root_gowri_horai"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_gowri_horai"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:fillViewport="true">
 
-    <!-- Top Date Summary Strip + Live Digital Clock (Today Only) -->
     <LinearLayout
-        android:id="@+id/layout_dynamic_date_strip"
+        android:id="@+id/ll_gowri_horai_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
-        android:elevation="2dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="7dp">
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <TextView
-            android:id="@+id/tv_header_strip_date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textStyle="bold"
-            android:textSize="13.5sp" />
-
-        <TextView
-            android:id="@+id/tv_header_live_clock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textStyle="bold"
-            android:textSize="13sp"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <!-- Sub-Tab Switcher: Gowri Palan vs Horai -->
-    <LinearLayout
-        android:id="@+id/layout_sub_tabs"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <TextView
-            android:id="@+id/tab_btn_gowri"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginEnd="3dp"
-            android:gravity="center"
-            android:text="கௌரி பலன்"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tab_btn_horai"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="3dp"
-            android:gravity="center"
-            android:text="ஹோரை"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- 3-Column Table Header: நேரம் | பகல் | இரவு -->
-    <LinearLayout
-        android:id="@+id/layout_table_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="10">
-
-        <!-- Column 1: நேரம் time-->
-        <TextView
-            android:id="@+id/tv_col_header_time"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3.2"
-            android:gravity="center"
-            android:paddingVertical="6dp"
-            android:text="நேரம்"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#33FFFFFF" />
-
-        <!-- Column 2: பகல் -->
-        <LinearLayout
-            android:id="@+id/col_header_day"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3.4"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingVertical="4dp">
-
-            <TextView
-                android:id="@+id/tv_col_header_day_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="பகல்"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_col_header_day_sub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(06:00 AM – 06:00 PM)"
-                android:textSize="9sp" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#33FFFFFF" />
-
-        <!-- Column 3: இரவு -->
-        <LinearLayout
-            android:id="@+id/col_header_night"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3.4"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingVertical="4dp">
-
-            <TextView
-                android:id="@+id/tv_col_header_night_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="இரவு"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_col_header_night_sub"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(06:00 PM – 06:00 AM)"
-                android:textSize="9sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Scrollable 3-Column Slot Rows -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_gowri_horai"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbars="vertical"
-        android:overScrollMode="always">
-
-        <LinearLayout
-            android:id="@+id/container_table_rows"
+        <!-- 1. TOP SOLAR & DATE HEADER CARD -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_gh_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </androidx.core.widget.NestedScrollView>
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="#5C0011"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
 
-    <!-- Bottom Legend Strip -->
-    <LinearLayout
-        android:id="@+id/layout_legend_footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingVertical="8dp"
-        android:layout_marginTop="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="8dp">
 
-        <TextView
-            android:id="@+id/tv_legend_badge"
-            android:layout_width="wrap_content"
+                <!-- Left Triangle: Previous Day -->
+                <ImageButton
+                    android:id="@+id/btn_gh_prev_day"
+                    android:layout_width="36dp"
+                    android:layout_height="56dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Previous Day"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_arrow_triangle_left" />
+
+                <!-- Center 3-Row Stack -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <!-- Row 1: Gregorian Date (Fluorescent Neon Green if Today, Grey if other date) -->
+                    <TextView
+                        android:id="@+id/tv_gh_gregorian_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false"
+                        android:textColor="#39FF14"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+
+                    <!-- Row 2: Tamil Month, Date & Weekday -->
+                    <TextView
+                        android:id="@+id/tv_gh_tamil_date_day"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:includeFontPadding="false"
+                        android:textColor="#FFDF00"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <!-- Row 3: Sunrise, Sunset & Conditional Live Neon Green Clock -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_gh_sunrise"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_gh_sunset"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:textColor="@android:color/white"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <!-- Divider + Live Neon Green Clock (Visible ONLY when selected date is Today) -->
+                        <LinearLayout
+                            android:id="@+id/ll_gh_live_clock_group"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="8dp"
+                                android:text="|"
+                                android:textColor="#FFDF00"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextClock
+                                android:id="@+id/tc_gh_live_clock"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:format12Hour="hh : mm a"
+                                android:format24Hour="HH : mm"
+                                android:textColor="#39FF14"
+                                android:textSize="13.5sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Right Triangle: Next Day -->
+                <ImageButton
+                    android:id="@+id/btn_gh_next_day"
+                    android:layout_width="36dp"
+                    android:layout_height="56dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Next Day"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_arrow_triangle_right" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- 2. DUAL PILL SELECTOR TABS (Gowri Palan | Horai) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/tab_btn_gowri"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="கௌரி பலன்"
+                android:textSize="15.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tab_btn_horai"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="ஹோரை"
+                android:textSize="15.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 3. DAYTIME TABLE (பகல்) -->
+        <LinearLayout
+            android:id="@+id/card_gh_day_table"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:text="குறிப்பு:"
-            android:textSize="12sp"
+            android:layout_marginBottom="8dp"
+            android:elevation="2dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/header_gh_day_cols"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <TextView
+                    android:id="@+id/col_day_phase"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.85"
+                    android:gravity="center"
+                    android:text="வேளை"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/col_day_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.15"
+                    android:gravity="center"
+                    android:text="நேரம்"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/col_day_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="ஹோரை"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/container_day_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- 4. NIGHTTIME SECTION BANNER (இரவு ஹோரை / இரவு கௌரி) -->
+        <TextView
+            android:id="@+id/tv_gh_night_banner"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginBottom="4dp"
+            android:gravity="center"
+            android:text="இரவு ஹோரை"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_legend_text"
-            android:layout_width="wrap_content"
+        <!-- NIGHTTIME TABLE (இரவு) -->
+        <LinearLayout
+            android:id="@+id/card_gh_night_table"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="நன்று – பச்சை நிறம்  |  தவிர்க்கவும் – சிவப்பு நிறம்"
-            android:textSize="12sp"
+            android:layout_marginBottom="8dp"
+            android:elevation="2dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/header_gh_night_cols"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <TextView
+                    android:id="@+id/col_night_phase"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.85"
+                    android:gravity="center"
+                    android:text="வேளை"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/col_night_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.15"
+                    android:gravity="center"
+                    android:text="நேரம்"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/col_night_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="ஹோரை"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/container_night_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- 5. BOTTOM FOOTER PILL (Next Day Sunrise) -->
+        <TextView
+            android:id="@+id/tv_gh_next_sunrise_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="8dp"
+            android:textSize="12.5sp"
             android:textStyle="bold" />
+
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
