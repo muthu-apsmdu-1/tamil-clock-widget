@@ -5,21 +5,8 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
 
-/**
- * Reads the six supplied SQLite databases.
- *
- * Required assets:
- * app/src/main/assets/panchang_clcon.db
- * app/src/main/assets/rasipalan_daily.db
- * app/src/main/assets/sun_moon_timings.db
- * app/src/main/assets/auspicious_periods.db
- * app/src/main/assets/gowri.db
- * app/src/main/assets/horai.db
- *
- * Original database schemas are preserved.
- * Missing/blank values resolve to "---".
- */
 class TamilDatabaseHelper(context: Context) {
 
     private val appContext = context.applicationContext
@@ -199,7 +186,6 @@ class TamilDatabaseHelper(context: Context) {
         // Daily Rasi Palan
         val rasiPalan: RasiPalanDetails? = null
     ) {
-        // Compatibility Aliases
         val tamilDay: Int get() = tamilDate
         val tamilDateStr: String get() = if (tamilDate > 0) tamilDate.toString() else "---"
         val tamilDayStr: String get() = tamilDateStr
@@ -231,7 +217,6 @@ class TamilDatabaseHelper(context: Context) {
         val yamagandam: String get() = combine(emagandamStart, emagandamEnd)
         val kuligai: String get() = combine(kuligaiStart, kuligaiEnd)
 
-        // Rasi 12-box aliases
         val rasiMesham: String get() = rasiPalan?.mesham ?: "---"
         val rasiRishabam: String get() = rasiPalan?.rishabam ?: "---"
         val rasiMithunam: String get() = rasiPalan?.mithunam ?: "---"
@@ -281,7 +266,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 6. GOWRI DATABASE DATA MODEL
+    // 6. GOWRI & HORAI MODELS
     // ---------------------------------------------------------
 
     data class GowriDetails(
@@ -290,19 +275,11 @@ class TamilDatabaseHelper(context: Context) {
         val slots: List<String>
     )
 
-    // ---------------------------------------------------------
-    // 7. HORAI DATABASE DATA MODEL
-    // ---------------------------------------------------------
-
     data class HoraiDetails(
         val weekdayTa: String,
         val kaalam: String,
         val slots: List<String>
     )
-
-    // ---------------------------------------------------------
-    // 8. UNIFIED 3-COLUMN TABLE DATA MODEL (GOWRI / HORAI)
-    // ---------------------------------------------------------
 
     data class TableSlotData(
         val timeLabel: String,
@@ -312,8 +289,25 @@ class TamilDatabaseHelper(context: Context) {
         val endMin: Int
     )
 
+    data class SolarSlotItem(
+        val phaseLabel: String,
+        val timeRange: String,
+        val valueName: String,
+        val isAuspicious: Boolean,
+        val startEpochMins: Int,
+        val endEpochMins: Int
+    )
+
+    data class DynamicGowriHoraiResult(
+        val sunriseToday: String,
+        val sunsetToday: String,
+        val sunriseTomorrow: String,
+        val daySlots: List<SolarSlotItem>,
+        val nightSlots: List<SolarSlotItem>
+    )
+
     // ---------------------------------------------------------
-    // 9. GET COMPLETE DAILY PANCHANGAM
+    // 7. GET COMPLETE DAILY PANCHANGAM
     // ---------------------------------------------------------
 
     fun getDayDetails(gregorianDate: String): DayPanchangDetails? {
@@ -355,6 +349,11 @@ class TamilDatabaseHelper(context: Context) {
             "sun_moon_timings.db",
             "sun_moon_timings",
             "date_gregorian = ?",
+            arrayOf(gregorianDate)
+        ) ?: queryOne(
+            "sun_moon_timings.db",
+            "sun_moon_timings",
+            "gregorian_date = ?",
             arrayOf(gregorianDate)
         )
 
@@ -419,7 +418,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 10. GET DAILY RASI PALAN
+    // 8. GET DAILY RASI PALAN
     // ---------------------------------------------------------
 
     fun getRasiDetails(gregorianDate: String): RasiPalanDetails? {
@@ -454,7 +453,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 11. GET GOWRI DAY / NIGHT ROW
+    // 9. GET GOWRI & HORAI RAW ROWS
     // ---------------------------------------------------------
 
     fun getGowriDetails(weekdayTa: String, kaalam: String): GowriDetails? {
@@ -482,10 +481,6 @@ class TamilDatabaseHelper(context: Context) {
             )
         }
     }
-
-    // ---------------------------------------------------------
-    // 12. GET HORAI DAY / NIGHT ROW
-    // ---------------------------------------------------------
 
     fun getHoraiDetails(weekdayTa: String, kaalam: String): HoraiDetails? {
         val cursor = queryOne(
@@ -518,7 +513,7 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 13. GET GOWRI 3-COLUMN TABLE DATA (PAGAL & IRAVU)
+    // 10. LEGACY 3-COLUMN TABLE METHODS (KEPT FOR WIDGET COMPATIBILITY)
     // ---------------------------------------------------------
 
     fun getGowriTableData(weekdayTa: String): List<TableSlotData> {
@@ -533,7 +528,6 @@ class TamilDatabaseHelper(context: Context) {
             Triple("03:00 - 04:30", 900, 990),
             Triple("04:30 - 06:00", 990, 1080)
         )
-
         val dayDetails = getGowriDetails(weekdayTa, "பகல்")
         val nightDetails = getGowriDetails(weekdayTa, "இரவு")
 
@@ -551,10 +545,6 @@ class TamilDatabaseHelper(context: Context) {
         return list
     }
 
-    // ---------------------------------------------------------
-    // 14. GET HORAI 3-COLUMN TABLE DATA (PAGAL & IRAVU)
-    // ---------------------------------------------------------
-
     fun getHoraiTableData(weekdayTa: String): List<TableSlotData> {
         val list = mutableListOf<TableSlotData>()
         val horaiTimes = listOf(
@@ -571,7 +561,6 @@ class TamilDatabaseHelper(context: Context) {
             Triple("04:00 - 05:00", 960, 1020),
             Triple("05:00 - 06:00", 1020, 1080)
         )
-
         val dayDetails = getHoraiDetails(weekdayTa, "பகல்")
         val nightDetails = getHoraiDetails(weekdayTa, "இரவு")
 
@@ -590,7 +579,193 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 15. CLOSE ALL DATABASE CONNECTIONS
+    // 11. SOLAR-ADJUSTED DYNAMIC GOWRI & HORAI CALCULATIONS
+    // ---------------------------------------------------------
+
+    fun getDynamicHoraiData(
+        todayDate: String,
+        tomorrowDate: String,
+        weekdayTa: String
+    ): DynamicGowriHoraiResult {
+        val sunToday = getSunTimesForDate(todayDate)
+        val sunTomorrow = getSunTimesForDate(tomorrowDate)
+
+        val riseTodayMin = parseTimeToMinutes(sunToday.first, 360)
+        val setTodayMin = parseTimeToMinutes(sunToday.second, 1080)
+        val riseTomorrowMin = parseTimeToMinutes(sunTomorrow.first, 360) + 1440
+
+        val dayDetails = getHoraiDetails(weekdayTa, "பகல்")
+        val nightDetails = getHoraiDetails(weekdayTa, "இரவு")
+
+        val daySlots = buildSolarSlices(
+            startMin = riseTodayMin,
+            endMin = setTodayMin,
+            values = dayDetails?.slots ?: List(12) { "---" },
+            isHorai = true
+        )
+
+        val nightSlots = buildSolarSlices(
+            startMin = setTodayMin,
+            endMin = riseTomorrowMin,
+            values = nightDetails?.slots ?: List(12) { "---" },
+            isHorai = true
+        )
+
+        return DynamicGowriHoraiResult(
+            sunriseToday = formatMinutes12Hr(riseTodayMin, includeAmPm = true),
+            sunsetToday = formatMinutes12Hr(setTodayMin, includeAmPm = true),
+            sunriseTomorrow = formatMinutes12Hr(riseTomorrowMin % 1440, includeAmPm = true),
+            daySlots = daySlots,
+            nightSlots = nightSlots
+        )
+    }
+
+    fun getDynamicGowriData(
+        todayDate: String,
+        tomorrowDate: String,
+        weekdayTa: String
+    ): DynamicGowriHoraiResult {
+        val sunToday = getSunTimesForDate(todayDate)
+        val sunTomorrow = getSunTimesForDate(tomorrowDate)
+
+        val riseTodayMin = parseTimeToMinutes(sunToday.first, 360)
+        val setTodayMin = parseTimeToMinutes(sunToday.second, 1080)
+        val riseTomorrowMin = parseTimeToMinutes(sunTomorrow.first, 360) + 1440
+
+        val dayDetails = getGowriDetails(weekdayTa, "பகல்")
+        val nightDetails = getGowriDetails(weekdayTa, "இரவு")
+
+        val daySlots = buildSolarSlices(
+            startMin = riseTodayMin,
+            endMin = setTodayMin,
+            values = dayDetails?.slots ?: List(8) { "---" },
+            isHorai = false
+        )
+
+        val nightSlots = buildSolarSlices(
+            startMin = setTodayMin,
+            endMin = riseTomorrowMin,
+            values = nightDetails?.slots ?: List(8) { "---" },
+            isHorai = false
+        )
+
+        return DynamicGowriHoraiResult(
+            sunriseToday = formatMinutes12Hr(riseTodayMin, includeAmPm = true),
+            sunsetToday = formatMinutes12Hr(setTodayMin, includeAmPm = true),
+            sunriseTomorrow = formatMinutes12Hr(riseTomorrowMin % 1440, includeAmPm = true),
+            daySlots = daySlots,
+            nightSlots = nightSlots
+        )
+    }
+
+    private fun getSunTimesForDate(gregorianDate: String): Pair<String, String> {
+        val cursor = queryOne(
+            "sun_moon_timings.db",
+            "sun_moon_timings",
+            "date_gregorian = ?",
+            arrayOf(gregorianDate)
+        ) ?: queryOne(
+            "sun_moon_timings.db",
+            "sun_moon_timings",
+            "gregorian_date = ?",
+            arrayOf(gregorianDate)
+        )
+
+        return cursor?.use {
+            Pair(it.safeString("sunrise"), it.safeString("sunset"))
+        } ?: Pair("06:00", "18:00")
+    }
+
+    private fun buildSolarSlices(
+        startMin: Int,
+        endMin: Int,
+        values: List<String>,
+        isHorai: Boolean
+    ): List<SolarSlotItem> {
+        val count = values.size.coerceAtLeast(1)
+        val totalDuration = (endMin - startMin).coerceAtLeast(count)
+        val result = ArrayList<SolarSlotItem>(count)
+
+        for (i in 0 until count) {
+            val slotStart = startMin + Math.round((i.toDouble() * totalDuration) / count).toInt()
+            val slotEnd = startMin + Math.round(((i + 1).toDouble() * totalDuration) / count).toInt()
+            val valText = values[i]
+
+            result.add(
+                SolarSlotItem(
+                    phaseLabel = getTamilDayPhase(slotStart),
+                    timeRange = "${formatMinutes12Hr(slotStart, false)} - ${formatMinutes12Hr(slotEnd, false)}",
+                    valueName = valText,
+                    isAuspicious = isAuspiciousPeriod(valText, isHorai),
+                    startEpochMins = slotStart,
+                    endEpochMins = slotEnd
+                )
+            )
+        }
+        return result
+    }
+
+    private fun getTamilDayPhase(epochMins: Int): String {
+        val modMin = ((epochMins % 1440) + 1440) % 1440
+        val hour = modMin / 60
+        return when {
+            hour in 4..5 -> "அதிகாலை"
+            hour in 6..11 -> "காலை"
+            hour in 12..13 -> "மதியம்"
+            hour in 14..16 -> "பிற்பகல்"
+            hour in 17..18 -> "மாலை"
+            hour in 19..23 -> "இரவு"
+            else -> "நள்ளிரவு"
+        }
+    }
+
+    private fun isAuspiciousPeriod(name: String, isHorai: Boolean): Boolean {
+        val clean = name.trim()
+        return if (isHorai) {
+            clean == "சுக்கிரன்" || clean == "புதன்" || clean == "சந்திரன்" || clean == "குரு"
+        } else {
+            clean == "உத்தி" || clean == "அமிர்தம்" || clean == "லாபம்" || clean == "தனம்" || clean == "சுகம்"
+        }
+    }
+
+    private fun parseTimeToMinutes(raw: String, fallbackMins: Int): Int {
+        if (raw.isBlank() || raw == "---") return fallbackMins
+        return try {
+            val upper = raw.uppercase(Locale.ENGLISH).trim()
+            val isPm = upper.contains("PM")
+            val isAm = upper.contains("AM")
+            val numericPart = upper.replace("AM", "").replace("PM", "").trim()
+            val parts = numericPart.split(":")
+            var hours = parts[0].trim().toInt()
+            val mins = if (parts.size > 1) parts[1].trim().take(2).toInt() else 0
+
+            if (isPm && hours < 12) hours += 12
+            if (isAm && hours == 12) hours = 0
+            (hours * 60) + mins
+        } catch (_: Exception) {
+            fallbackMins
+        }
+    }
+
+    private fun formatMinutes12Hr(epochMins: Int, includeAmPm: Boolean): String {
+        val modMin = ((epochMins % 1440) + 1440) % 1440
+        val hour24 = modMin / 60
+        val min = modMin % 60
+        val amPm = if (hour24 >= 12) "PM" else "AM"
+        val hour12 = when {
+            hour24 == 0 -> 12
+            hour24 > 12 -> hour24 - 12
+            else -> hour24
+        }
+        return if (includeAmPm) {
+            String.format(Locale.ENGLISH, "%d:%02d %s", hour12, min, amPm)
+        } else {
+            String.format(Locale.ENGLISH, "%d:%02d", hour12, min)
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 12. CLOSE ALL DATABASE CONNECTIONS
     // ---------------------------------------------------------
 
     fun closeDatabases() {
