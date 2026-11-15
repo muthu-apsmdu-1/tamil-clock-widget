@@ -1,5 +1,6 @@
 package com.example.tamilclock
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -7,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.*
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
 import java.io.File
@@ -16,9 +19,9 @@ import java.util.Locale
 
 object WidgetUpdateHelper {
 
-    // -------------------------------------------------------------
-    // PENDING INTENT BUILDER
-    // -------------------------------------------------------------
+    private val NEON_GREEN = Color.parseColor("#39FF14")
+    private val TEAL_NEON = Color.parseColor("#00F5D4")
+
     private fun getPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -31,9 +34,6 @@ object WidgetUpdateHelper {
         )
     }
 
-    // -------------------------------------------------------------
-    // SAFE VIEW BINDING HELPERS
-    // -------------------------------------------------------------
     private fun RemoteViews.safeSetText(context: Context, idName: String, text: CharSequence) {
         val resId = context.resources.getIdentifier(idName, "id", context.packageName)
         if (resId != 0) setTextViewText(resId, text)
@@ -54,9 +54,6 @@ object WidgetUpdateHelper {
         if (resId != 0) setImageViewBitmap(resId, bitmap)
     }
 
-    // -------------------------------------------------------------
-    // COLOR RESOLUTION FOR WIDGETS
-    // -------------------------------------------------------------
     data class WidgetColorPalette(
         val isLightWidget: Boolean,
         val primaryText: Int,
@@ -64,7 +61,7 @@ object WidgetUpdateHelper {
         val accentColor: Int
     )
 
-    private fun resolveWidgetColors(context: Context, themeConfig: ThemeManager.ThemeConfig): WidgetColorPalette {
+    private fun resolveWidgetColors(themeConfig: ThemeManager.ThemeConfig): WidgetColorPalette {
         val isWhiteCanvas = themeConfig.preset == ThemeManager.Preset.PORCELAIN_BLUE ||
                 themeConfig.preset == ThemeManager.Preset.PORCELAIN_RED
 
@@ -85,9 +82,6 @@ object WidgetUpdateHelper {
         }
     }
 
-    // -------------------------------------------------------------
-    // DYNAMIC BACKGROUND BITMAP GENERATOR (COLOR + OPACITY + BORDER)
-    // -------------------------------------------------------------
     @JvmOverloads
     fun createWidgetBackgroundBitmap(
         context: Context,
@@ -123,11 +117,123 @@ object WidgetUpdateHelper {
         return bitmap
     }
 
-    private fun formatEnglishDate(cal: Calendar, formatType: Int): String {
-        return if (formatType == ThemeManager.DATE_FORMAT_TEXT) {
-            SimpleDateFormat("dd MMM yy", Locale.ENGLISH).format(cal.time)
-        } else {
-            SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH).format(cal.time)
+    private fun createAmoledPillBitmap(widthPx: Int, heightPx: Int): Bitmap {
+        val w = widthPx.coerceAtLeast(10)
+        val h = heightPx.coerceAtLeast(10)
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bmp)
+        val rect = RectF(4f, 4f, (w - 4).toFloat(), (h - 4).toFloat())
+        val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.BLACK
+            style = Paint.Style.FILL
+        }
+        val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#4439FF14")
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
+        }
+        canvas.drawRoundRect(rect, 24f, 24f, fill)
+        canvas.drawRoundRect(rect, 24f, 24f, stroke)
+        return bmp
+    }
+
+    // -------------------------------------------------------------
+    // UNIFIED CLOCK FACE APPLIER (2 DIGITAL + 3 ANALOG WITH SECONDS HAND)
+    // -------------------------------------------------------------
+    private fun applyClockFaceToViews(
+        context: Context,
+        views: RemoteViews,
+        colors: WidgetColorPalette,
+        cal: Calendar,
+        clockBoxW: Int,
+        clockBoxH: Int
+    ) {
+        val clockFace = ThemeManager.getClockFace(context)
+        val analogId = context.resources.getIdentifier("analog_clock_view", "id", context.packageName)
+
+        when (clockFace) {
+            ThemeManager.CLOCK_DIGITAL_AMOLED_NEON -> {
+                views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.GONE)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.GONE)
+                views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
+                views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
+
+                val pillBmp = createAmoledPillBitmap(clockBoxW, clockBoxH)
+                views.safeSetImageBitmap(context, "iv_digital_clock_bg", pillBmp)
+                views.safeSetVisibility(context, "iv_digital_clock_bg", View.VISIBLE)
+
+                views.safeSetTextColor(context, "tv_digital_clock", NEON_GREEN)
+                views.safeSetTextColor(context, "tv_digital_clock_ampm", NEON_GREEN)
+            }
+
+            ThemeManager.CLOCK_ANALOG_CLASSIC -> {
+                views.safeSetVisibility(context, "container_digital_clock", View.GONE)
+                views.safeSetVisibility(context, "iv_digital_clock_bg", View.GONE)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.GONE)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.GONE)
+                views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+
+                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.classic_clock_dial))
+                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
+                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
+                    views.setIcon(analogId, "setSecondHand", null)
+                }
+            }
+
+            ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
+                views.safeSetVisibility(context, "container_digital_clock", View.GONE)
+                views.safeSetVisibility(context, "iv_digital_clock_bg", View.GONE)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.GONE)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.GONE)
+                views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+
+                val dialBmp = ClockFaceRenderer.createAmoledWhiteDialBitmap(360)
+                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(dialBmp))
+                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                } else {
+                    views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBmp)
+                    views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                }
+            }
+
+            ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
+                views.safeSetVisibility(context, "container_digital_clock", View.GONE)
+                views.safeSetVisibility(context, "iv_digital_clock_bg", View.GONE)
+                views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+
+                val hybridDialBmp = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 380)
+                views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBmp)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+
+                // Live Digital Time inside top half of Hybrid Dial (10:15)
+                views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.VISIBLE)
+
+                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val emptyBmp = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(emptyBmp))
+                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                }
+            }
+
+            else -> { // CLOCK_DIGITAL_CLASSIC (Default)
+                views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+                views.safeSetVisibility(context, "iv_digital_clock_bg", View.GONE)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.GONE)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.GONE)
+                views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
+                views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
+
+                views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
+                views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
+            }
         }
     }
 
@@ -140,9 +246,6 @@ object WidgetUpdateHelper {
         }
     }
 
-    // -------------------------------------------------------------
-    // UNIFIED PANCHANG DATA HOLDER FOR WIDGETS
-    // -------------------------------------------------------------
     data class WidgetPanchangData(
         var tamilYear: String = "பராபவ",
         var tamilMonth: String = "",
@@ -165,7 +268,6 @@ object WidgetUpdateHelper {
         var festival: String = ""
     )
 
-    // Helper to open existing copied SQLite databases safely
     private fun openDatabaseSafely(context: Context, dbName: String): SQLiteDatabase? {
         val dbFile = context.getDatabasePath(dbName)
         if (dbFile.exists()) {
@@ -179,11 +281,9 @@ object WidgetUpdateHelper {
         return null
     }
 
-    // Queries panchang_clcon.db, auspicious_periods.db, and sun_moon_timings.db directly
     fun loadUnifiedWidgetData(context: Context, queryDate: String): WidgetPanchangData {
         val result = WidgetPanchangData()
 
-        // 1. Fetch from panchang_clcon.db
         try {
             openDatabaseSafely(context, "panchang_clcon.db")?.use { db ->
                 val cursor = db.rawQuery(
@@ -208,7 +308,6 @@ object WidgetUpdateHelper {
             }
         } catch (_: Exception) {}
 
-        // Fallback for weekday if panchang record wasn't found
         if (result.weekdayTa.isBlank()) {
             val cal = Calendar.getInstance()
             result.weekdayTa = when (cal.get(Calendar.DAY_OF_WEEK)) {
@@ -223,7 +322,6 @@ object WidgetUpdateHelper {
             }
         }
 
-        // 2. Fetch Auspicious Timings from auspicious_periods.db (Table: weekday_timings_summary)
         try {
             openDatabaseSafely(context, "auspicious_periods.db")?.use { db ->
                 val cursor = db.rawQuery(
@@ -271,7 +369,6 @@ object WidgetUpdateHelper {
             }
         } catch (_: Exception) {}
 
-        // 3. Fetch Sun Timings from sun_moon_timings.db (Table: sun_moon_timings)
         try {
             openDatabaseSafely(context, "sun_moon_timings.db")?.use { db ->
                 val cursor = db.rawQuery(
@@ -289,16 +386,12 @@ object WidgetUpdateHelper {
         return result
     }
 
-    // -------------------------------------------------------------
-    // ASTROLOGICAL ELEMENT RESOLVER (12 PRIORITIZED ELEMENTS)
-    // -------------------------------------------------------------
     private fun resolveElement(key: String, data: WidgetPanchangData): Pair<String, String> {
         return when (key) {
             ThemeManager.ELEM_PAKSHAM -> {
                 val converted = convertPakshamName(data.paksham)
                 Pair("பக்ஷம்", if (converted.isNotBlank()) converted else "—")
             }
-
             ThemeManager.ELEM_THITHI -> {
                 val tName = data.thithi.trim()
                 val tTime = data.thithiTime.trim()
@@ -309,7 +402,6 @@ object WidgetUpdateHelper {
                 }
                 Pair("திதி", text)
             }
-
             ThemeManager.ELEM_NAKSHATRA -> {
                 val nName = data.nakshatra.trim()
                 val nTime = data.nakshatraTime.trim()
@@ -320,31 +412,12 @@ object WidgetUpdateHelper {
                 }
                 Pair("நட்சத்திரம்", text)
             }
-
-            ThemeManager.ELEM_AMIRTHATHI_YOGA -> {
-                Pair("யோகம்", data.yogam.ifBlank { "—" })
-            }
-
-            ThemeManager.ELEM_NALLA_NERAM -> {
-                Pair("நல்ல நேரம்", data.nallaNeram.ifBlank { "—" })
-            }
-
-            ThemeManager.ELEM_GOWRI_NALLA_NERAM -> {
-                Pair("கௌரி", data.gowriNallaNeram.ifBlank { "—" })
-            }
-
-            ThemeManager.ELEM_RAHU_KALAM -> {
-                Pair("ராகு காலம்", data.rahuKalam.ifBlank { "—" })
-            }
-
-            ThemeManager.ELEM_YEMAKANDAM -> {
-                Pair("எமகண்டம்", data.emakandam.ifBlank { "—" })
-            }
-
-            ThemeManager.ELEM_KULIGAI -> {
-                Pair("குளிகை", data.kuligai.ifBlank { "—" })
-            }
-
+            ThemeManager.ELEM_AMIRTHATHI_YOGA -> Pair("யோகம்", data.yogam.ifBlank { "—" })
+            ThemeManager.ELEM_NALLA_NERAM -> Pair("நல்ல நேரம்", data.nallaNeram.ifBlank { "—" })
+            ThemeManager.ELEM_GOWRI_NALLA_NERAM -> Pair("கௌரி", data.gowriNallaNeram.ifBlank { "—" })
+            ThemeManager.ELEM_RAHU_KALAM -> Pair("ராகு காலம்", data.rahuKalam.ifBlank { "—" })
+            ThemeManager.ELEM_YEMAKANDAM -> Pair("எமகண்டம்", data.emakandam.ifBlank { "—" })
+            ThemeManager.ELEM_KULIGAI -> Pair("குளிகை", data.kuligai.ifBlank { "—" })
             ThemeManager.ELEM_SUNRISE_SET -> {
                 val rise = data.sunrise.trim()
                 val set = data.sunset.trim()
@@ -355,28 +428,14 @@ object WidgetUpdateHelper {
                 }
                 Pair("சூரியன்", text)
             }
-
-            ThemeManager.ELEM_CHANDRASTAMA -> {
-                Pair("சந்திராஷ்டமம்", data.chandrashtamam.ifBlank { "இல்லை" })
-            }
-
-            ThemeManager.ELEM_FESTIVAL -> {
-                Pair("சிறப்பு", data.festival.ifBlank { "—" })
-            }
-
+            ThemeManager.ELEM_CHANDRASTAMA -> Pair("சந்திராஷ்டமம்", data.chandrashtamam.ifBlank { "இல்லை" })
+            ThemeManager.ELEM_FESTIVAL -> Pair("சிறப்பு", data.festival.ifBlank { "—" })
             else -> Pair("", "")
         }
     }
 
-    // -------------------------------------------------------------
-    // 1. UPDATE 2x1 WIDGET
-    // -------------------------------------------------------------
     @JvmOverloads
-    fun update2x1(
-        context: Context,
-        manager: AppWidgetManager,
-        appWidgetIds: IntArray? = null
-    ) {
+    fun update2x1(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
         val layoutId = context.resources.getIdentifier("widget_layout_2x1", "layout", context.packageName)
         if (layoutId == 0) return
         val views = RemoteViews(context.packageName, layoutId)
@@ -389,24 +448,11 @@ object WidgetUpdateHelper {
         val bgBitmap = createWidgetBackgroundBitmap(context, 320, 160, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context, themeConfig)
+        val colors = resolveWidgetColors(themeConfig)
+        applyClockFaceToViews(context, views, colors, cal, 145, 145)
 
-        val clockFace = ThemeManager.getClockFace(context)
-        if (clockFace == ThemeManager.CLOCK_ANALOG) {
-            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
-        } else {
-            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
-        }
-
-        val dateFormat = ThemeManager.getDateFormat4x2(context)
-        val gregDateStr = formatEnglishDate(cal, dateFormat)
-        views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
+        val dateFormat = ThemeManager.getWidgetDateFormat(context)
+        views.safeSetText(context, "tv_widget_greg_date", ThemeManager.formatDateByPattern(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
         val tMonth = if (data.tamilMonth.isNotBlank()) data.tamilMonth else "---"
@@ -415,30 +461,15 @@ object WidgetUpdateHelper {
         views.safeSetTextColor(context, "tv_widget_tamil_month_day", colors.accentColor)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
-        if (rootId != 0) {
-            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
-        }
+        if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-            appWidgetIds
-        } else {
-            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
-        }
-
-        if (targetIds != null && targetIds.isNotEmpty()) {
-            manager.updateAppWidget(targetIds, views)
-        }
+        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
+        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
     }
 
-    // -------------------------------------------------------------
-    // 2. UPDATE 4x1 WIDGET
-    // -------------------------------------------------------------
     @JvmOverloads
-    fun update4x1(
-        context: Context,
-        manager: AppWidgetManager,
-        appWidgetIds: IntArray? = null
-    ) {
+    fun update4x1(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
         val layoutId = context.resources.getIdentifier("widget_layout_4x1", "layout", context.packageName)
         if (layoutId == 0) return
         val views = RemoteViews(context.packageName, layoutId)
@@ -451,24 +482,11 @@ object WidgetUpdateHelper {
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 140, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context, themeConfig)
+        val colors = resolveWidgetColors(themeConfig)
+        applyClockFaceToViews(context, views, colors, cal, 130, 130)
 
-        val clockFace = ThemeManager.getClockFace(context)
-        if (clockFace == ThemeManager.CLOCK_ANALOG) {
-            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
-        } else {
-            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
-        }
-
-        val dateFormat = ThemeManager.getDateFormat4x2(context)
-        val gregDateStr = formatEnglishDate(cal, dateFormat)
-        views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
+        val dateFormat = ThemeManager.getWidgetDateFormat(context)
+        views.safeSetText(context, "tv_widget_greg_date", ThemeManager.formatDateByPattern(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
@@ -486,30 +504,15 @@ object WidgetUpdateHelper {
         views.safeSetTextColor(context, "tv_widget_paksham_thithi", colors.secondaryText)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
-        if (rootId != 0) {
-            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
-        }
+        if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-            appWidgetIds
-        } else {
-            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x1::class.java))
-        }
-
-        if (targetIds != null && targetIds.isNotEmpty()) {
-            manager.updateAppWidget(targetIds, views)
-        }
+        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
+        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x1::class.java))
+        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
     }
 
-    // -------------------------------------------------------------
-    // 3. UPDATE 4x2 WIDGET
-    // -------------------------------------------------------------
     @JvmOverloads
-    fun update4x2(
-        context: Context,
-        manager: AppWidgetManager,
-        appWidgetIds: IntArray? = null
-    ) {
+    fun update4x2(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
         val layoutId = context.resources.getIdentifier("widget_layout_4x2", "layout", context.packageName)
         if (layoutId == 0) return
         val views = RemoteViews(context.packageName, layoutId)
@@ -522,24 +525,11 @@ object WidgetUpdateHelper {
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 280, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context, themeConfig)
+        val colors = resolveWidgetColors(themeConfig)
+        applyClockFaceToViews(context, views, colors, cal, 260, 260)
 
-        val clockFace = ThemeManager.getClockFace(context)
-        if (clockFace == ThemeManager.CLOCK_ANALOG) {
-            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
-        } else {
-            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
-        }
-
-        val dateFormat = ThemeManager.getDateFormat4x2(context)
-        val gregDateStr = formatEnglishDate(cal, dateFormat)
-        views.safeSetText(context, "tv_widget_greg_date", gregDateStr)
+        val dateFormat = ThemeManager.getWidgetDateFormat(context)
+        views.safeSetText(context, "tv_widget_greg_date", ThemeManager.formatDateByPattern(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
         val weekdayStr = if (data.weekdayTa.isNotBlank()) data.weekdayTa else "---"
@@ -572,30 +562,15 @@ object WidgetUpdateHelper {
         views.safeSetTextColor(context, "tv_widget_elem3_val", colors.primaryText)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
-        if (rootId != 0) {
-            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
-        }
+        if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-            appWidgetIds
-        } else {
-            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x2::class.java))
-        }
-
-        if (targetIds != null && targetIds.isNotEmpty()) {
-            manager.updateAppWidget(targetIds, views)
-        }
+        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
+        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x2::class.java))
+        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
     }
 
-    // -------------------------------------------------------------
-    // 4. UPDATE 4x4 WIDGET
-    // -------------------------------------------------------------
     @JvmOverloads
-    fun update4x4(
-        context: Context,
-        manager: AppWidgetManager,
-        appWidgetIds: IntArray? = null
-    ) {
+    fun update4x4(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
         val layoutId = context.resources.getIdentifier("widget_layout_4x4", "layout", context.packageName)
         if (layoutId == 0) return
         val views = RemoteViews(context.packageName, layoutId)
@@ -608,23 +583,11 @@ object WidgetUpdateHelper {
         val bgBitmap = createWidgetBackgroundBitmap(context, 580, 580, themeConfig)
         views.safeSetImageBitmap(context, "widget_bg_image", bgBitmap)
 
-        val colors = resolveWidgetColors(context, themeConfig)
+        val colors = resolveWidgetColors(themeConfig)
+        applyClockFaceToViews(context, views, colors, cal, 320, 320)
 
-        val clockFace = ThemeManager.getClockFace(context)
-        if (clockFace == ThemeManager.CLOCK_ANALOG) {
-            views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-            views.safeSetVisibility(context, "container_digital_clock", View.GONE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
-        } else {
-            views.safeSetVisibility(context, "analog_clock_view", View.GONE)
-            views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
-            views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
-            views.safeSetTextColor(context, "tv_digital_clock", colors.primaryText)
-            views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
-        }
-
-        val dateFormat = ThemeManager.getDateFormat4x4(context)
-        views.safeSetText(context, "tv_widget_greg_date", formatEnglishDate(cal, dateFormat))
+        val dateFormat = ThemeManager.getWidgetDateFormat(context)
+        views.safeSetText(context, "tv_widget_greg_date", ThemeManager.formatDateByPattern(cal, dateFormat))
         views.safeSetTextColor(context, "tv_widget_greg_date", colors.primaryText)
 
         views.safeSetTextColor(context, "tv_widget_fixed_sep1", colors.accentColor)
@@ -656,29 +619,47 @@ object WidgetUpdateHelper {
         views.safeSetTextColor(context, "tv_widget_row4_paragraph", colors.primaryText)
 
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
-        if (rootId != 0) {
-            views.setOnClickPendingIntent(rootId, getPendingIntent(context))
-        }
+        if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
-            appWidgetIds
-        } else {
-            manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x4::class.java))
-        }
-
-        if (targetIds != null && targetIds.isNotEmpty()) {
-            manager.updateAppWidget(targetIds, views)
-        }
+        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
+        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x4::class.java))
+        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
     }
 
     // -------------------------------------------------------------
-    // 5. UPDATE ALL WIDGETS
+    // EVENT-DRIVEN MIDNIGHT & SUNRISE SCHEDULER (ZERO POLLING)
     // -------------------------------------------------------------
+    private fun scheduleNextBoundaryUpdate(context: Context) {
+        try {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+            val intent = Intent(context, WidgetProvider4x2::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            }
+            val pi = PendingIntent.getBroadcast(
+                context,
+                901,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            // Next Midnight (00:00:05)
+            val nextMidnight = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_YEAR, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 5)
+            }.timeInMillis
+
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, nextMidnight, pi)
+        } catch (_: Exception) {}
+    }
+
     fun updateAllWidgets(context: Context) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         update2x1(context, appWidgetManager)
         update4x1(context, appWidgetManager)
         update4x2(context, appWidgetManager)
         update4x4(context, appWidgetManager)
+        scheduleNextBoundaryUpdate(context)
     }
 }
