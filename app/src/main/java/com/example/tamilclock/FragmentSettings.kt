@@ -29,6 +29,7 @@ class FragmentSettings : Fragment() {
     private var tvLblAppTheme: TextView? = null
 
     private var tvLblWidgetTheme: TextView? = null
+    private var tvLblDateFormat: TextView? = null
     private var tvLblClockStyle: TextView? = null
     private var tvLblOuterBorder: TextView? = null
     private var switchOuterBorder: SwitchCompat? = null
@@ -38,13 +39,45 @@ class FragmentSettings : Fragment() {
     private var tvWidgetOpacityVal: TextView? = null
     private var seekBarOpacity: SeekBar? = null
 
-    // Clock style switcher
+    // Date Format Selector Boxes
+    private var boxDateFmtDash: FrameLayout? = null
+    private var tvDateFmtDash: TextView? = null
+    private var boxDateFmtText: FrameLayout? = null
+    private var tvDateFmtText: TextView? = null
+    private var boxDateFmtSlash: FrameLayout? = null
+    private var tvDateFmtSlash: TextView? = null
+
+    // Clock Type Switcher (Digital vs Analog)
     private var boxClockDigital: FrameLayout? = null
     private var tvClockDigital: TextView? = null
     private var tickClockDigital: TextView? = null
     private var boxClockAnalog: FrameLayout? = null
     private var tvClockAnalog: TextView? = null
     private var tickClockAnalog: TextView? = null
+
+    // Sub-Style Thumbnail Cards (2 Digital + 3 Analog)
+    private var groupDigitalFaces: LinearLayout? = null
+    private var groupAnalogFaces: LinearLayout? = null
+
+    private var cardDigitalClassic: LinearLayout? = null
+    private var ivThumbDigitalClassic: ImageView? = null
+    private var tvLabelDigitalClassic: TextView? = null
+
+    private var cardDigitalNeon: LinearLayout? = null
+    private var ivThumbDigitalNeon: ImageView? = null
+    private var tvLabelDigitalNeon: TextView? = null
+
+    private var cardAnalogClassic: LinearLayout? = null
+    private var ivThumbAnalogClassic: ImageView? = null
+    private var tvLabelAnalogClassic: TextView? = null
+
+    private var cardAnalogWhite: LinearLayout? = null
+    private var ivThumbAnalogWhite: ImageView? = null
+    private var tvLabelAnalogWhite: TextView? = null
+
+    private var cardAnalogHybrid: LinearLayout? = null
+    private var ivThumbAnalogHybrid: ImageView? = null
+    private var tvLabelAnalogHybrid: TextView? = null
 
     // 4x2 and 4x4 Table Selectors
     private var tvLblElements4x2: TextView? = null
@@ -127,6 +160,7 @@ class FragmentSettings : Fragment() {
         tvLblAppTheme = view.findViewById(R.id.tv_lbl_app_theme)
 
         tvLblWidgetTheme = view.findViewById(R.id.tv_lbl_widget_theme)
+        tvLblDateFormat = view.findViewById(R.id.tv_lbl_date_format)
         tvLblClockStyle = view.findViewById(R.id.tv_lbl_clock_style)
         tvLblOuterBorder = view.findViewById(R.id.tv_lbl_outer_border)
         switchOuterBorder = view.findViewById(R.id.switch_outer_border)
@@ -136,6 +170,15 @@ class FragmentSettings : Fragment() {
         tvWidgetOpacityVal = view.findViewById(R.id.tv_widget_opacity_val)
         seekBarOpacity = view.findViewById(R.id.seekbar_widget_opacity)
 
+        // Date Format Boxes
+        boxDateFmtDash = view.findViewById(R.id.box_date_fmt_dash)
+        tvDateFmtDash = view.findViewById(R.id.tv_date_fmt_dash)
+        boxDateFmtText = view.findViewById(R.id.box_date_fmt_text)
+        tvDateFmtText = view.findViewById(R.id.tv_date_fmt_text)
+        boxDateFmtSlash = view.findViewById(R.id.box_date_fmt_slash)
+        tvDateFmtSlash = view.findViewById(R.id.tv_date_fmt_slash)
+
+        // Clock Type Switcher
         boxClockDigital = view.findViewById(R.id.box_clock_digital)
         tvClockDigital = view.findViewById(R.id.tv_clock_digital)
         tickClockDigital = view.findViewById(R.id.tick_clock_digital)
@@ -143,6 +186,31 @@ class FragmentSettings : Fragment() {
         tvClockAnalog = view.findViewById(R.id.tv_clock_analog)
         tickClockAnalog = view.findViewById(R.id.tick_clock_analog)
 
+        // Sub-Style Thumbnail Cards
+        groupDigitalFaces = view.findViewById(R.id.group_digital_faces)
+        groupAnalogFaces = view.findViewById(R.id.group_analog_faces)
+
+        cardDigitalClassic = view.findViewById(R.id.card_face_digital_classic)
+        ivThumbDigitalClassic = view.findViewById(R.id.iv_thumb_digital_classic)
+        tvLabelDigitalClassic = view.findViewById(R.id.tv_label_digital_classic)
+
+        cardDigitalNeon = view.findViewById(R.id.card_face_digital_neon)
+        ivThumbDigitalNeon = view.findViewById(R.id.iv_thumb_digital_neon)
+        tvLabelDigitalNeon = view.findViewById(R.id.tv_label_digital_neon)
+
+        cardAnalogClassic = view.findViewById(R.id.card_face_analog_classic)
+        ivThumbAnalogClassic = view.findViewById(R.id.iv_thumb_analog_classic)
+        tvLabelAnalogClassic = view.findViewById(R.id.tv_label_analog_classic)
+
+        cardAnalogWhite = view.findViewById(R.id.card_face_analog_white)
+        ivThumbAnalogWhite = view.findViewById(R.id.iv_thumb_analog_white)
+        tvLabelAnalogWhite = view.findViewById(R.id.tv_label_analog_white)
+
+        cardAnalogHybrid = view.findViewById(R.id.card_face_analog_hybrid)
+        ivThumbAnalogHybrid = view.findViewById(R.id.iv_thumb_analog_hybrid)
+        tvLabelAnalogHybrid = view.findViewById(R.id.tv_label_analog_hybrid)
+
+        // 4x2 and 4x4 Tables
         tvLblElements4x2 = view.findViewById(R.id.tv_lbl_elements_4x2)
         tvCountElements4x2 = view.findViewById(R.id.tv_count_elements_4x2)
         tableElements4x2 = view.findViewById(R.id.table_elements_4x2)
@@ -151,6 +219,7 @@ class FragmentSettings : Fragment() {
         tvCountElements4x4 = view.findViewById(R.id.tv_count_elements_4x4)
         tableElements4x4 = view.findViewById(R.id.table_elements_4x4)
 
+        // Live Preview
         tvLblWidgetPreview = view.findViewById(R.id.tv_lbl_widget_preview)
         framePreviewWrapper = view.findViewById(R.id.frame_preview_wrapper)
         ivPreviewWidgetBg = view.findViewById(R.id.iv_preview_widget_bg)
@@ -307,27 +376,98 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 3. CLOCK STYLE SWITCHER (DIGITAL vs ANALOG)
+    // 3. DATE FORMAT & CLOCK FACE SWITCHER (WITH THUMBNAIL SAMPLES)
     // -------------------------------------------------------------
     private fun setupClockStyleSwitcher() {
-        boxClockDigital?.setOnClickListener {
-            val context = requireContext()
-            ThemeManager.saveClockFace(context, ThemeManager.CLOCK_DIGITAL)
+        val ctx = requireContext()
+
+        // Generate sample thumbnail previews onto all 5 clock face buttons
+        ivThumbDigitalClassic?.setImageBitmap(
+            ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_DIGITAL_CLASSIC)
+        )
+        ivThumbDigitalNeon?.setImageBitmap(
+            ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_DIGITAL_AMOLED_NEON)
+        )
+        ivThumbAnalogClassic?.setImageBitmap(
+            ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_ANALOG_CLASSIC)
+        )
+        ivThumbAnalogWhite?.setImageBitmap(
+            ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+        )
+        ivThumbAnalogHybrid?.setImageBitmap(
+            ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
+        )
+
+        // Date Format Listeners (3 formats)
+        boxDateFmtDash?.setOnClickListener {
+            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_DASH)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
+        }
+        boxDateFmtText?.setOnClickListener {
+            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_TEXT)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+        boxDateFmtSlash?.setOnClickListener {
+            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_SLASH)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+
+        // Top Clock Type Switcher (Digital vs Analog)
+        boxClockDigital?.setOnClickListener {
+            if (ThemeManager.isAnalogClockSelected(requireContext())) {
+                ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_CLASSIC)
+                renderClockStyleSwitcher()
+                debounceWidgetUpdate()
+            }
         }
         boxClockAnalog?.setOnClickListener {
-            val context = requireContext()
-            ThemeManager.saveClockFace(context, ThemeManager.CLOCK_ANALOG)
+            if (!ThemeManager.isAnalogClockSelected(requireContext())) {
+                ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+                renderClockStyleSwitcher()
+                debounceWidgetUpdate()
+            }
+        }
+
+        // Digital Sub-Style Buttons (2)
+        cardDigitalClassic?.setOnClickListener {
+            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_CLASSIC)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
+        cardDigitalNeon?.setOnClickListener {
+            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_AMOLED_NEON)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+
+        // Analog Sub-Style Buttons (3)
+        cardAnalogClassic?.setOnClickListener {
+            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_CLASSIC)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+        cardAnalogWhite?.setOnClickListener {
+            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+        cardAnalogHybrid?.setOnClickListener {
+            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
+            renderClockStyleSwitcher()
+            debounceWidgetUpdate()
+        }
+
         renderClockStyleSwitcher()
     }
 
     private fun renderClockStyleSwitcher() {
         val context = context ?: return
-        val currentStyle = ThemeManager.getClockFace(context)
+        val activeFace = ThemeManager.getClockFace(context)
+        val isAnalog = ThemeManager.isAnalogClockSelected(context)
+        val dateFmt = ThemeManager.getWidgetDateFormat(context)
         val palette = ThemeManager.getThemePalette(context)
         val density = context.resources.displayMetrics.density
         val currentBg = ThemeManager.getAppBackgroundColor(context)
@@ -339,28 +479,48 @@ class FragmentSettings : Fragment() {
         val bgCol = palette.cardBackground
         val textCol = if (isDark) Color.WHITE else palette.primaryHeader
 
-        val isDigital = currentStyle == ThemeManager.CLOCK_DIGITAL
-
-        // Digital Box
-        boxClockDigital?.background = GradientDrawable().apply {
-            cornerRadius = 12f * density
-            setColor(if (isDigital) goldCol else bgCol)
-            setStroke(2, if (isDigital) goldCol else borderCol)
+        fun stylePill(box: FrameLayout?, tv: TextView?, selected: Boolean) {
+            box?.background = GradientDrawable().apply {
+                cornerRadius = 12f * density
+                setColor(if (selected) goldCol else bgCol)
+                setStroke(2, if (selected) goldCol else borderCol)
+            }
+            tv?.setTextColor(if (selected) Color.BLACK else textCol)
         }
-        tvClockDigital?.setTextColor(if (isDigital) Color.BLACK else textCol)
-        tickClockDigital?.setTextColor(if (isDigital) Color.BLACK else textCol)
-        tickClockDigital?.visibility = if (isDigital) View.VISIBLE else View.GONE
 
-        // Analog Box
-        val isAnalog = !isDigital
-        boxClockAnalog?.background = GradientDrawable().apply {
-            cornerRadius = 12f * density
-            setColor(if (isAnalog) goldCol else bgCol)
-            setStroke(2, if (isAnalog) goldCol else borderCol)
-        }
-        tvClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else textCol)
-        tickClockAnalog?.setTextColor(if (isAnalog) Color.BLACK else textCol)
+        // Date Format Pills
+        stylePill(boxDateFmtDash, tvDateFmtDash, dateFmt == ThemeManager.DATE_FORMAT_DASH)
+        stylePill(boxDateFmtText, tvDateFmtText, dateFmt == ThemeManager.DATE_FORMAT_TEXT)
+        stylePill(boxDateFmtSlash, tvDateFmtSlash, dateFmt == ThemeManager.DATE_FORMAT_SLASH)
+
+        // Digital vs Analog Type Switch
+        stylePill(boxClockDigital, tvClockDigital, !isAnalog)
+        tickClockDigital?.setTextColor(Color.BLACK)
+        tickClockDigital?.visibility = if (!isAnalog) View.VISIBLE else View.GONE
+
+        stylePill(boxClockAnalog, tvClockAnalog, isAnalog)
+        tickClockAnalog?.setTextColor(Color.BLACK)
         tickClockAnalog?.visibility = if (isAnalog) View.VISIBLE else View.GONE
+
+        // Toggle Sub-Style Button Groups
+        groupDigitalFaces?.visibility = if (!isAnalog) View.VISIBLE else View.GONE
+        groupAnalogFaces?.visibility = if (isAnalog) View.VISIBLE else View.GONE
+
+        // Style Thumbnail Buttons
+        fun styleFaceCard(card: LinearLayout?, label: TextView?, selected: Boolean) {
+            card?.background = GradientDrawable().apply {
+                cornerRadius = 14f * density
+                setColor(if (selected) Color.parseColor("#28B26A00") else bgCol)
+                setStroke(if (selected) 5 else 2, if (selected) goldCol else borderCol)
+            }
+            label?.setTextColor(if (selected) goldCol else textCol)
+        }
+
+        styleFaceCard(cardDigitalClassic, tvLabelDigitalClassic, activeFace == ThemeManager.CLOCK_DIGITAL_CLASSIC)
+        styleFaceCard(cardDigitalNeon, tvLabelDigitalNeon, activeFace == ThemeManager.CLOCK_DIGITAL_AMOLED_NEON)
+        styleFaceCard(cardAnalogClassic, tvLabelAnalogClassic, activeFace == ThemeManager.CLOCK_ANALOG_CLASSIC)
+        styleFaceCard(cardAnalogWhite, tvLabelAnalogWhite, activeFace == ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+        styleFaceCard(cardAnalogHybrid, tvLabelAnalogHybrid, activeFace == ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
     }
 
     // -------------------------------------------------------------
@@ -643,6 +803,7 @@ class FragmentSettings : Fragment() {
         tvHeading?.setTextColor(headingColor)
         tvLblAppTheme?.setTextColor(labelColor)
         tvLblWidgetTheme?.setTextColor(labelColor)
+        tvLblDateFormat?.setTextColor(labelColor)
         tvLblClockStyle?.setTextColor(labelColor)
         tvLblOuterBorder?.setTextColor(labelColor)
         tvLblElements4x2?.setTextColor(labelColor)
