@@ -447,12 +447,12 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 3. CLOCK STYLE SWITCHER ==================== -->
+        <!-- ==================== 3A. WIDGET DATE FORMAT SELECTOR ==================== -->
         <TextView
-            android:id="@+id/tv_lbl_clock_style"
+            android:id="@+id/tv_lbl_date_format"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="கடிகார நடை (Clock Style)"
+            android:text="தேதி வடிவம் (Widget Date Format)"
             android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginBottom="10dp" />
@@ -464,9 +464,93 @@
             android:layout_marginBottom="16dp">
 
             <FrameLayout
+                android:id="@+id/box_date_fmt_dash"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/bg_preset_box_base"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_date_fmt_dash"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="14 - 11 - 2026"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/box_date_fmt_text"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/bg_preset_box_base"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_date_fmt_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="14 Nov 2026"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/box_date_fmt_slash"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_preset_box_base"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_date_fmt_slash"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="14/11/2026"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#22888888"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ==================== 3B. CLOCK TYPE & SAMPLE IMAGE CARDS ==================== -->
+        <TextView
+            android:id="@+id/tv_lbl_clock_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="கடிகார வகை &amp; வடிவம் (Clock Type &amp; Face)"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Clock Type: Digital vs Analog -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
+
+            <FrameLayout
                 android:id="@+id/box_clock_digital"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
                 android:background="@drawable/bg_preset_box_base"
@@ -497,7 +581,7 @@
             <FrameLayout
                 android:id="@+id/box_clock_analog"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_preset_box_base"
@@ -524,6 +608,170 @@
                     android:textStyle="bold"
                     android:visibility="gone" />
             </FrameLayout>
+        </LinearLayout>
+
+        <!-- Digital Sub-Options (2 Cards with Sample Preview Images) -->
+        <LinearLayout
+            android:id="@+id/group_digital_faces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/card_face_digital_classic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_thumb_digital_classic"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="Classic Digital Sample" />
+
+                <TextView
+                    android:id="@+id/tv_label_digital_classic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Transparent + White"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/card_face_digital_neon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_thumb_digital_neon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="AMOLED Neon Digital Sample" />
+
+                <TextView
+                    android:id="@+id/tv_label_digital_neon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="AMOLED + Neon"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Analog Sub-Options (3 Cards with Sample Preview Images) -->
+        <LinearLayout
+            android:id="@+id/group_analog_faces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/card_face_analog_classic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="6dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_thumb_analog_classic"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="Classic Transparent Dial" />
+
+                <TextView
+                    android:id="@+id/tv_label_analog_classic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="Classic\nTransparent"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/card_face_analog_white"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="4dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="6dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_thumb_analog_white"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="AMOLED White + Seconds" />
+
+                <TextView
+                    android:id="@+id/tv_label_analog_white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="AMOLED White\n+ Seconds"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/card_face_analog_hybrid"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="6dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_thumb_analog_hybrid"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="AMOLED Teal Hybrid Dial" />
+
+                <TextView
+                    android:id="@+id/tv_label_analog_hybrid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="AMOLED Teal\nHybrid + Sec"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <View
