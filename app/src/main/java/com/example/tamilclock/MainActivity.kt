@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         setupTabsAndViewPager()
         setupTopNavigationToolbar()
         setupBackNavigation()
+        applyToolbarTheme()
         loadDayData()
         updateWidgets()
     }
@@ -47,16 +49,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyToolbarTheme() {
         val palette = ThemeManager.getThemePalette(this)
+        val velvetMaroon = Color.parseColor("#65001F")
+        val dazzlingGold = Color.parseColor("#FFD700")
 
         // 1. Root Activity Background
         findViewById<View?>(R.id.root_main_layout)?.setBackgroundColor(palette.pageBackground)
 
-        // 2. Pinned Top Banner (Logo + App Title)
-        findViewById<CardView?>(R.id.card_top_banner)?.setCardBackgroundColor(palette.primaryHeader)
-        findViewById<TextView?>(R.id.tv_app_title_banner)?.setTextColor(palette.accentGold)
+        // 2. Pinned Top Banner (Velvet Maroon + Dazzling Gold)
+        findViewById<CardView?>(R.id.card_top_banner)?.setCardBackgroundColor(velvetMaroon)
+        findViewById<TextView?>(R.id.tv_app_title_banner)?.setTextColor(dazzlingGold)
 
-        // 3. 7-Tool Navigation Toolbar
-        findViewById<LinearLayout?>(R.id.layout_nav_toolbar)?.setBackgroundColor(palette.secondaryHeader)
+        // 3. 7-Tool Navigation Toolbar (Transparent strip so individual Teal boxes stand out)
+        findViewById<LinearLayout?>(R.id.layout_nav_toolbar)?.setBackgroundColor(Color.TRANSPARENT)
 
         val navButtons = listOf<TextView?>(
             findViewById(R.id.btn_action_prev),
@@ -68,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             findViewById(R.id.btn_action_next)
         )
         for (btn in navButtons) {
-            btn?.setTextColor(palette.accentGold)
+            btn?.setTextColor(dazzlingGold)
         }
     }
 
