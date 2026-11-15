@@ -12,7 +12,7 @@
         android:scaleType="fitXY"
         android:contentDescription="Widget Background" />
 
-    <!-- 2. Main Vertical Split: Clock (Top ~62%) + Divider + Elements (Bottom ~38%) -->
+    <!-- 2. Main Vertical Split: Clock (Top ~62%) + Elements (Bottom ~38%) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,7 +21,7 @@
         android:paddingVertical="8dp"
         android:gravity="center_horizontal">
 
-        <!-- TOP: Clock Container (Exact 2/3 weight) -->
+        <!-- TOP: Clock Container (Exact 5/8 weight) -->
         <FrameLayout
             android:id="@+id/container_clock_top"
             android:layout_width="match_parent"
@@ -29,7 +29,31 @@
             android:layout_weight="5"
             android:layout_gravity="center">
 
-            <!-- Classic Vintage Analog Clock -->
+            <!-- 1. Backing Image for AMOLED White / Hybrid Analog Dials -->
+            <ImageView
+                android:id="@+id/iv_hybrid_dial_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:contentDescription="Analog Dial" />
+
+            <!-- 2. Embedded Top Digital Time inside Hybrid Analog Dial -->
+            <TextClock
+                android:id="@+id/tc_hybrid_top_digital"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginTop="46dp"
+                android:format12Hour="h:mm"
+                android:format24Hour="HH:mm"
+                android:textColor="#00F5D4"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:visibility="gone" />
+
+            <!-- 3. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
             <AnalogClock
                 android:id="@+id/analog_clock_view"
                 android:layout_width="match_parent"
@@ -40,7 +64,18 @@
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
-            <!-- Digital Clock: Enlarged digits with AM/PM placed below (Auto-syncs live) -->
+            <!-- 4. Backing Pill for AMOLED Neon Digital Style -->
+            <ImageView
+                android:id="@+id/iv_digital_clock_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginVertical="12dp"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                android:contentDescription="Neon Digital Pill" />
+
+            <!-- 5. Digital Clock: Enlarged digits with AM/PM placed below (Auto-syncs live) -->
             <LinearLayout
                 android:id="@+id/container_digital_clock"
                 android:layout_width="match_parent"
