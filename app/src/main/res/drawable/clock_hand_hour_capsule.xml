@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Stem from center -->
+    <path
+        android:pathData="M120,120 L120,104"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round" />
+
+    <!-- Hollow White Capsule Body -->
+    <path
+        android:pathData="M115.5,64 C115.5,61.5 117.5,59.5 120,59.5 C122.5,59.5 124.5,61.5 124.5,64 L124.5,101 C124.5,103.5 122.5,105.5 120,105.5 C117.5,105.5 115.5,103.5 115.5,101 Z"
+        android:fillColor="#000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.8" />
+</vector>
