@@ -5,13 +5,16 @@ import android.content.Context
 import android.graphics.Color
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 object ThemeManager {
 
     private const val PREFS_NAME = "tamil_clock_prefs"
 
     // -------------------------------------------------------------
-    // LEGACY THEME CONSTANTS (Required by WidgetUpdateHelper & MainActivity)
+    // LEGACY THEME CONSTANTS
     // -------------------------------------------------------------
     const val THEME_IVORY = 0
     const val THEME_MAROON = 0
@@ -23,7 +26,7 @@ object ThemeManager {
     // -------------------------------------------------------------
     // ITEM 1: APP BACKGROUND COLORS
     // -------------------------------------------------------------
-    const val APP_COLOR_ANTIQUE_SANDAL = "#E8D5B5" // Default
+    const val APP_COLOR_ANTIQUE_SANDAL = "#E8D5B5"
     const val APP_COLOR_BRIGHT_LEMON = "#FFEF00"
     const val APP_COLOR_MIDNIGHT_VIOLET = "#24113D"
     const val APP_COLOR_OFF_WHITE = "#FAFAFA"
@@ -32,54 +35,61 @@ object ThemeManager {
     // -------------------------------------------------------------
     // ITEM 2: WIDGET BACKGROUND COLORS (LEGACY)
     // -------------------------------------------------------------
-    const val WIDGET_COLOR_VELVET_MAROON = "#65001F" // Default
+    const val WIDGET_COLOR_VELVET_MAROON = "#65001F"
     const val WIDGET_COLOR_ROYAL_NAVY = "#142B50"
     const val WIDGET_COLOR_MIDNIGHT_VIOLET = "#24113D"
     const val WIDGET_COLOR_OFF_WHITE = "#FAFAFA"
     const val WIDGET_COLOR_AMOLED_BLACK = "#000000"
 
     // -------------------------------------------------------------
-    // CLOCK FACE & STYLES
+    // CLOCK TYPES & 5 SUB-STYLES
     // -------------------------------------------------------------
-    const val CLOCK_DIGITAL = 0
-    const val CLOCK_ANALOG = 1
-    const val CLOCK_CLASSIC_VINTAGE = 1
+    const val CLOCK_TYPE_DIGITAL = 0
+    const val CLOCK_TYPE_ANALOG = 1
+
+    const val CLOCK_DIGITAL_CLASSIC = 0       // Digital A: Transparent bg + White/Theme numerical
+    const val CLOCK_DIGITAL_AMOLED_NEON = 1   // Digital B: AMOLED Black bg + Neon numerical
+    const val CLOCK_ANALOG_CLASSIC = 2        // Analog A: Transparent classic dial + White numerical
+    const val CLOCK_ANALOG_AMOLED_WHITE = 3   // Analog B: AMOLED Black dial + White numerical + Seconds hand
+    const val CLOCK_ANALOG_AMOLED_HYBRID = 4  // Analog C: AMOLED Black dial + Teal triangles + Seconds + Complications
+
+    // Legacy Aliases
+    const val CLOCK_DIGITAL = CLOCK_DIGITAL_CLASSIC
+    const val CLOCK_ANALOG = CLOCK_ANALOG_CLASSIC
+    const val CLOCK_CLASSIC_VINTAGE = CLOCK_ANALOG_CLASSIC
 
     // -------------------------------------------------------------
-    // DATE VIEW FORMATS (4x2 & 4x4)
+    // SELECTABLE DATE VIEW FORMATS
     // -------------------------------------------------------------
-    const val DATE_FORMAT_NUMERIC = 0 // 06 - 11 - 2026
-    const val DATE_FORMAT_TEXT = 1    // 06 Nov 26
+    const val DATE_FORMAT_DASH = 0   // 14 - 11 - 2026 (dd - MM - yyyy)
+    const val DATE_FORMAT_TEXT = 1   // 14 Nov 2026    (dd MMM yyyy)
+    const val DATE_FORMAT_SLASH = 2  // 14/11/2026     (dd/MM/yyyy)
+    const val DATE_FORMAT_NUMERIC = DATE_FORMAT_DASH
 
     // -------------------------------------------------------------
     // ASTROLOGICAL ELEMENTS KEYS
     // -------------------------------------------------------------
-// In ThemeManager.kt
-const val ELEM_PAKSHAM = "paksham"                         // 1. Paksham
-const val ELEM_THITHI = "thithi"                           // 2. Thithi & timing
-const val ELEM_NAKSHATRA = "nakshatra"                     // 3. Nakshatra & timing
-const val ELEM_AMIRTHATHI_YOGA = "amirthathi_yoga"         // 4. Amirthaitya yoga
-const val ELEM_NALLA_NERAM = "nalla_neram"                 // 5. Nalla neram
-const val ELEM_GOWRI_NALLA_NERAM = "gowri_nalla_neram"     // 6. Gowri nalla neram
-const val ELEM_RAHU_KALAM = "rahu_kalam"                   // 7. Rahu kalam
-const val ELEM_YEMAKANDAM = "yemakandam"                   // 8. Yemakandam
-const val ELEM_KULIGAI = "kuligai"                         // 9. Kuligai
-const val ELEM_SUNRISE_SET = "sunrise_sunset"              // 10. Sun rise / set timing
-const val ELEM_CHANDRASTAMA = "chandrastama"               // 11. Chandrastama
-const val ELEM_FESTIVAL = "festival"                       // 12. Festival
+    const val ELEM_PAKSHAM = "paksham"
+    const val ELEM_THITHI = "thithi"
+    const val ELEM_NAKSHATRA = "nakshatra"
+    const val ELEM_AMIRTHATHI_YOGA = "amirthathi_yoga"
+    const val ELEM_NALLA_NERAM = "nalla_neram"
+    const val ELEM_GOWRI_NALLA_NERAM = "gowri_nalla_neram"
+    const val ELEM_RAHU_KALAM = "rahu_kalam"
+    const val ELEM_YEMAKANDAM = "yemakandam"
+    const val ELEM_KULIGAI = "kuligai"
+    const val ELEM_SUNRISE_SET = "sunrise_sunset"
+    const val ELEM_CHANDRASTAMA = "chandrastama"
+    const val ELEM_FESTIVAL = "festival"
 
-// Default 3 for 4x2: Paksham, Thithi & timing, Nakshatra & timing
-val DEFAULT_ELEMENTS_4X2 = setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
-
-// Default 5 for 4x4: Priority 1 through 5
-val DEFAULT_ELEMENTS_4X4 = setOf(
-    ELEM_PAKSHAM,
-    ELEM_THITHI,
-    ELEM_NAKSHATRA,
-    ELEM_AMIRTHATHI_YOGA,
-    ELEM_NALLA_NERAM
-)
-
+    val DEFAULT_ELEMENTS_4X2 = setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
+    val DEFAULT_ELEMENTS_4X4 = setOf(
+        ELEM_PAKSHAM,
+        ELEM_THITHI,
+        ELEM_NAKSHATRA,
+        ELEM_AMIRTHATHI_YOGA,
+        ELEM_NALLA_NERAM
+    )
 
     // -------------------------------------------------------------
     // PREFERENCE KEYS
@@ -90,65 +100,31 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
     private const val KEY_WIDGET_OPACITY = "widget_opacity"
     private const val KEY_CLOCK_STYLE = "clock_style"
     private const val KEY_CLOCK_FACE = "clock_face"
+    private const val KEY_WIDGET_DATE_FORMAT = "widget_date_format"
     private const val KEY_DATE_FORMAT_4X2 = "date_format_4x2"
     private const val KEY_DATE_FORMAT_4X4 = "date_format_4x4"
     private const val KEY_ELEMENTS_4X2 = "elements_4x2"
     private const val KEY_ELEMENTS_4X4 = "elements_4x4"
 
-    // New Theme Engine Keys
     private const val KEY_PRESET_ID = "selected_preset_id"
     private const val KEY_BORDER_ENABLED = "outer_border_enabled"
     const val SHADOW_THRESHOLD_PERCENT = 30
 
-    // -------------------------------------------------------------
-    // NEW 6 PRESET ENUM DEFINITION
-    // -------------------------------------------------------------
     enum class Preset(
         val id: String,
         val displayName: String,
         @ColorRes val bgResId: Int,
         @ColorRes val accentResId: Int
     ) {
-        MIDNIGHT_GOLD(
-            id = "midnight_gold",
-            displayName = "Midnight Gold",
-            bgResId = R.color.widget_canvas_black,
-            accentResId = R.color.widget_accent_gold
-        ),
-        HERITAGE_MAROON(
-            id = "heritage_maroon",
-            displayName = "Heritage Maroon",
-            bgResId = R.color.widget_canvas_maroon,
-            accentResId = R.color.widget_accent_gold
-        ),
-        CLASSIC_MONO(
-            id = "classic_mono",
-            displayName = "Classic Mono",
-            bgResId = R.color.widget_canvas_black,
-            accentResId = R.color.widget_accent_white
-        ),
-        NEON_NIGHT(
-            id = "neon_night",
-            displayName = "Neon Night",
-            bgResId = R.color.widget_canvas_black,
-            accentResId = R.color.widget_accent_neon_green
-        ),
-        PORCELAIN_BLUE(
-            id = "porcelain_blue",
-            displayName = "Porcelain Blue",
-            bgResId = R.color.widget_canvas_white,
-            accentResId = R.color.widget_accent_royal_blue
-        ),
-        PORCELAIN_RED(
-            id = "porcelain_red",
-            displayName = "Porcelain Red",
-            bgResId = R.color.widget_canvas_white,
-            accentResId = R.color.widget_accent_crimson
-        );
+        MIDNIGHT_GOLD("midnight_gold", "Midnight Gold", R.color.widget_canvas_black, R.color.widget_accent_gold),
+        HERITAGE_MAROON("heritage_maroon", "Heritage Maroon", R.color.widget_canvas_maroon, R.color.widget_accent_gold),
+        CLASSIC_MONO("classic_mono", "Classic Mono", R.color.widget_canvas_black, R.color.widget_accent_white),
+        NEON_NIGHT("neon_night", "Neon Night", R.color.widget_canvas_black, R.color.widget_accent_neon_green),
+        PORCELAIN_BLUE("porcelain_blue", "Porcelain Blue", R.color.widget_canvas_white, R.color.widget_accent_royal_blue),
+        PORCELAIN_RED("porcelain_red", "Porcelain Red", R.color.widget_canvas_white, R.color.widget_accent_crimson);
 
         companion object {
-            fun fromId(id: String?): Preset =
-                entries.firstOrNull { it.id == id } ?: MIDNIGHT_GOLD
+            fun fromId(id: String?): Preset = entries.firstOrNull { it.id == id } ?: MIDNIGHT_GOLD
         }
     }
 
@@ -175,14 +151,9 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
         val cardBorderColor: Int
     )
 
-    // -------------------------------------------------------------
-    // NEW THEME SYSTEM ENGINE
-    // -------------------------------------------------------------
     fun savePreset(context: Context, preset: Preset) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_PRESET_ID, preset.id)
-            .apply()
+            .edit().putString(KEY_PRESET_ID, preset.id).apply()
     }
 
     fun getSelectedPreset(context: Context): Preset {
@@ -197,9 +168,7 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
 
     fun saveBorderEnabled(context: Context, enabled: Boolean) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(KEY_BORDER_ENABLED, enabled)
-            .apply()
+            .edit().putBoolean(KEY_BORDER_ENABLED, enabled).apply()
     }
 
     fun getActiveTheme(context: Context): ThemeConfig {
@@ -210,7 +179,6 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
         val rawBgColor = ContextCompat.getColor(context, preset.bgResId)
         val accentColor = ContextCompat.getColor(context, preset.accentResId)
 
-        // Alpha calculation: Convert 0-100% to 0-255
         val alpha = (opacity * 255) / 100
         val resolvedBg = Color.argb(
             alpha,
@@ -219,8 +187,6 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
             Color.blue(rawBgColor)
         )
 
-        val requiresShadow = opacity < SHADOW_THRESHOLD_PERCENT
-
         return ThemeConfig(
             preset = preset,
             baseBackgroundColor = rawBgColor,
@@ -228,13 +194,10 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
             accentColor = accentColor,
             opacityPercent = opacity,
             isBorderEnabled = borderEnabled,
-            requiresLegibilityShadow = requiresShadow
+            requiresLegibilityShadow = opacity < SHADOW_THRESHOLD_PERCENT
         )
     }
 
-    // -------------------------------------------------------------
-    // ACTIVITY THEME RESTORATION
-    // -------------------------------------------------------------
     fun applyTheme(activity: Activity) {
         val styleRes = when (getSavedTheme(activity)) {
             THEME_WHITE -> R.style.Theme_TamilClock_White
@@ -246,9 +209,6 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
         activity.setTheme(styleRes)
     }
 
-    // -------------------------------------------------------------
-    // GETTERS & SETTERS (WITH BACKWARD COMPATIBILITY)
-    // -------------------------------------------------------------
     fun saveTheme(context: Context, themeIndex: Int) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putInt(KEY_THEME, themeIndex).apply()
@@ -289,9 +249,12 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
             .edit().putInt(KEY_WIDGET_OPACITY, opacity.coerceIn(0, 100)).apply()
     }
 
+    // -------------------------------------------------------------
+    // CLOCK FACE GETTERS & SETTERS (5 STYLES)
+    // -------------------------------------------------------------
     fun getClockFace(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_CLOCK_FACE, prefs.getInt(KEY_CLOCK_STYLE, CLOCK_DIGITAL))
+        return prefs.getInt(KEY_CLOCK_FACE, prefs.getInt(KEY_CLOCK_STYLE, CLOCK_DIGITAL_CLASSIC))
     }
 
     fun saveClockFace(context: Context, face: Int) {
@@ -302,43 +265,50 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
             .apply()
     }
 
+    fun isAnalogClockSelected(context: Context): Boolean {
+        val face = getClockFace(context)
+        return face == CLOCK_ANALOG_CLASSIC ||
+               face == CLOCK_ANALOG_AMOLED_WHITE ||
+               face == CLOCK_ANALOG_AMOLED_HYBRID
+    }
+
     fun getClockStyle(context: Context): Int = getClockFace(context)
     fun saveClockStyle(context: Context, style: Int) = saveClockFace(context, style)
 
-    fun getWidgetBaseColor(context: Context): Int {
-        return try {
-            Color.parseColor(getWidgetBackgroundColor(context))
-        } catch (_: Exception) {
-            Color.parseColor(WIDGET_COLOR_VELVET_MAROON)
+    // -------------------------------------------------------------
+    // UNIFIED DATE FORMAT GETTERS & SETTERS (3 FORMATS)
+    // -------------------------------------------------------------
+    fun getWidgetDateFormat(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_WIDGET_DATE_FORMAT, prefs.getInt(KEY_DATE_FORMAT_4X2, DATE_FORMAT_DASH))
+    }
+
+    fun saveWidgetDateFormat(context: Context, format: Int) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(KEY_WIDGET_DATE_FORMAT, format)
+            .putInt(KEY_DATE_FORMAT_4X2, format)
+            .putInt(KEY_DATE_FORMAT_4X4, format)
+            .apply()
+    }
+
+    fun formatDateByPattern(cal: Calendar, formatType: Int): String {
+        return when (formatType) {
+            DATE_FORMAT_TEXT -> SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH).format(cal.time)
+            DATE_FORMAT_SLASH -> SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).format(cal.time)
+            else -> SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH).format(cal.time)
         }
     }
 
-    // 4x2 / 4x4 Date formats
-    fun getDateFormat4x2(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_DATE_FORMAT_4X2, DATE_FORMAT_NUMERIC)
-    }
-
-    fun saveDateFormat4x2(context: Context, format: Int) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putInt(KEY_DATE_FORMAT_4X2, format).apply()
-    }
-
-    fun getDateFormat4x4(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_DATE_FORMAT_4X4, DATE_FORMAT_NUMERIC)
-    }
-
-    fun saveDateFormat4x4(context: Context, format: Int) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putInt(KEY_DATE_FORMAT_4X4, format).apply()
-    }
+    fun getDateFormat4x2(context: Context): Int = getWidgetDateFormat(context)
+    fun saveDateFormat4x2(context: Context, format: Int) = saveWidgetDateFormat(context, format)
+    fun getDateFormat4x4(context: Context): Int = getWidgetDateFormat(context)
+    fun saveDateFormat4x4(context: Context, format: Int) = saveWidgetDateFormat(context, format)
 
     // 4x2 & 4x4 Custom elements
     fun getElements4x2(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_ELEMENTS_4X2, setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA))
-            ?: setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
+        return prefs.getStringSet(KEY_ELEMENTS_4X2, DEFAULT_ELEMENTS_4X2) ?: DEFAULT_ELEMENTS_4X2
     }
 
     fun saveElements4x2(context: Context, elements: Set<String>) {
@@ -348,10 +318,7 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
 
     fun getElements4x4(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(
-            KEY_ELEMENTS_4X4,
-            setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA, ELEM_NALLA_NERAM, ELEM_GOWRI_NALLA_NERAM)
-        ) ?: setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA, ELEM_NALLA_NERAM, ELEM_GOWRI_NALLA_NERAM)
+        return prefs.getStringSet(KEY_ELEMENTS_4X4, DEFAULT_ELEMENTS_4X4) ?: DEFAULT_ELEMENTS_4X4
     }
 
     fun saveElements4x4(context: Context, elements: Set<String>) {
@@ -359,9 +326,6 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
             .edit().putStringSet(KEY_ELEMENTS_4X4, elements).apply()
     }
 
-    // -------------------------------------------------------------
-    // DYNAMIC PALETTE RESOLVER
-    // -------------------------------------------------------------
     fun getThemePalette(context: Context): AppThemePalette {
         val hex = getAppBackgroundColor(context)
         return when (hex) {
@@ -413,7 +377,7 @@ val DEFAULT_ELEMENTS_4X4 = setOf(
                 sundayHighlight = Color.parseColor("#381418"),
                 cardBorderColor = Color.parseColor("#2C2C2C")
             )
-            else -> AppThemePalette( // Antique Sandal Default (#E8D5B5)
+            else -> AppThemePalette(
                 pageBackground = Color.parseColor("#E8D5B5"),
                 cardBackground = Color.parseColor("#F5EBE0"),
                 primaryHeader = Color.parseColor("#4E3629"),
