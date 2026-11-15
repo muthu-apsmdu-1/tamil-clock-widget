@@ -463,10 +463,16 @@ object WidgetUpdateHelper {
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
-        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
-        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        }
+        if (targetIds != null && targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
+
 
     @JvmOverloads
     fun update4x1(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
@@ -506,10 +512,16 @@ object WidgetUpdateHelper {
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
-        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x1::class.java))
-        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        }
+        if (targetIds != null && targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
+
 
     @JvmOverloads
     fun update4x2(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
@@ -564,10 +576,16 @@ object WidgetUpdateHelper {
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
-        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x2::class.java))
-        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        }
+        if (targetIds != null && targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
+
 
     @JvmOverloads
     fun update4x4(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray? = null) {
@@ -621,10 +639,16 @@ object WidgetUpdateHelper {
         val rootId = context.resources.getIdentifier("widget_root", "id", context.packageName)
         if (rootId != 0) views.setOnClickPendingIntent(rootId, getPendingIntent(context))
 
-        val targetIds = if (!appWidgetIds.isNullOrEmpty()) appWidgetIds
-        else manager.getAppWidgetIds(ComponentName(context, WidgetProvider4x4::class.java))
-        if (!targetIds.isNullOrEmpty()) manager.updateAppWidget(targetIds, views)
+        val targetIds = if (appWidgetIds != null && appWidgetIds.isNotEmpty()) {
+            appWidgetIds
+        } else {
+            manager.getAppWidgetIds(ComponentName(context, WidgetProvider2x1::class.java))
+        }
+        if (targetIds != null && targetIds.isNotEmpty()) {
+            manager.updateAppWidget(targetIds, views)
+        }
     }
+
 
     // -------------------------------------------------------------
     // EVENT-DRIVEN MIDNIGHT & SUNRISE SCHEDULER (ZERO POLLING)
