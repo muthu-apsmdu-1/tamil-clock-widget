@@ -82,9 +82,9 @@
         <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
     </group>
 
-    <!-- 11 O'CLOCK -->
+    <!-- 11 O'CLOCK (Corrected from #EAEIDAY to #EAEAEA) -->
     <group android:pivotX="100" android:pivotY="100" android:rotation="330">
-        <path android:fillColor="#EAEIDAY" android:pathData="M97.5,24 h5 v15 h-5 z" />
+        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
     </group>
 
     <!-- QUARTZ Brand Typography -->
