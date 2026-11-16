@@ -21,8 +21,8 @@
         android:paddingVertical="8dp"
         android:gravity="center_horizontal">
 
-        <!-- TOP: Clock Container (Exact 5/8 weight) -->
-        <FrameLayout
+        <!-- TOP: Clock Container (Enforces a 1:1 square aspect ratio for a perfect round dial) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/container_clock_top"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -32,11 +32,18 @@
             <!-- 1. Backing Image for AMOLED White / Hybrid Analog Dials -->
             <ImageView
                 android:id="@+id/iv_hybrid_dial_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
                 android:contentDescription="Analog Dial" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- 2. Embedded Top Digital Time inside Hybrid Analog Dial -->
             <TextClock
