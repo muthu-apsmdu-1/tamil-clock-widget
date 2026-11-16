@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -22,7 +23,7 @@
         android:weightSum="2">
 
         <!-- LEFT HALF: Exact 2x2 Square Clock Container (Weight 1) -->
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/container_clock_2x2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -32,8 +33,13 @@
             <!-- 1. Backing Image for AMOLED White / Hybrid Analog Dials -->
             <ImageView
                 android:id="@+id/iv_hybrid_dial_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
                 android:contentDescription="Analog Dial" />
@@ -43,7 +49,9 @@
                 android:id="@+id/tc_hybrid_top_digital"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|top"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="28dp"
                 android:format12Hour="h:mm"
                 android:format24Hour="HH:mm"
@@ -56,9 +64,13 @@
             <!-- 3. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
             <AnalogClock
                 android:id="@+id/analog_clock_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:dial="@drawable/classic_clock_dial"
                 android:hand_hour="@drawable/classic_clock_hour"
                 android:hand_minute="@drawable/classic_clock_minute"
@@ -67,8 +79,12 @@
             <!-- 4. Backing Pill for AMOLED Neon Digital Style -->
             <ImageView
                 android:id="@+id/iv_digital_clock_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="6dp"
                 android:scaleType="fitXY"
                 android:visibility="gone"
@@ -77,8 +93,12 @@
             <!-- 5. Digital Clock: Enlarged digits with AM/PM placed below (Auto-syncs live) -->
             <LinearLayout
                 android:id="@+id/container_digital_clock"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:visibility="visible">
@@ -106,7 +126,7 @@
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
             </LinearLayout>
-        </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- RIGHT HALF: 5 Rows of Info (Exact 2x2 Area = Weight 1) -->
         <LinearLayout
