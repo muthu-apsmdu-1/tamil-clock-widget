@@ -1,10 +1,12 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Dynamic Background Bitmap Layer (Theme color, opacity, rounded corners & border) -->
+    <!-- Dynamic Background -->
     <ImageView
         android:id="@+id/widget_bg_image"
         android:layout_width="match_parent"
@@ -12,7 +14,7 @@
         android:scaleType="fitXY"
         android:contentDescription="Widget Background" />
 
-    <!-- Main Container: Exactly 1:1 Split (Clock Half : Information Half) -->
+    <!-- Main Container: 1:1 Split -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,7 +23,7 @@
         android:padding="2dp"
         android:weightSum="2">
 
-        <!-- LEFT HALF: Clock Container (Exact half width) -->
+        <!-- LEFT HALF: Clock Container -->
         <FrameLayout
             android:id="@+id/container_clock_half"
             android:layout_width="0dp"
@@ -29,16 +31,44 @@
             android:layout_weight="1"
             android:layout_margin="1dp">
 
-            <!-- 1. Backing Image for AMOLED White / Hybrid Analog Dials -->
-            <ImageView
-                android:id="@+id/iv_hybrid_dial_bg"
+            <!-- Square Analog Dial and Hands -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/container_hybrid_clock_square"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitCenter"
-                android:visibility="gone"
-                android:contentDescription="Analog Dial" />
+                android:layout_height="match_parent">
 
-            <!-- 2. Embedded Top Digital Time inside Hybrid Analog Dial -->
+                <!-- Hybrid / AMOLED White Dial -->
+                <ImageView
+                    android:id="@+id/iv_hybrid_dial_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    android:contentDescription="Analog Dial" />
+
+                <!-- Native Analog Clock Hands -->
+                <AnalogClock
+                    android:id="@+id/analog_clock_view"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:dial="@drawable/classic_clock_dial"
+                    android:hand_hour="@drawable/classic_clock_hour"
+                    android:hand_minute="@drawable/classic_clock_minute"
+                    android:visibility="gone" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Hybrid Top Digital Time -->
             <TextClock
                 android:id="@+id/tc_hybrid_top_digital"
                 android:layout_width="wrap_content"
@@ -53,18 +83,7 @@
                 android:includeFontPadding="false"
                 android:visibility="gone" />
 
-            <!-- 3. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
-            <AnalogClock
-                android:id="@+id/analog_clock_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:dial="@drawable/classic_clock_dial"
-                android:hand_hour="@drawable/classic_clock_hour"
-                android:hand_minute="@drawable/classic_clock_minute"
-                android:visibility="gone" />
-
-            <!-- 4. Backing Pill for AMOLED Neon Digital Style -->
+            <!-- Digital Clock Background -->
             <ImageView
                 android:id="@+id/iv_digital_clock_bg"
                 android:layout_width="match_parent"
@@ -74,7 +93,7 @@
                 android:visibility="gone"
                 android:contentDescription="Neon Digital Pill" />
 
-            <!-- 5. Digital Clock: Enlarged digits with AM/PM placed below -->
+            <!-- Digital Clock Container -->
             <LinearLayout
                 android:id="@+id/container_digital_clock"
                 android:layout_width="match_parent"
@@ -83,7 +102,7 @@
                 android:gravity="center"
                 android:visibility="visible">
 
-                <!-- Main Time Digits (Auto-syncs with Android system clock) -->
+                <!-- Main Time -->
                 <TextClock
                     android:id="@+id/tv_digital_clock"
                     android:layout_width="wrap_content"
@@ -94,7 +113,7 @@
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
 
-                <!-- AM / PM Marker (Visible in 12-hour mode, blank in 24-hour mode) -->
+                <!-- AM / PM -->
                 <TextClock
                     android:id="@+id/tv_digital_clock_ampm"
                     android:layout_width="wrap_content"
@@ -105,10 +124,12 @@
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
+
             </LinearLayout>
+
         </FrameLayout>
 
-        <!-- RIGHT HALF: Elements (Horizontally Centered, Vertically Justified) -->
+        <!-- RIGHT HALF: Date Information -->
         <LinearLayout
             android:id="@+id/container_elements_half"
             android:layout_width="0dp"
@@ -119,7 +140,7 @@
             android:paddingHorizontal="4dp"
             android:weightSum="2">
 
-            <!-- Row 1: Gregorian Date -->
+            <!-- Gregorian Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -135,9 +156,10 @@
                     android:maxLines="1"
                     android:gravity="center"
                     android:includeFontPadding="false" />
+
             </LinearLayout>
 
-            <!-- Row 2: Tamil Month & Tamil Date -->
+            <!-- Tamil Month and Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -153,6 +175,7 @@
                     android:maxLines="1"
                     android:gravity="center"
                     android:includeFontPadding="false" />
+
             </LinearLayout>
 
         </LinearLayout>
