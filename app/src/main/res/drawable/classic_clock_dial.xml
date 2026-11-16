@@ -5,11 +5,11 @@
     android:viewportWidth="200"
     android:viewportHeight="200">
 
-    <!-- Square Bezel Outer Frame (Transparent center) -->
+    <!-- Perfect Round Outer Bezel Frame (Centered at 100,100 with radius 84) -->
     <path
         android:strokeColor="#33FFFFFF"
         android:strokeWidth="1.5"
-        android:pathData="M 30,16 H 170 A 14,14 0 0 1 184,30 V 170 A 14,14 0 0 1 170,184 H 30 A 14,14 0 0 1 16,170 V 30 A 14,14 0 0 1 30,16 Z" />
+        android:pathData="M 16,100 A 84,84 0 1,1 184,100 A 84,84 0 1,1 16,100" />
 
     <!-- 12 O'CLOCK: Multi-segment Cardinal Baton -->
     <path
@@ -84,7 +84,7 @@
 
     <!-- 11 O'CLOCK -->
     <group android:pivotX="100" android:pivotY="100" android:rotation="330">
-        <path android:fillColor="#EAEAEA" android:pathData="M97.5,24 h5 v15 h-5 z" />
+        <path android:fillColor="#EAEIDAY" android:pathData="M97.5,24 h5 v15 h-5 z" />
     </group>
 
     <!-- QUARTZ Brand Typography -->
