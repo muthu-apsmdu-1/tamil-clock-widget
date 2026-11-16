@@ -44,7 +44,23 @@
                 android:visibility="gone"
                 android:contentDescription="Analog Dial" />
 
-            <!-- 2. Embedded Top Digital Time inside Hybrid Analog Dial -->
+            <!-- 2. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
+ 
+            <AnalogClock
+                android:id="@+id/analog_clock_view"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:dial="@drawable/classic_clock_dial"
+                android:hand_hour="@drawable/classic_clock_hour"
+                android:hand_minute="@drawable/classic_clock_minute"
+                android:visibility="gone" />
+           
+            <!-- 3. Embedded Top Digital Time inside Hybrid Analog Dial -->
             <TextClock
                 android:id="@+id/tc_hybrid_top_digital"
                 android:layout_width="wrap_content"
@@ -59,21 +75,6 @@
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:includeFontPadding="false"
-                android:visibility="gone" />
-
-            <!-- 3. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
-            <AnalogClock
-                android:id="@+id/analog_clock_view"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:dial="@drawable/classic_clock_dial"
-                android:hand_hour="@drawable/classic_clock_hour"
-                android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
             <!-- 4. Backing Pill for AMOLED Neon Digital Style -->
@@ -274,3 +275,4 @@
     </LinearLayout>
 
 </FrameLayout>
+ 
