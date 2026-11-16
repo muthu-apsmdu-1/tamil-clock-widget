@@ -44,24 +44,8 @@
                 android:visibility="gone"
                 android:contentDescription="Analog Dial" />
 
-            <!-- 2. Embedded Top Digital Time inside Hybrid Analog Dial -->
-            <TextClock
-                android:id="@+id/tc_hybrid_top_digital"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="46dp"
-                android:format12Hour="h:mm"
-                android:format24Hour="HH:mm"
-                android:textColor="#00F5D4"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:visibility="gone" />
 
-            <!-- 3. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
+            <!-- 2. Native Analog Clock (Renders Live Red Seconds Hand on API 31+) -->
             <AnalogClock
                 android:id="@+id/analog_clock_view"
                 android:layout_width="0dp"
@@ -75,6 +59,25 @@
                 android:hand_hour="@drawable/classic_clock_hour"
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
+ 
+            <!-- 3. Embedded Top Digital Time inside Hybrid Analog Dial -->
+            <TextClock
+                android:id="@+id/tc_hybrid_top_digital"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="64dp"
+                android:format12Hour="h:mm"
+                android:format24Hour="HH:mm"
+                android:textColor="#00F5D4"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                android:visibility="gone" />
+
+
 
             <!-- 4. Backing Pill for AMOLED Neon Digital Style -->
             <ImageView
