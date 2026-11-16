@@ -68,7 +68,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="28dp"
+                android:layout_marginTop="32dp"
                 android:format12Hour="h:mm"
                 android:format24Hour="HH:mm"
                 android:textColor="#00F5D4"
