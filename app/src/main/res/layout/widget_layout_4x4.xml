@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:format12Hour="h:mm"
                     android:format24Hour="HH:mm"
-                    android:textSize="48sp"
+                    android:textSize="64sp"
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
 
@@ -103,7 +103,7 @@
                     android:layout_marginTop="2dp"
                     android:format12Hour="a"
                     android:format24Hour=""
-                    android:textSize="14sp"
+                    android:textSize="24sp"
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
             </LinearLayout>
