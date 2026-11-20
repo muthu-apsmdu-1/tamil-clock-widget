@@ -75,7 +75,7 @@ class SolarDayHelper(context: Context) {
 
         val nowMins =
             cal.get(Calendar.HOUR_OF_DAY) * 60 +
-            cal.get(Calendar.MINUTE)
+                cal.get(Calendar.MINUTE)
 
         val beforeCurSunrise = nowMins < curSnap.sunriseMins
 
@@ -119,7 +119,7 @@ class SolarDayHelper(context: Context) {
 
         val nowMins =
             cal.get(Calendar.HOUR_OF_DAY) * 60 +
-            cal.get(Calendar.MINUTE)
+                cal.get(Calendar.MINUTE)
 
         val beforeCurSunrise = nowMins < curSnap.sunriseMins
 
@@ -135,7 +135,7 @@ class SolarDayHelper(context: Context) {
             nextSnap
         }
 
-        // Put pre-sunrise time on the previous day's
+        // Pre-sunrise time belongs to the previous day's
         // continuous minute timeline.
         val shiftedNow = if (beforeCurSunrise) {
             nowMins + MINUTES_PER_DAY
@@ -152,13 +152,13 @@ class SolarDayHelper(context: Context) {
         val dayEnd = if (
             activeSnap.sunsetMins <= activeSnap.sunriseMins
         ) {
+            Log.w(TAG, "Invalid sunset for ${activeSnap.gregorianDate}; using 12-hour daytime fallback")
             activeSnap.sunriseMins + 720
         } else {
             activeSnap.sunsetMins
         }
 
         // Following date is one calendar day after active date.
-        // Therefore its sunrise must use the +1440 offset.
         val followingSunriseAbs =
             followingSnap.sunriseMins + MINUTES_PER_DAY
 
@@ -245,19 +245,13 @@ class SolarDayHelper(context: Context) {
             (followingDayEnd - followingSnap.sunriseMins)
                 .coerceAtLeast(1)
 
-        // First Horai slot ends after 1/12 of the next daytime.
         val horaiFirstMorningEnd =
             followingSunriseAbs +
-            Math.round(
-                followingDaySpan.toDouble() / 12
-            ).toInt()
+                Math.round(followingDaySpan.toDouble() / 12).toInt()
 
-        // First Gowri slot ends after 1/8 of the next daytime.
         val gowriFirstMorningEnd =
             followingSunriseAbs +
-            Math.round(
-                followingDaySpan.toDouble() / 8
-            ).toInt()
+                Math.round(followingDaySpan.toDouble() / 8).toInt()
 
         // -----------------------------------------------------
         // PICK CURRENT + NEXT HORAI
@@ -337,8 +331,6 @@ class SolarDayHelper(context: Context) {
         cal: Calendar
     ): ThreeDaySnapshots {
 
-        // Local formatter avoids shared SimpleDateFormat
-        // access from concurrent widget update operations.
         val formatter = SimpleDateFormat(
             "yyyy-MM-dd",
             Locale.ENGLISH
@@ -357,21 +349,9 @@ class SolarDayHelper(context: Context) {
         val nextDate = formatter.format(nextCal.time)
 
         return ThreeDaySnapshots(
-            prev = buildSnapshot(
-                dbHelper,
-                prevDate,
-                prevCal
-            ),
-            current = buildSnapshot(
-                dbHelper,
-                curDate,
-                cal
-            ),
-            next = buildSnapshot(
-                dbHelper,
-                nextDate,
-                nextCal
-            )
+            prev = buildSnapshot(dbHelper, prevDate, prevCal),
+            current = buildSnapshot(dbHelper, curDate, cal),
+            next = buildSnapshot(dbHelper, nextDate, nextCal)
         )
     }
 
@@ -398,29 +378,21 @@ class SolarDayHelper(context: Context) {
 
         val sunriseMins = parseMinutes24Hr(rawSunrise)
             ?: run {
-                Log.w(
-                    TAG,
-                    "Missing/invalid sunrise for $gregorianDate; using 06:00"
-                )
+                Log.w(TAG, "Missing/invalid sunrise for $gregorianDate; using 06:00")
                 6 * 60
             }
 
         val sunsetMins = parseMinutes24Hr(rawSunset)
             ?: run {
-                Log.w(
-                    TAG,
-                    "Missing/invalid sunset for $gregorianDate; using 18:00"
-                )
+                Log.w(TAG, "Missing/invalid sunset for $gregorianDate; using 18:00")
                 18 * 60
             }
 
         return DayWindowSnapshot(
             gregorianDate = gregorianDate,
             weekdayTa = normalizedWeekday,
-            tamilYear = cleanValue(details?.tamilYear)
-                .ifEmpty { "பராபவ" },
-            tamilMonth = cleanValue(details?.tamilMonth)
-                .ifEmpty { "---" },
+            tamilYear = cleanValue(details?.tamilYear).ifEmpty { "பராபவ" },
+            tamilMonth = cleanValue(details?.tamilMonth).ifEmpty { "---" },
             tamilDate = details?.tamilDate ?: 0,
             sunriseMins = sunriseMins,
             sunsetMins = sunsetMins,
@@ -472,9 +444,7 @@ class SolarDayHelper(context: Context) {
             Log.e(
                 TAG,
                 "$label invalid solar boundaries: " +
-                    "dayStart=$dayStart, " +
-                    "dayEnd=$dayEnd, " +
-                    "nightEnd=$nightEnd"
+                    "dayStart=$dayStart, dayEnd=$dayEnd, nightEnd=$nightEnd"
             )
             return emptyList()
         }
@@ -499,15 +469,12 @@ class SolarDayHelper(context: Context) {
             .sortedBy { it.startMins }
 
         val validOrder = combined.zipWithNext().all { (a, b) ->
-            a.startMins <= b.startMins &&
-                a.endMins <= b.startMins
+            a.startMins < b.startMins &&
+                a.endMins == b.startMins
         }
 
         if (!validOrder) {
-            Log.e(
-                TAG,
-                "$label slots failed chronological validation"
-            )
+            Log.e(TAG, "$label slots failed chronological validation")
             return emptyList()
         }
 
@@ -533,10 +500,7 @@ class SolarDayHelper(context: Context) {
         val span = endMins - startMins
 
         if (span < targetCount) {
-            Log.e(
-                TAG,
-                "Invalid half-cycle duration: span=$span, count=$targetCount"
-            )
+            Log.e(TAG, "Invalid half-cycle duration: span=$span, count=$targetCount")
             return emptyList()
         }
 
@@ -545,14 +509,10 @@ class SolarDayHelper(context: Context) {
         for (i in 0 until targetCount) {
 
             val start = startMins +
-                Math.round(
-                    (i.toDouble() * span) / targetCount
-                ).toInt()
+                Math.round((i.toDouble() * span) / targetCount).toInt()
 
             val end = startMins +
-                Math.round(
-                    ((i + 1).toDouble() * span) / targetCount
-                ).toInt()
+                Math.round(((i + 1).toDouble() * span) / targetCount).toInt()
 
             val cleanedName = cleanValue(
                 rawValues.getOrNull(i)
@@ -565,10 +525,7 @@ class SolarDayHelper(context: Context) {
                     startMins = start,
                     endMins = end,
                     name = cleanedName,
-                    isAuspicious = isAuspicious(
-                        cleanedName,
-                        isHorai
-                    )
+                    isAuspicious = isAuspicious(cleanedName, isHorai)
                 )
             )
         }
@@ -590,41 +547,28 @@ class SolarDayHelper(context: Context) {
 
         val cleanedFallback = cleanValue(fallbackNextName)
 
-        // Handle unavailable active-day slot data.
         if (slots.isEmpty()) {
 
-            val nextName = cleanedFallback.ifEmpty {
-                "---"
-            }
-
-            val nextEnd = if (nextName != "---") {
-                formatShort12Hr(fallbackNextEndMins)
-            } else {
-                "--:--"
-            }
+            val nextName = cleanedFallback.ifEmpty { "---" }
 
             return PeriodSnapshot(
                 currentEnd = "--:--",
                 currentName = "---",
-                nextEnd = nextEnd,
+                nextEnd = if (nextName != "---") {
+                    formatShort12Hr(fallbackNextEndMins)
+                } else {
+                    "--:--"
+                },
                 nextName = nextName,
                 isCurrentAuspicious = false,
-                isNextAuspicious = isAuspicious(
-                    nextName,
-                    isHorai
-                )
+                isNextAuspicious = isAuspicious(nextName, isHorai)
             )
         }
 
-        // Find the active interval.
         val activeIdx = slots.indexOfFirst { slot ->
             shiftedNowMins >= slot.startMins &&
                 shiftedNowMins < slot.endMins
         }
-
-        // -----------------------------------------------------
-        // NO ACTIVE SLOT
-        // -----------------------------------------------------
 
         if (activeIdx < 0) {
 
@@ -639,17 +583,9 @@ class SolarDayHelper(context: Context) {
             }
 
             val nextEnd = when {
-                upcoming != null -> {
-                    formatShort12Hr(upcoming.endMins)
-                }
-
-                cleanedFallback.isNotEmpty() -> {
-                    formatShort12Hr(fallbackNextEndMins)
-                }
-
-                else -> {
-                    "--:--"
-                }
+                upcoming != null -> formatShort12Hr(upcoming.endMins)
+                cleanedFallback.isNotEmpty() -> formatShort12Hr(fallbackNextEndMins)
+                else -> "--:--"
             }
 
             return PeriodSnapshot(
@@ -658,16 +594,9 @@ class SolarDayHelper(context: Context) {
                 nextEnd = nextEnd,
                 nextName = nextName,
                 isCurrentAuspicious = false,
-                isNextAuspicious = isAuspicious(
-                    nextName,
-                    isHorai
-                )
+                isNextAuspicious = isAuspicious(nextName, isHorai)
             )
         }
-
-        // -----------------------------------------------------
-        // ACTIVE SLOT FOUND
-        // -----------------------------------------------------
 
         val currentSlot = slots[activeIdx]
         val nextSlot = slots.getOrNull(activeIdx + 1)
@@ -676,18 +605,12 @@ class SolarDayHelper(context: Context) {
         val nextEnd: String
 
         if (nextSlot != null) {
-
             nextName = nextSlot.name
             nextEnd = formatShort12Hr(nextSlot.endMins)
-
         } else if (cleanedFallback.isNotEmpty()) {
-
-            // Final night slot -> following day's first morning slot.
             nextName = cleanedFallback
             nextEnd = formatShort12Hr(fallbackNextEndMins)
-
         } else {
-
             nextName = "---"
             nextEnd = "--:--"
         }
@@ -698,10 +621,7 @@ class SolarDayHelper(context: Context) {
             nextEnd = nextEnd,
             nextName = nextName,
             isCurrentAuspicious = currentSlot.isAuspicious,
-            isNextAuspicious = isAuspicious(
-                nextName,
-                isHorai
-            )
+            isNextAuspicious = isAuspicious(nextName, isHorai)
         )
     }
 
@@ -718,21 +638,13 @@ class SolarDayHelper(context: Context) {
 
         return when {
             cleaned.isEmpty() || cleaned == "---" -> ""
-
             cleaned.contains("ஞாயிறு") -> "ஞாயிறு"
-
             cleaned.contains("திங்கள்") -> "திங்கள்"
-
             cleaned.contains("செவ்வாய்") -> "செவ்வாய்"
-
             cleaned.contains("புதன்") -> "புதன்"
-
             cleaned.contains("வியாழன்") -> "வியாழன்"
-
             cleaned.contains("வெள்ளி") -> "வெள்ளி"
-
             cleaned.contains("சனி") -> "சனி"
-
             else -> ""
         }
     }
@@ -744,21 +656,13 @@ class SolarDayHelper(context: Context) {
     private fun fallbackWeekday(cal: Calendar): String {
 
         return when (cal.get(Calendar.DAY_OF_WEEK)) {
-
             Calendar.SUNDAY -> "ஞாயிறு"
-
             Calendar.MONDAY -> "திங்கள்"
-
             Calendar.TUESDAY -> "செவ்வாய்"
-
             Calendar.WEDNESDAY -> "புதன்"
-
             Calendar.THURSDAY -> "வியாழன்"
-
             Calendar.FRIDAY -> "வெள்ளி"
-
             Calendar.SATURDAY -> "சனி"
-
             else -> ""
         }
     }
@@ -771,10 +675,7 @@ class SolarDayHelper(context: Context) {
 
         val trimmed = raw?.trim().orEmpty()
 
-        return if (
-            trimmed.isEmpty() ||
-            trimmed == "---"
-        ) {
+        return if (trimmed.isEmpty() || trimmed == "---") {
             ""
         } else {
             trimmed
@@ -793,14 +694,11 @@ class SolarDayHelper(context: Context) {
         val clean = name.trim()
 
         return if (isHorai) {
-
             clean == "சுக்கிரன்" ||
                 clean == "புதன்" ||
                 clean == "சந்திரன்" ||
                 clean == "குரு"
-
         } else {
-
             clean == "உத்தி" ||
                 clean == "அமிர்தம்" ||
                 clean == "லாபம்" ||
@@ -817,9 +715,7 @@ class SolarDayHelper(context: Context) {
 
         val cleanedRaw = cleanValue(raw)
 
-        if (cleanedRaw.isEmpty()) {
-            return null
-        }
+        if (cleanedRaw.isEmpty()) return null
 
         return try {
 
@@ -827,13 +723,6 @@ class SolarDayHelper(context: Context) {
                 .replace("*", "")
                 .uppercase(Locale.ENGLISH)
                 .trim()
-
-            // Supports:
-            // 6:05 AM
-            // 6.05 AM
-            // 06:05
-            // 18:05
-            // 6 AM
 
             val regex = Regex(
                 """^(\d{1,2})(?:[:.](\d{1,2}))?\s*(AM|PM)?$"""
@@ -852,33 +741,18 @@ class SolarDayHelper(context: Context) {
             val amPm = match.groupValues[3]
 
             when (amPm) {
-
-                "AM" -> {
-                    if (hour == 12) hour = 0
-                }
-
-                "PM" -> {
-                    if (hour < 12) hour += 12
-                }
+                "AM" -> if (hour == 12) hour = 0
+                "PM" -> if (hour < 12) hour += 12
             }
 
-            if (
-                hour !in 0..23 ||
-                minute !in 0..59
-            ) {
+            if (hour !in 0..23 || minute !in 0..59) {
                 null
             } else {
                 hour * 60 + minute
             }
 
         } catch (e: Exception) {
-
-            Log.w(
-                TAG,
-                "Unable to parse time: $raw",
-                e
-            )
-
+            Log.w(TAG, "Unable to parse time: $raw", e)
             null
         }
     }
@@ -897,11 +771,8 @@ class SolarDayHelper(context: Context) {
         val minute = modMin % 60
 
         val hour12 = when {
-
             hour24 == 0 -> 12
-
             hour24 > 12 -> hour24 - 12
-
             else -> hour24
         }
 
@@ -926,18 +797,11 @@ class SolarDayHelper(context: Context) {
         val hour24 = modMin / 60
         val minute = modMin % 60
 
-        val amPm = if (hour24 >= 12) {
-            "PM"
-        } else {
-            "AM"
-        }
+        val amPm = if (hour24 >= 12) "PM" else "AM"
 
         val hour12 = when {
-
             hour24 == 0 -> 12
-
             hour24 > 12 -> hour24 - 12
-
             else -> hour24
         }
 
