@@ -1,15 +1,32 @@
+
 package com.example.tamilclock
 
 import android.content.Context
 import android.database.Cursor
+import android.database.CursorWrapper
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import java.io.File
-import java.io.FileOutputStream
 import java.util.Locale
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 class TamilDatabaseHelper(context: Context) {
 
     private val appContext = context.applicationContext
+
+    companion object {
+        private const val TAG = "TamilDatabaseHelper"
+        private const val PREFS_NAME = "tamil_db_helper_prefs"
+        private const val KEY_DB_ASSET_VERSION = "db_asset_version"
+
+        // IMPORTANT:
+        // Increment this value whenever bundled database assets change.
+        private const val DB_ASSET_VERSION = 2
+
+        private const val MINUTES_PER_DAY = 1440
+    }
 
     private val databaseNames = listOf(
         "panchang_clcon.db",
@@ -22,6 +39,9 @@ class TamilDatabaseHelper(context: Context) {
 
     private val databases = mutableMapOf<String, SQLiteDatabase>()
 
+    private val databaseLock = ReentrantReadWriteLock()
+    private val databaseMapLock = Any()
+
     init {
         copyDatabasesIfRequired()
     }
@@ -31,36 +51,201 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     private fun copyDatabasesIfRequired() {
-        val dummyPath = appContext.getDatabasePath("dummy.db")
-        val directory = dummyPath.parentFile ?: File(appContext.applicationInfo.dataDir, "databases")
 
-        if (!directory.exists()) {
-            directory.mkdirs()
+        val databasePath = appContext.getDatabasePath("dummy.db")
+
+        val directory = databasePath.parentFile
+            ?: File(
+                appContext.applicationInfo.dataDir,
+                "databases"
+            )
+
+        if (!directory.exists() && !directory.mkdirs()) {
+            Log.e(
+                TAG,
+                "Unable to create databases directory: ${directory.absolutePath}"
+            )
+            return
         }
 
+        val prefs = appContext.getSharedPreferences(
+            PREFS_NAME,
+            Context.MODE_PRIVATE
+        )
+
+        val savedVersion = prefs.getInt(
+            KEY_DB_ASSET_VERSION,
+            -1
+        )
+
+        val forceOverwrite = savedVersion != DB_ASSET_VERSION
+
+        var allSucceeded = true
+
         for (databaseName in databaseNames) {
+
             val destination = File(directory, databaseName)
 
-            if (!destination.exists()) {
-                val temporaryFile = File(directory, "$databaseName.tmp")
+            if (destination.exists() && !forceOverwrite) {
+                continue
+            }
+
+            val temporaryFile = File(
+                directory,
+                "$databaseName.tmp"
+            )
+
+            val backupFile = File(
+                directory,
+                "$databaseName.bak"
+            )
+
+            try {
+
+                // Remove leftovers from an interrupted earlier copy.
+                if (temporaryFile.exists()) {
+                    temporaryFile.delete()
+                }
+
+                if (backupFile.exists()) {
+                    backupFile.delete()
+                }
+
+                // Copy the asset completely before touching destination.
+                appContext.assets.open(databaseName).use { input ->
+                    temporaryFile.outputStream().use { output ->
+                        input.copyTo(output)
+                        output.flush()
+                        output.fd.sync()
+                    }
+                }
+
+                if (!temporaryFile.exists() || temporaryFile.length() <= 0L) {
+                    throw IllegalStateException(
+                        "Copied database is empty: $databaseName"
+                    )
+                }
+
+                // Validate the copied SQLite database.
+                verifyDatabaseFile(temporaryFile)
+
+                var oldFileBackedUp = false
+
+                if (destination.exists()) {
+
+                    if (!destination.renameTo(backupFile)) {
+                        throw IllegalStateException(
+                            "Unable to back up existing database: $databaseName"
+                        )
+                    }
+
+                    oldFileBackedUp = true
+                }
 
                 try {
-                    appContext.assets.open(databaseName).use { input ->
-                        FileOutputStream(temporaryFile).use { output ->
-                            input.copyTo(output)
-                            output.flush()
+
+                    if (!temporaryFile.renameTo(destination)) {
+                        throw IllegalStateException(
+                            "Unable to move temporary database: $databaseName"
+                        )
+                    }
+
+                    verifyDatabaseFile(destination)
+
+                    if (backupFile.exists()) {
+                        backupFile.delete()
+                    }
+
+                } catch (replaceError: Exception) {
+
+                    // Restore the previous database if replacement failed.
+                    if (destination.exists()) {
+                        destination.delete()
+                    }
+
+                    if (oldFileBackedUp && backupFile.exists()) {
+                        if (!backupFile.renameTo(destination)) {
+                            Log.e(
+                                TAG,
+                                "CRITICAL: Unable to restore backup database: $databaseName"
+                            )
                         }
                     }
 
-                    if (!temporaryFile.renameTo(destination)) {
-                        temporaryFile.copyTo(destination, overwrite = true)
-                        temporaryFile.delete()
-                    }
-                } catch (e: Exception) {
-                    temporaryFile.delete()
-                    e.printStackTrace()
+                    throw replaceError
+                }
+
+                Log.i(
+                    TAG,
+                    "Database asset installed successfully: $databaseName"
+                )
+
+            } catch (e: Exception) {
+
+                allSucceeded = false
+
+                temporaryFile.delete()
+
+                // Restore backup if a previous replacement failed.
+                if (
+                    !destination.exists() &&
+                    backupFile.exists()
+                ) {
+                    backupFile.renameTo(destination)
+                }
+
+                Log.e(
+                    TAG,
+                    "Failed to install database asset: $databaseName",
+                    e
+                )
+            }
+        }
+
+        if (allSucceeded) {
+
+            prefs.edit()
+                .putInt(KEY_DB_ASSET_VERSION, DB_ASSET_VERSION)
+                .apply()
+
+        } else {
+
+            Log.e(
+                TAG,
+                "One or more database assets failed. Asset version was not updated."
+            )
+        }
+    }
+
+    private fun verifyDatabaseFile(file: File) {
+
+        val database = SQLiteDatabase.openDatabase(
+            file.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY
+        )
+
+        try {
+
+            database.rawQuery("PRAGMA quick_check", null).use { cursor ->
+
+                if (!cursor.moveToFirst()) {
+                    throw IllegalStateException(
+                        "SQLite quick_check returned no result: ${file.name}"
+                    )
+                }
+
+                val result = cursor.getString(0)
+
+                if (!result.equals("ok", ignoreCase = true)) {
+                    throw IllegalStateException(
+                        "SQLite integrity check failed for ${file.name}: $result"
+                    )
                 }
             }
+
+        } finally {
+            database.close()
         }
     }
 
@@ -69,38 +254,58 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     private fun getDatabase(databaseName: String): SQLiteDatabase {
-        databases[databaseName]?.let {
-            if (it.isOpen) return it
+
+        synchronized(databaseMapLock) {
+
+            databases[databaseName]?.let { existing ->
+                if (existing.isOpen) {
+                    return existing
+                }
+            }
+
+            val file = appContext.getDatabasePath(databaseName)
+
+            if (!file.exists()) {
+                throw IllegalStateException(
+                    "Database file does not exist: ${file.absolutePath}"
+                )
+            }
+
+            val database = SQLiteDatabase.openDatabase(
+                file.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY
+            )
+
+            databases[databaseName] = database
+
+            return database
         }
-
-        val file = appContext.getDatabasePath(databaseName)
-
-        val database = SQLiteDatabase.openDatabase(
-            file.absolutePath,
-            null,
-            SQLiteDatabase.OPEN_READONLY
-        )
-
-        databases[databaseName] = database
-        return database
     }
 
     // ---------------------------------------------------------
-    // 3. CURSOR HELPERS WITH "---" SAFE RESOLUTION
+    // 3. CURSOR & NORMALIZATION HELPERS
     // ---------------------------------------------------------
 
     private fun Cursor.safeString(column: String): String {
+
         val index = getColumnIndex(column)
+
         return if (index >= 0 && !isNull(index)) {
+
             val value = getString(index)?.trim()
+
             if (value.isNullOrEmpty()) "---" else value
+
         } else {
             "---"
         }
     }
 
     private fun Cursor.safeInt(column: String): Int {
+
         val index = getColumnIndex(column)
+
         return if (index >= 0 && !isNull(index)) {
             getInt(index)
         } else {
@@ -108,14 +313,49 @@ class TamilDatabaseHelper(context: Context) {
         }
     }
 
+    private fun normalizeWeekday(raw: String?): String {
+
+        val cleaned = raw
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            .orEmpty()
+
+        return when {
+            cleaned.isEmpty() || cleaned == "---" -> ""
+            cleaned.contains("ஞாயிறு") -> "ஞாயிறு"
+            cleaned.contains("திங்கள்") -> "திங்கள்"
+            cleaned.contains("செவ்வாய்") -> "செவ்வாய்"
+            cleaned.contains("புதன்") -> "புதன்"
+            cleaned.contains("வியாழன்") -> "வியாழன்"
+            cleaned.contains("வெள்ளி") -> "வெள்ளி"
+            cleaned.contains("சனி") -> "சனி"
+            else -> ""
+        }
+    }
+
+    /*
+     * The read lock remains held while the returned cursor is open.
+     * Cursor.close() releases the lock.
+     *
+     * closeDatabases() uses the write lock, so it cannot close a
+     * database while a returned cursor is still being consumed.
+     */
     private fun queryOne(
         databaseName: String,
         tableName: String,
         selection: String,
         selectionArgs: Array<String>
     ): Cursor? {
-        return try {
-            getDatabase(databaseName).query(
+
+        val readLock = databaseLock.readLock()
+
+        readLock.lock()
+
+        var wrappedCursor: CursorWrapper? = null
+
+        try {
+
+            val cursor = getDatabase(databaseName).query(
                 tableName,
                 null,
                 selection,
@@ -124,14 +364,52 @@ class TamilDatabaseHelper(context: Context) {
                 null,
                 null,
                 "1"
-            ).let { cursor ->
-                if (cursor.moveToFirst()) cursor else {
-                    cursor.close()
-                    null
+            )
+
+            wrappedCursor = object : CursorWrapper(cursor) {
+
+                private var alreadyClosed = false
+
+                override fun close() {
+
+                    if (alreadyClosed) return
+
+                    alreadyClosed = true
+
+                    try {
+                        super.close()
+                    } finally {
+                        readLock.unlock()
+                    }
                 }
             }
-        } catch (_: Exception) {
-            null
+
+            if (wrappedCursor.moveToFirst()) {
+                return wrappedCursor
+            }
+
+            wrappedCursor.close()
+            return null
+
+        } catch (e: Exception) {
+
+            try {
+                if (wrappedCursor != null) {
+                    wrappedCursor.close()
+                } else {
+                    readLock.unlock()
+                }
+            } catch (closeError: Exception) {
+                Log.w(TAG, "Cursor cleanup failed", closeError)
+            }
+
+            Log.w(
+                TAG,
+                "Query failed on $databaseName.$tableName",
+                e
+            )
+
+            return null
         }
     }
 
@@ -161,13 +439,11 @@ class TamilDatabaseHelper(context: Context) {
         val soolam: String = "---",
         val parikaram: String = "---",
 
-        // Sun and moon database
         val sunrise: String = "---",
         val sunset: String = "---",
         val moonrise: String = "---",
         val moonset: String = "---",
 
-        // Auspicious periods database
         val nallaNeramMorningStart: String = "---",
         val nallaNeramMorningEnd: String = "---",
         val nallaNeramEveningStart: String = "---",
@@ -183,11 +459,14 @@ class TamilDatabaseHelper(context: Context) {
         val kuligaiStart: String = "---",
         val kuligaiEnd: String = "---",
 
-        // Daily Rasi Palan
         val rasiPalan: RasiPalanDetails? = null
     ) {
+
         val tamilDay: Int get() = tamilDate
-        val tamilDateStr: String get() = if (tamilDate > 0) tamilDate.toString() else "---"
+
+        val tamilDateStr: String
+            get() = if (tamilDate > 0) tamilDate.toString() else "---"
+
         val tamilDayStr: String get() = tamilDateStr
 
         val dayName: String get() = weekdayTa
@@ -195,27 +474,45 @@ class TamilDatabaseHelper(context: Context) {
 
         val tithi: String get() = tithiName
         val nakshatra: String get() = nakshatraName
-        val yoga: String get() = if (amritadiYoga != "---" && amritadiYoga.isNotBlank()) amritadiYoga else yogaName
+
+        val yoga: String
+            get() = if (
+                amritadiYoga != "---" &&
+                amritadiYoga.isNotBlank()
+            ) amritadiYoga else yogaName
+
         val paksham: String get() = paksha
         val karanam: String get() = karanaName
         val chandrashtamam: String get() = chandrashtamamRasi
         val festivals: String get() = festivalsEvents
         val tyajyam: String get() = tyajyamTime
 
-        val nallaNeramMorning: String get() = combine(nallaNeramMorningStart, nallaNeramMorningEnd)
-        val nallaNeramEvening: String get() = combine(nallaNeramEveningStart, nallaNeramEveningEnd)
+        val nallaNeramMorning: String
+            get() = combine(nallaNeramMorningStart, nallaNeramMorningEnd)
+
+        val nallaNeramEvening: String
+            get() = combine(nallaNeramEveningStart, nallaNeramEveningEnd)
+
         val nallaNeramMorn: String get() = nallaNeramMorning
         val nallaNeramEve: String get() = nallaNeramEvening
 
-        val gowriMorning: String get() = combine(gowriDayStart, gowriDayEnd)
-        val gowriNight: String get() = combine(gowriNightStart, gowriNightEnd)
+        val gowriMorning: String
+            get() = combine(gowriDayStart, gowriDayEnd)
+
+        val gowriNight: String
+            get() = combine(gowriNightStart, gowriNightEnd)
+
         val gowriMorn: String get() = gowriMorning
         val gowriEve: String get() = gowriNight
 
         val rahuKaalam: String get() = combine(raghuStart, raghuEnd)
         val rahu: String get() = rahuKaalam
-        val yamagandam: String get() = combine(emagandamStart, emagandamEnd)
-        val kuligai: String get() = combine(kuligaiStart, kuligaiEnd)
+
+        val yamagandam: String
+            get() = combine(emagandamStart, emagandamEnd)
+
+        val kuligai: String
+            get() = combine(kuligaiStart, kuligaiEnd)
 
         val rasiMesham: String get() = rasiPalan?.mesham ?: "---"
         val rasiRishabam: String get() = rasiPalan?.rishabam ?: "---"
@@ -231,7 +528,12 @@ class TamilDatabaseHelper(context: Context) {
         val rasiMeenam: String get() = rasiPalan?.meenam ?: "---"
 
         private fun combine(start: String, end: String): String {
-            return if (start != "---" && end != "---" && start.isNotBlank() && end.isNotBlank()) {
+            return if (
+                start != "---" &&
+                end != "---" &&
+                start.isNotBlank() &&
+                end.isNotBlank()
+            ) {
                 "$start - $end"
             } else {
                 "---"
@@ -311,6 +613,7 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     fun getDayDetails(gregorianDate: String): DayPanchangDetails? {
+
         val panchangCursor = queryOne(
             "panchang_clcon.db",
             "panchangam_daily",
@@ -319,12 +622,29 @@ class TamilDatabaseHelper(context: Context) {
         ) ?: return null
 
         val panchang = panchangCursor.use { cursor ->
+
+            val rawDay = cursor.safeString("weekday_ta")
+
+            val normDay = normalizeWeekday(rawDay)
+                .ifEmpty { rawDay }
+
+            val festCol = cursor.getColumnIndex("festivals_events")
+
+            val festRaw = if (
+                festCol >= 0 &&
+                !cursor.isNull(festCol)
+            ) {
+                cursor.getString(festCol)?.trim().orEmpty()
+            } else {
+                ""
+            }
+
             DayPanchangDetails(
                 gregorianDate = cursor.safeString("gregorian_date"),
                 tamilYear = cursor.safeString("tamil_year"),
                 tamilMonth = cursor.safeString("tamil_month"),
                 tamilDate = cursor.safeInt("tamil_date"),
-                weekdayTa = cursor.safeString("weekday_ta"),
+                weekdayTa = normDay,
                 paksha = cursor.safeString("paksha"),
                 tithiName = cursor.safeString("tithi_name"),
                 tithiTime = cursor.safeString("tithi_time"),
@@ -336,9 +656,7 @@ class TamilDatabaseHelper(context: Context) {
                 karanaName = cursor.safeString("karana_name"),
                 karanaTime = cursor.safeString("karana_time"),
                 tyajyamTime = cursor.safeString("tyajyam_time"),
-                festivalsEvents = if (cursor.getColumnIndex("festivals_events") >= 0 && !cursor.isNull(cursor.getColumnIndex("festivals_events"))) {
-                    cursor.getString(cursor.getColumnIndex("festivals_events")) ?: ""
-                } else "",
+                festivalsEvents = if (festRaw == "---") "" else festRaw,
                 chandrashtamamRasi = cursor.safeString("chandrashtamam_rasi"),
                 soolam = cursor.safeString("soolam"),
                 parikaram = cursor.safeString("parikaram")
@@ -366,11 +684,17 @@ class TamilDatabaseHelper(context: Context) {
             )
         } ?: listOf("---", "---", "---", "---")
 
+        val weekdayQueryArg = normalizeWeekday(
+            panchang.weekdayTa
+        ).ifEmpty {
+            panchang.weekdayTa
+        }
+
         val auspiciousCursor = queryOne(
             "auspicious_periods.db",
             "weekday_timings_summary",
             "weekday_ta = ?",
-            arrayOf(panchang.weekdayTa)
+            arrayOf(weekdayQueryArg)
         )
 
         val auspicious = auspiciousCursor?.use { cursor ->
@@ -422,6 +746,7 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     fun getRasiDetails(gregorianDate: String): RasiPalanDetails? {
+
         val cursor = queryOne(
             "rasipalan_daily.db",
             "rasipalan_daily",
@@ -430,6 +755,7 @@ class TamilDatabaseHelper(context: Context) {
         ) ?: return null
 
         return cursor.use {
+
             RasiPalanDetails(
                 gregorianDate = it.safeString("gregorian_date"),
                 tamilMonth = it.safeString("tamil_month"),
@@ -456,15 +782,25 @@ class TamilDatabaseHelper(context: Context) {
     // 9. GET GOWRI & HORAI RAW ROWS
     // ---------------------------------------------------------
 
-    fun getGowriDetails(weekdayTa: String, kaalam: String): GowriDetails? {
+    fun getGowriDetails(
+        weekdayTa: String,
+        kaalam: String
+    ): GowriDetails? {
+
+        val dayArg = normalizeWeekday(weekdayTa)
+            .ifEmpty { weekdayTa.trim() }
+
+        val kaalamArg = kaalam.trim()
+
         val cursor = queryOne(
             "gowri.db",
             "weekday_gowri",
             "weekday_ta = ? AND kaalam = ?",
-            arrayOf(weekdayTa, kaalam)
+            arrayOf(dayArg, kaalamArg)
         ) ?: return null
 
         return cursor.use {
+
             GowriDetails(
                 weekdayTa = it.safeString("weekday_ta"),
                 kaalam = it.safeString("kaalam"),
@@ -482,15 +818,25 @@ class TamilDatabaseHelper(context: Context) {
         }
     }
 
-    fun getHoraiDetails(weekdayTa: String, kaalam: String): HoraiDetails? {
+    fun getHoraiDetails(
+        weekdayTa: String,
+        kaalam: String
+    ): HoraiDetails? {
+
+        val dayArg = normalizeWeekday(weekdayTa)
+            .ifEmpty { weekdayTa.trim() }
+
+        val kaalamArg = kaalam.trim()
+
         val cursor = queryOne(
             "horai.db",
             "weekday_horai",
             "weekday_ta = ? AND kaalam = ?",
-            arrayOf(weekdayTa, kaalam)
+            arrayOf(dayArg, kaalamArg)
         ) ?: return null
 
         return cursor.use {
+
             HoraiDetails(
                 weekdayTa = it.safeString("weekday_ta"),
                 kaalam = it.safeString("kaalam"),
@@ -513,11 +859,13 @@ class TamilDatabaseHelper(context: Context) {
     }
 
     // ---------------------------------------------------------
-    // 10. LEGACY 3-COLUMN TABLE METHODS (KEPT FOR WIDGET COMPATIBILITY)
+    // 10. LEGACY 3-COLUMN TABLE METHODS
     // ---------------------------------------------------------
 
-    fun getGowriTableData(weekdayTa: String): List<TableSlotData> {
-        val list = mutableListOf<TableSlotData>()
+    fun getGowriTableData(
+        weekdayTa: String
+    ): List<TableSlotData> {
+
         val gowriTimes = listOf(
             Triple("06:00 - 07:30", 360, 450),
             Triple("07:30 - 09:00", 450, 540),
@@ -528,25 +876,32 @@ class TamilDatabaseHelper(context: Context) {
             Triple("03:00 - 04:30", 900, 990),
             Triple("04:30 - 06:00", 990, 1080)
         )
+
         val dayDetails = getGowriDetails(weekdayTa, "பகல்")
         val nightDetails = getGowriDetails(weekdayTa, "இரவு")
 
-        gowriTimes.forEachIndexed { index, (timeLabel, startMin, endMin) ->
-            list.add(
-                TableSlotData(
-                    timeLabel = timeLabel,
-                    dayValue = dayDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
-                    nightValue = nightDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
-                    startMin = startMin,
-                    endMin = endMin
-                )
+        return gowriTimes.mapIndexed { index, (timeLabel, startMin, endMin) ->
+
+            TableSlotData(
+                timeLabel = timeLabel,
+                dayValue = dayDetails?.slots
+                    ?.getOrNull(index)
+                    ?.takeIf { it != "---" }
+                    ?: "---",
+                nightValue = nightDetails?.slots
+                    ?.getOrNull(index)
+                    ?.takeIf { it != "---" }
+                    ?: "---",
+                startMin = startMin,
+                endMin = endMin
             )
         }
-        return list
     }
 
-    fun getHoraiTableData(weekdayTa: String): List<TableSlotData> {
-        val list = mutableListOf<TableSlotData>()
+    fun getHoraiTableData(
+        weekdayTa: String
+    ): List<TableSlotData> {
+
         val horaiTimes = listOf(
             Triple("06:00 - 07:00", 360, 420),
             Triple("07:00 - 08:00", 420, 480),
@@ -561,25 +916,30 @@ class TamilDatabaseHelper(context: Context) {
             Triple("04:00 - 05:00", 960, 1020),
             Triple("05:00 - 06:00", 1020, 1080)
         )
+
         val dayDetails = getHoraiDetails(weekdayTa, "பகல்")
         val nightDetails = getHoraiDetails(weekdayTa, "இரவு")
 
-        horaiTimes.forEachIndexed { index, (timeLabel, startMin, endMin) ->
-            list.add(
-                TableSlotData(
-                    timeLabel = timeLabel,
-                    dayValue = dayDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
-                    nightValue = nightDetails?.slots?.getOrNull(index)?.takeIf { it != "---" } ?: "---",
-                    startMin = startMin,
-                    endMin = endMin
-                )
+        return horaiTimes.mapIndexed { index, (timeLabel, startMin, endMin) ->
+
+            TableSlotData(
+                timeLabel = timeLabel,
+                dayValue = dayDetails?.slots
+                    ?.getOrNull(index)
+                    ?.takeIf { it != "---" }
+                    ?: "---",
+                nightValue = nightDetails?.slots
+                    ?.getOrNull(index)
+                    ?.takeIf { it != "---" }
+                    ?: "---",
+                startMin = startMin,
+                endMin = endMin
             )
         }
-        return list
     }
 
     // ---------------------------------------------------------
-    // 11. SOLAR-ADJUSTED DYNAMIC GOWRI & HORAI CALCULATIONS
+    // 11. SOLAR-ADJUSTED DYNAMIC GOWRI & HORAI
     // ---------------------------------------------------------
 
     fun getDynamicHoraiData(
@@ -587,12 +947,15 @@ class TamilDatabaseHelper(context: Context) {
         tomorrowDate: String,
         weekdayTa: String
     ): DynamicGowriHoraiResult {
+
         val sunToday = getSunTimesForDate(todayDate)
         val sunTomorrow = getSunTimesForDate(tomorrowDate)
 
         val riseTodayMin = parseTimeToMinutes(sunToday.first, 360)
         val setTodayMin = parseTimeToMinutes(sunToday.second, 1080)
-        val riseTomorrowMin = parseTimeToMinutes(sunTomorrow.first, 360) + 1440
+
+        val riseTomorrowMin =
+            parseTimeToMinutes(sunTomorrow.first, 360) + MINUTES_PER_DAY
 
         val dayDetails = getHoraiDetails(weekdayTa, "பகல்")
         val nightDetails = getHoraiDetails(weekdayTa, "இரவு")
@@ -600,21 +963,24 @@ class TamilDatabaseHelper(context: Context) {
         val daySlots = buildSolarSlices(
             startMin = riseTodayMin,
             endMin = setTodayMin,
-            values = dayDetails?.slots ?: List(12) { "---" },
+            values = dayDetails?.slots.orEmpty(),
             isHorai = true
         )
 
         val nightSlots = buildSolarSlices(
             startMin = setTodayMin,
             endMin = riseTomorrowMin,
-            values = nightDetails?.slots ?: List(12) { "---" },
+            values = nightDetails?.slots.orEmpty(),
             isHorai = true
         )
 
         return DynamicGowriHoraiResult(
-            sunriseToday = formatMinutes12Hr(riseTodayMin, includeAmPm = true),
-            sunsetToday = formatMinutes12Hr(setTodayMin, includeAmPm = true),
-            sunriseTomorrow = formatMinutes12Hr(riseTomorrowMin % 1440, includeAmPm = true),
+            sunriseToday = formatMinutes12Hr(riseTodayMin, true),
+            sunsetToday = formatMinutes12Hr(setTodayMin, true),
+            sunriseTomorrow = formatMinutes12Hr(
+                riseTomorrowMin % MINUTES_PER_DAY,
+                true
+            ),
             daySlots = daySlots,
             nightSlots = nightSlots
         )
@@ -625,12 +991,15 @@ class TamilDatabaseHelper(context: Context) {
         tomorrowDate: String,
         weekdayTa: String
     ): DynamicGowriHoraiResult {
+
         val sunToday = getSunTimesForDate(todayDate)
         val sunTomorrow = getSunTimesForDate(tomorrowDate)
 
         val riseTodayMin = parseTimeToMinutes(sunToday.first, 360)
         val setTodayMin = parseTimeToMinutes(sunToday.second, 1080)
-        val riseTomorrowMin = parseTimeToMinutes(sunTomorrow.first, 360) + 1440
+
+        val riseTomorrowMin =
+            parseTimeToMinutes(sunTomorrow.first, 360) + MINUTES_PER_DAY
 
         val dayDetails = getGowriDetails(weekdayTa, "பகல்")
         val nightDetails = getGowriDetails(weekdayTa, "இரவு")
@@ -638,27 +1007,33 @@ class TamilDatabaseHelper(context: Context) {
         val daySlots = buildSolarSlices(
             startMin = riseTodayMin,
             endMin = setTodayMin,
-            values = dayDetails?.slots ?: List(8) { "---" },
+            values = dayDetails?.slots.orEmpty(),
             isHorai = false
         )
 
         val nightSlots = buildSolarSlices(
             startMin = setTodayMin,
             endMin = riseTomorrowMin,
-            values = nightDetails?.slots ?: List(8) { "---" },
+            values = nightDetails?.slots.orEmpty(),
             isHorai = false
         )
 
         return DynamicGowriHoraiResult(
-            sunriseToday = formatMinutes12Hr(riseTodayMin, includeAmPm = true),
-            sunsetToday = formatMinutes12Hr(setTodayMin, includeAmPm = true),
-            sunriseTomorrow = formatMinutes12Hr(riseTomorrowMin % 1440, includeAmPm = true),
+            sunriseToday = formatMinutes12Hr(riseTodayMin, true),
+            sunsetToday = formatMinutes12Hr(setTodayMin, true),
+            sunriseTomorrow = formatMinutes12Hr(
+                riseTomorrowMin % MINUTES_PER_DAY,
+                true
+            ),
             daySlots = daySlots,
             nightSlots = nightSlots
         )
     }
 
-    private fun getSunTimesForDate(gregorianDate: String): Pair<String, String> {
+    private fun getSunTimesForDate(
+        gregorianDate: String
+    ): Pair<String, String> {
+
         val cursor = queryOne(
             "sun_moon_timings.db",
             "sun_moon_timings",
@@ -672,7 +1047,10 @@ class TamilDatabaseHelper(context: Context) {
         )
 
         return cursor?.use {
-            Pair(it.safeString("sunrise"), it.safeString("sunset"))
+            Pair(
+                it.safeString("sunrise"),
+                it.safeString("sunset")
+            )
         } ?: Pair("06:00", "18:00")
     }
 
@@ -682,32 +1060,83 @@ class TamilDatabaseHelper(context: Context) {
         values: List<String>,
         isHorai: Boolean
     ): List<SolarSlotItem> {
-        val count = values.size.coerceAtLeast(1)
-        val totalDuration = (endMin - startMin).coerceAtLeast(count)
+
+        val count = if (isHorai) 12 else 8
+
+        if (endMin <= startMin) {
+            Log.e(
+                TAG,
+                "Invalid solar boundaries: start=$startMin, end=$endMin"
+            )
+            return emptyList()
+        }
+
+        val totalDuration = endMin - startMin
+
+        if (totalDuration < count) {
+            Log.e(
+                TAG,
+                "Invalid solar duration: duration=$totalDuration, slots=$count"
+            )
+            return emptyList()
+        }
+
+        if (values.size != count) {
+            Log.w(
+                TAG,
+                "Solar slot count mismatch: received=${values.size}, expected=$count"
+            )
+        }
+
         val result = ArrayList<SolarSlotItem>(count)
 
         for (i in 0 until count) {
-            val slotStart = startMin + Math.round((i.toDouble() * totalDuration) / count).toInt()
-            val slotEnd = startMin + Math.round(((i + 1).toDouble() * totalDuration) / count).toInt()
-            val valText = values[i]
+
+            val slotStart = startMin +
+                Math.round(
+                    (i.toDouble() * totalDuration) / count
+                ).toInt()
+
+            val slotEnd = startMin +
+                Math.round(
+                    ((i + 1).toDouble() * totalDuration) / count
+                ).toInt()
+
+            val valueText = values.getOrNull(i)
+                ?.trim()
+                ?.takeIf {
+                    it.isNotEmpty() && it != "---"
+                }
+                ?: "---"
 
             result.add(
                 SolarSlotItem(
                     phaseLabel = getTamilDayPhase(slotStart),
-                    timeRange = "${formatMinutes12Hr(slotStart, false)} - ${formatMinutes12Hr(slotEnd, false)}",
-                    valueName = valText,
-                    isAuspicious = isAuspiciousPeriod(valText, isHorai),
+                    timeRange =
+                        "${formatMinutes12Hr(slotStart, false)} - " +
+                            formatMinutes12Hr(slotEnd, false),
+                    valueName = valueText,
+                    isAuspicious = isAuspiciousPeriod(
+                        valueText,
+                        isHorai
+                    ),
                     startEpochMins = slotStart,
                     endEpochMins = slotEnd
                 )
             )
         }
+
         return result
     }
 
     private fun getTamilDayPhase(epochMins: Int): String {
-        val modMin = ((epochMins % 1440) + 1440) % 1440
+
+        val modMin =
+            ((epochMins % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
+                MINUTES_PER_DAY
+
         val hour = modMin / 60
+
         return when {
             hour in 4..5 -> "அதிகாலை"
             hour in 6..11 -> "காலை"
@@ -719,48 +1148,118 @@ class TamilDatabaseHelper(context: Context) {
         }
     }
 
-    private fun isAuspiciousPeriod(name: String, isHorai: Boolean): Boolean {
+    private fun isAuspiciousPeriod(
+        name: String,
+        isHorai: Boolean
+    ): Boolean {
+
         val clean = name.trim()
+
         return if (isHorai) {
-            clean == "சுக்கிரன்" || clean == "புதன்" || clean == "சந்திரன்" || clean == "குரு"
+            clean == "சுக்கிரன்" ||
+                clean == "புதன்" ||
+                clean == "சந்திரன்" ||
+                clean == "குரு"
         } else {
-            clean == "உத்தி" || clean == "அமிர்தம்" || clean == "லாபம்" || clean == "தனம்" || clean == "சுகம்"
+            clean == "உத்தி" ||
+                clean == "அமிர்தம்" ||
+                clean == "லாபம்" ||
+                clean == "தனம்" ||
+                clean == "சுகம்"
         }
     }
 
-    private fun parseTimeToMinutes(raw: String, fallbackMins: Int): Int {
-        if (raw.isBlank() || raw == "---") return fallbackMins
+    private fun parseTimeToMinutes(
+        raw: String,
+        fallbackMins: Int
+    ): Int {
+
+        val cleaned = raw
+            .replace("*", "")
+            .trim()
+
+        if (cleaned.isEmpty() || cleaned == "---") {
+            return fallbackMins
+        }
+
         return try {
-            val upper = raw.uppercase(Locale.ENGLISH).trim()
+
+            val upper = cleaned.uppercase(Locale.ENGLISH)
+
             val isPm = upper.contains("PM")
             val isAm = upper.contains("AM")
-            val numericPart = upper.replace("AM", "").replace("PM", "").trim()
-            val parts = numericPart.split(":")
-            var hours = parts[0].trim().toInt()
-            val mins = if (parts.size > 1) parts[1].trim().take(2).toInt() else 0
+
+            val numericPart = upper
+                .replace("AM", "")
+                .replace("PM", "")
+                .trim()
+
+            val regex = Regex(
+                """^(\d{1,2})(?:[:.](\d{1,2}))?$"""
+            )
+
+            val match = regex.matchEntire(numericPart)
+                ?: return fallbackMins
+
+            var hours = match.groupValues[1].toInt()
+
+            val mins = match.groupValues[2]
+                .takeIf { it.isNotEmpty() }
+                ?.toInt()
+                ?: 0
 
             if (isPm && hours < 12) hours += 12
             if (isAm && hours == 12) hours = 0
-            (hours * 60) + mins
-        } catch (_: Exception) {
+
+            if (hours !in 0..23 || mins !in 0..59) {
+                fallbackMins
+            } else {
+                hours * 60 + mins
+            }
+
+        } catch (e: Exception) {
+
+            Log.w(TAG, "Unable to parse solar time: $raw", e)
+
             fallbackMins
         }
     }
 
-    private fun formatMinutes12Hr(epochMins: Int, includeAmPm: Boolean): String {
-        val modMin = ((epochMins % 1440) + 1440) % 1440
+    private fun formatMinutes12Hr(
+        epochMins: Int,
+        includeAmPm: Boolean
+    ): String {
+
+        val modMin =
+            ((epochMins % MINUTES_PER_DAY) + MINUTES_PER_DAY) %
+                MINUTES_PER_DAY
+
         val hour24 = modMin / 60
-        val min = modMin % 60
+        val minute = modMin % 60
+
         val amPm = if (hour24 >= 12) "PM" else "AM"
+
         val hour12 = when {
             hour24 == 0 -> 12
             hour24 > 12 -> hour24 - 12
             else -> hour24
         }
+
         return if (includeAmPm) {
-            String.format(Locale.ENGLISH, "%d:%02d %s", hour12, min, amPm)
+            String.format(
+                Locale.ENGLISH,
+                "%d:%02d %s",
+                hour12,
+                minute,
+                amPm
+            )
         } else {
-            String.format(Locale.ENGLISH, "%d:%02d", hour12, min)
+            String.format(
+                Locale.ENGLISH,
+                "%d:%02d",
+                hour12,
+                minute
+            )
         }
     }
 
@@ -769,12 +1268,25 @@ class TamilDatabaseHelper(context: Context) {
     // ---------------------------------------------------------
 
     fun closeDatabases() {
-        databases.values.forEach { database ->
-            if (database.isOpen) {
-                database.close()
+
+        databaseLock.write {
+
+            synchronized(databaseMapLock) {
+
+                databases.values.forEach { database ->
+
+                    try {
+                        if (database.isOpen) {
+                            database.close()
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Database close failed", e)
+                    }
+                }
+
+                databases.clear()
             }
         }
-        databases.clear()
     }
 
     fun close() {
