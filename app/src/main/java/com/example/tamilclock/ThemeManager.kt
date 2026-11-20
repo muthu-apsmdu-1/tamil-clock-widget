@@ -67,7 +67,7 @@ object ThemeManager {
     const val DATE_FORMAT_NUMERIC = DATE_FORMAT_DASH
 
     // -------------------------------------------------------------
-    // ASTROLOGICAL ELEMENTS KEYS
+    // 4x2 ELEMENT KEYS (LEGACY / 4x2)
     // -------------------------------------------------------------
     const val ELEM_PAKSHAM = "paksham"
     const val ELEM_THITHI = "thithi"
@@ -83,13 +83,41 @@ object ThemeManager {
     const val ELEM_FESTIVAL = "festival"
 
     val DEFAULT_ELEMENTS_4X2 = setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
-    val DEFAULT_ELEMENTS_4X4 = setOf(
-        ELEM_PAKSHAM,
-        ELEM_THITHI,
-        ELEM_NAKSHATRA,
-        ELEM_AMIRTHATHI_YOGA,
-        ELEM_NALLA_NERAM
+
+    // -------------------------------------------------------------
+    // 4x4 10 SINGLE-ROW OPTION SETS (USER PICKS ANY 3)
+    // -------------------------------------------------------------
+    const val OPT_PAKSHAM_THITHI_NAKSHATRA = "opt_paksham_thithi_nakshatra"
+    const val OPT_NALLA_NERAM = "opt_nalla_neram"
+    const val OPT_GOWRI_NALLA_NERAM = "opt_gowri_nalla_neram"
+    const val OPT_AMIRTHATHI_NITHYA_YOGAM = "opt_amirthathi_nithya_yogam"
+    const val OPT_RAHU_YEMAKANDAM = "opt_rahu_yemakandam"
+    const val OPT_KULIGAI_THYAJAM = "opt_kuligai_thyajam"
+    const val OPT_KARNAM_SOOLAM_PARIKARAM = "opt_karnam_soolam_parikaram"
+    const val OPT_SUN_TIMINGS = "opt_sun_timings"
+    const val OPT_CHANDRASTAMA = "opt_chandrastama"
+    const val OPT_FESTIVAL = "opt_festival"
+
+    val ALL_OPTIONS_4X4 = listOf(
+        OPT_PAKSHAM_THITHI_NAKSHATRA,
+        OPT_NALLA_NERAM,
+        OPT_GOWRI_NALLA_NERAM,
+        OPT_AMIRTHATHI_NITHYA_YOGAM,
+        OPT_RAHU_YEMAKANDAM,
+        OPT_KULIGAI_THYAJAM,
+        OPT_KARNAM_SOOLAM_PARIKARAM,
+        OPT_SUN_TIMINGS,
+        OPT_CHANDRASTAMA,
+        OPT_FESTIVAL
     )
+
+    val DEFAULT_SELECTED_OPTIONS_4X4 = listOf(
+        OPT_PAKSHAM_THITHI_NAKSHATRA,
+        OPT_NALLA_NERAM,
+        OPT_SUN_TIMINGS
+    )
+
+    val DEFAULT_ELEMENTS_4X4 = DEFAULT_SELECTED_OPTIONS_4X4.toSet()
 
     // -------------------------------------------------------------
     // PREFERENCE KEYS
@@ -105,6 +133,8 @@ object ThemeManager {
     private const val KEY_DATE_FORMAT_4X4 = "date_format_4x4"
     private const val KEY_ELEMENTS_4X2 = "elements_4x2"
     private const val KEY_ELEMENTS_4X4 = "elements_4x4"
+    private const val KEY_OPTIONS_4X4_ORDERED = "options_4x4_ordered"
+    private const val KEY_LIVE_HORAI_GOWRI = "live_horai_gowri_enabled"
 
     private const val KEY_PRESET_ID = "selected_preset_id"
     private const val KEY_BORDER_ENABLED = "outer_border_enabled"
@@ -169,6 +199,16 @@ object ThemeManager {
     fun saveBorderEnabled(context: Context, enabled: Boolean) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean(KEY_BORDER_ENABLED, enabled).apply()
+    }
+
+    fun isLiveHoraiGowriEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_LIVE_HORAI_GOWRI, false)
+    }
+
+    fun saveLiveHoraiGowriEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean(KEY_LIVE_HORAI_GOWRI, enabled).apply()
     }
 
     fun getActiveTheme(context: Context): ThemeConfig {
@@ -305,7 +345,7 @@ object ThemeManager {
     fun getDateFormat4x4(context: Context): Int = getWidgetDateFormat(context)
     fun saveDateFormat4x4(context: Context, format: Int) = saveWidgetDateFormat(context, format)
 
-    // 4x2 & 4x4 Custom elements
+    // 4x2 Custom elements
     fun getElements4x2(context: Context): Set<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getStringSet(KEY_ELEMENTS_4X2, DEFAULT_ELEMENTS_4X2) ?: DEFAULT_ELEMENTS_4X2
@@ -316,14 +356,38 @@ object ThemeManager {
             .edit().putStringSet(KEY_ELEMENTS_4X2, elements).apply()
     }
 
-    fun getElements4x4(context: Context): Set<String> {
+    // 4x4 Ordered 3 Options (Row 2, Row 3, Row 4; Row 1 is constant Tamil month+date & weekday)
+    fun getSelectedOptions4x4(context: Context): List<String> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_ELEMENTS_4X4, DEFAULT_ELEMENTS_4X4) ?: DEFAULT_ELEMENTS_4X4
+        val raw = prefs.getString(KEY_OPTIONS_4X4_ORDERED, null)
+        if (!raw.isNullOrBlank()) {
+            val parsed = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.take(3)
+            if (parsed.isNotEmpty()) {
+                return parsed
+            }
+        }
+        val fromSet = prefs.getStringSet(KEY_ELEMENTS_4X4, null)
+            ?.filter { it in ALL_OPTIONS_4X4 }
+            ?.take(3)
+        return if (!fromSet.isNullOrEmpty()) fromSet else DEFAULT_SELECTED_OPTIONS_4X4
+    }
+
+    fun saveSelectedOptions4x4(context: Context, options: List<String>) {
+        val trimmed = options.map { it.trim() }.filter { it in ALL_OPTIONS_4X4 }.distinct().take(3)
+        val finalList = if (trimmed.isNotEmpty()) trimmed else DEFAULT_SELECTED_OPTIONS_4X4
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_OPTIONS_4X4_ORDERED, finalList.joinToString(","))
+            .putStringSet(KEY_ELEMENTS_4X4, finalList.toSet())
+            .apply()
+    }
+
+    fun getElements4x4(context: Context): Set<String> {
+        return getSelectedOptions4x4(context).toSet()
     }
 
     fun saveElements4x4(context: Context, elements: Set<String>) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putStringSet(KEY_ELEMENTS_4X4, elements).apply()
+        saveSelectedOptions4x4(context, elements.toList())
     }
 
     fun getThemePalette(context: Context): AppThemePalette {
