@@ -26,7 +26,6 @@ object WidgetUpdateHelper {
     private const val TAG = "WidgetUpdateHelper"
 
     private val NEON_GREEN = Color.parseColor("#39FF14")
-    private val TEAL_NEON = Color.parseColor("#00F5D4")
 
     // -------------------------------------------------------------
     // COMMON HELPERS
@@ -282,7 +281,6 @@ object WidgetUpdateHelper {
         context: Context,
         views: RemoteViews,
         colors: WidgetColorPalette,
-        cal: Calendar,
         clockBoxW: Int,
         clockBoxH: Int,
         widgetSize: String
@@ -292,8 +290,15 @@ object WidgetUpdateHelper {
         val is24Hr = DateFormat.is24HourFormat(context)
         val amPmVisibility = if (is24Hr) View.GONE else View.VISIBLE
 
-        val useArabicVector = widgetSize == "4x2" || widgetSize == "4x4"
-        val useHybridVector = widgetSize == "4x4"
+        val is4x2Or4x4 = widgetSize == "4x2" || widgetSize == "4x4"
+        val is4x4 = widgetSize == "4x4"
+
+        // Hybrid is exclusive to 4x4; fall back to Classic analog on 2x1, 4x1, and 4x2
+        val effectiveClockFace = if (clockFace == ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID && !is4x4) {
+            ThemeManager.CLOCK_ANALOG_CLASSIC
+        } else {
+            clockFace
+        }
 
         val analogId = views.findId(
             context,
@@ -308,7 +313,7 @@ object WidgetUpdateHelper {
         views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
         views.safeSetVisibility(context, "tv_digital_clock_ampm", amPmVisibility)
 
-        when (clockFace) {
+        when (effectiveClockFace) {
 
             ThemeManager.CLOCK_DIGITAL_AMOLED_NEON -> {
                 val pill = createAmoledPillBitmap(clockBoxW, clockBoxH)
@@ -331,19 +336,25 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                if (useArabicVector && analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.clock_face_arabic))
-                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                if (is4x2Or4x4) {
+                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                        views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.clock_face_arabic))
+                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                        views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                    } else {
+                        views.safeSetImageResource(context, "iv_hybrid_dial_bg", R.drawable.clock_face_arabic)
+                        views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                    }
                 } else {
                     val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(280)
                     views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
                     views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
                     if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
                         views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
                         views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
                         views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
@@ -353,29 +364,18 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
-                if (useHybridVector) {
+                // Exclusive to 4x4 only
+                if (is4x4) {
                     views.safeSetImageResource(context, "iv_hybrid_dial_bg", R.drawable.clock_face_hybrid)
                     views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
 
                     if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
                         views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
                         views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
                         views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
                         views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
-                    }
-                } else {
-                    val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 280)
-                    views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
-                    views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
-                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
-                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
-                        views.setIcon(analogId, "setSecondHand", null)
                     }
                 }
             }
@@ -742,7 +742,6 @@ object WidgetUpdateHelper {
             context,
             views,
             colors,
-            cal,
             clockWidth,
             clockHeight,
             widgetSize
