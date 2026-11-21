@@ -127,8 +127,49 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingHorizontal="4dp"
+            android:paddingHorizontal="2dp"
             android:weightSum="2">
+
+            <!-- Gregorian Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_widget_greg_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10.5sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:includeFontPadding="false" />
+
+            </LinearLayout>
+
+            <!-- Tamil Month and Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_widget_tamil_month_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10.5sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:gravity="center"
+                    android:includeFontPadding="false" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
 
             <!-- Gregorian Date -->
             <LinearLayout
