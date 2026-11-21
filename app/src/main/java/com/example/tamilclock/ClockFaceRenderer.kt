@@ -20,11 +20,12 @@ object ClockFaceRenderer {
     // 1. ANALOG STYLE B DIAL (AMOLED Black + Radial White Numerals + 60 Ticks)
     // -------------------------------------------------------------
     fun createAmoledWhiteDialBitmap(sizePx: Int = 360): Bitmap {
-        val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val safeSize = sizePx.coerceAtLeast(1)
+        val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
-        val radius = sizePx * 0.48f
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val radius = safeSize * 0.48f
 
         // Pure AMOLED Black Circle
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -37,19 +38,19 @@ object ClockFaceRenderer {
         val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#33FFFFFF")
             style = Paint.Style.STROKE
-            strokeWidth = sizePx * 0.008f
+            strokeWidth = safeSize * 0.008f
         }
         canvas.drawCircle(cx, cy, radius - ringPaint.strokeWidth, ringPaint)
 
         // 60 Perimeter Tick Marks
         val majorTickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            strokeWidth = sizePx * 0.011f
+            strokeWidth = safeSize * 0.011f
             strokeCap = Paint.Cap.ROUND
         }
         val minorTickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#888888")
-            strokeWidth = sizePx * 0.006f
+            strokeWidth = safeSize * 0.006f
             strokeCap = Paint.Cap.ROUND
         }
 
@@ -70,7 +71,7 @@ object ClockFaceRenderer {
         // Tall Condensed Radial Numerals (1..12)
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            textSize = sizePx * 0.125f
+            textSize = safeSize * 0.125f
             typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
             textAlign = Paint.Align.CENTER
             textScaleX = 0.78f
@@ -86,7 +87,6 @@ object ClockFaceRenderer {
             val ny = cy + (numRadius * sin(rad)).toFloat()
 
             canvas.save()
-            // Radial tilt matching sample 36405.png
             val tiltDeg = if (hour in 4..8) deg - 180f else deg
             canvas.rotate(tiltDeg, nx, ny)
             canvas.drawText(hour.toString(), nx, ny + textOffsetY, textPaint)
@@ -104,11 +104,12 @@ object ClockFaceRenderer {
         cal: Calendar = Calendar.getInstance(),
         sizePx: Int = 380
     ): Bitmap {
-        val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val safeSize = sizePx.coerceAtLeast(1)
+        val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
-        val radius = sizePx * 0.48f
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
+        val radius = safeSize * 0.48f
 
         // Pure AMOLED Black Circle
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -149,7 +150,7 @@ object ClockFaceRenderer {
                 canvas.drawCircle(
                     cx + (dotR * cos(rad)).toFloat(),
                     cy + (dotR * sin(rad)).toFloat(),
-                    sizePx * 0.0055f,
+                    safeSize * 0.0055f,
                     markerPaint
                 )
             }
@@ -158,7 +159,7 @@ object ClockFaceRenderer {
         // Upright Rounded Teal Numerals (1..12)
         val numPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = TEAL_NEON
-            textSize = sizePx * 0.088f
+            textSize = safeSize * 0.088f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             textAlign = Paint.Align.CENTER
         }
@@ -173,21 +174,21 @@ object ClockFaceRenderer {
             canvas.drawText(hour.toString(), nx, ny + numOffsetY, numPaint)
         }
 
-        // Embedded Complications (Matching Sample 34834_2.jpg)
+        // Embedded Complications
         val compPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = TEAL_NEON
-            textSize = sizePx * 0.068f
+            textSize = safeSize * 0.068f
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             textAlign = Paint.Align.CENTER
         }
 
-        // Right (3 o'clock area): Month & Date (e.g., "NOV 15")
+        // Right (3 o'clock area): Month & Date
         val monthDateStr = SimpleDateFormat("MMM dd", Locale.ENGLISH)
             .format(cal.time)
             .uppercase(Locale.ENGLISH)
-        canvas.drawText(monthDateStr, cx + (radius * 0.36f), cy + (sizePx * 0.022f), compPaint)
+        canvas.drawText(monthDateStr, cx + (radius * 0.36f), cy + (safeSize * 0.022f), compPaint)
 
-        // Bottom (above 6): Weekday (e.g., "SUN")
+        // Bottom (above 6): Weekday
         val weekdayStr = SimpleDateFormat("EEE", Locale.ENGLISH)
             .format(cal.time)
             .uppercase(Locale.ENGLISH)
@@ -195,7 +196,7 @@ object ClockFaceRenderer {
 
         // Left (9 o'clock area): Battery Icon + Percentage
         val batteryPct = getBatteryPercentage(context)
-        drawBatteryComplication(canvas, cx - (radius * 0.39f), cy, sizePx, batteryPct)
+        drawBatteryComplication(canvas, cx - (radius * 0.39f), cy, safeSize, batteryPct)
 
         return bmp
     }
@@ -255,7 +256,7 @@ object ClockFaceRenderer {
 
     private fun getBatteryPercentage(context: Context): Int {
         return try {
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val intent = context.applicationContext.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
             val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
             if (level >= 0 && scale > 0) ((level * 100f) / scale).toInt() else 100
@@ -272,41 +273,42 @@ object ClockFaceRenderer {
         styleId: Int,
         sizePx: Int = 120
     ): Bitmap {
-        val bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val safeSize = sizePx.coerceAtLeast(1)
+        val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
-        val cx = sizePx / 2f
-        val cy = sizePx / 2f
+        val cx = safeSize / 2f
+        val cy = safeSize / 2f
 
         when (styleId) {
             ThemeManager.CLOCK_DIGITAL_CLASSIC -> {
                 val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#33FFFFFF") }
-                canvas.drawRoundRect(RectF(6f, 24f, sizePx - 6f, sizePx - 24f), 16f, 16f, bg)
+                canvas.drawRoundRect(RectF(6f, 24f, safeSize - 6f, safeSize - 24f), 16f, 16f, bg)
                 val tp = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.WHITE
-                    textSize = sizePx * 0.25f
+                    textSize = safeSize * 0.25f
                     typeface = Typeface.DEFAULT_BOLD
                     textAlign = Paint.Align.CENTER
                 }
-                canvas.drawText("10:15", cx, cy + (sizePx * 0.08f), tp)
+                canvas.drawText("10:15", cx, cy + (safeSize * 0.08f), tp)
             }
 
             ThemeManager.CLOCK_DIGITAL_AMOLED_NEON -> {
                 val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK }
-                canvas.drawRoundRect(RectF(6f, 24f, sizePx - 6f, sizePx - 24f), 16f, 16f, bg)
+                canvas.drawRoundRect(RectF(6f, 24f, safeSize - 6f, safeSize - 24f), 16f, 16f, bg)
                 val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = NEON_GREEN
                     style = Paint.Style.STROKE
                     strokeWidth = 2.5f
                 }
-                canvas.drawRoundRect(RectF(6f, 24f, sizePx - 6f, sizePx - 24f), 16f, 16f, stroke)
+                canvas.drawRoundRect(RectF(6f, 24f, safeSize - 6f, safeSize - 24f), 16f, 16f, stroke)
                 val tp = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = NEON_GREEN
-                    textSize = sizePx * 0.25f
+                    textSize = safeSize * 0.25f
                     typeface = Typeface.MONOSPACE
                     isFakeBoldText = true
                     textAlign = Paint.Align.CENTER
                 }
-                canvas.drawText("10:15", cx, cy + (sizePx * 0.08f), tp)
+                canvas.drawText("10:15", cx, cy + (safeSize * 0.08f), tp)
             }
 
             ThemeManager.CLOCK_ANALOG_CLASSIC -> {
@@ -315,20 +317,28 @@ object ClockFaceRenderer {
                     style = Paint.Style.STROKE
                     strokeWidth = 3f
                 }
-                canvas.drawCircle(cx, cy, sizePx * 0.42f, ring)
-                drawSampleHands(canvas, cx, cy, sizePx * 0.42f, includeSecond = false)
+                canvas.drawCircle(cx, cy, safeSize * 0.42f, ring)
+                drawSampleHands(canvas, cx, cy, safeSize * 0.42f, includeSecond = false)
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dial = createAmoledWhiteDialBitmap(sizePx)
-                canvas.drawBitmap(dial, 0f, 0f, null)
-                drawSampleHands(canvas, cx, cy, sizePx * 0.45f, includeSecond = true)
+                val dial = createAmoledWhiteDialBitmap(safeSize)
+                try {
+                    canvas.drawBitmap(dial, 0f, 0f, null)
+                } finally {
+                    dial.recycle()
+                }
+                drawSampleHands(canvas, cx, cy, safeSize * 0.45f, includeSecond = true)
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
-                val dial = createAmoledHybridDialBitmap(context, Calendar.getInstance(), sizePx)
-                canvas.drawBitmap(dial, 0f, 0f, null)
-                drawSampleHands(canvas, cx, cy, sizePx * 0.45f, includeSecond = true)
+                val dial = createAmoledHybridDialBitmap(context, Calendar.getInstance(), safeSize)
+                try {
+                    canvas.drawBitmap(dial, 0f, 0f, null)
+                } finally {
+                    dial.recycle()
+                }
+                drawSampleHands(canvas, cx, cy, safeSize * 0.45f, includeSecond = true)
             }
         }
         return bmp
@@ -346,7 +356,6 @@ object ClockFaceRenderer {
             strokeWidth = r * 0.09f
             strokeCap = Paint.Cap.ROUND
         }
-        // 10:10 iconic watch display position
         canvas.drawLine(cx, cy, cx - r * 0.45f, cy - r * 0.30f, handPaint)
         canvas.drawLine(cx, cy, cx + r * 0.62f, cy - r * 0.35f, handPaint)
 
