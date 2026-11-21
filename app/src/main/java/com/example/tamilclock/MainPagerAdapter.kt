@@ -8,12 +8,6 @@ import java.util.Calendar
 class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
 
     companion object {
-        // Requested 5-Page Order:
-        // 0: About App
-        // 1: Monthly Calendar (with date picker)
-        // 2: Home Page (Panchangam Simple & Expanded)
-        // 3: Gowri & Horai Integrated Page
-        // 4: Settings Page
         const val PAGE_ABOUT = 0
         const val PAGE_MONTHLY_CALENDAR = 1
         const val PAGE_PANCHANGAM = 2
@@ -28,7 +22,7 @@ class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activi
     }
 
     private val fragmentReferences = mutableMapOf<Int, Fragment>()
-    private var currentCalendar: Calendar = Calendar.getInstance()
+    private var currentCalendar: Calendar = Calendar.getInstance().clone() as Calendar
 
     override fun getItemCount(): Int = TOTAL_PAGES
 
@@ -48,16 +42,24 @@ class MainPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activi
 
     fun updateSelectedDate(calendar: Calendar) {
         currentCalendar = calendar.clone() as Calendar
-        fragmentReferences.values.forEach { fragment ->
+        val iterator = fragmentReferences.entries.iterator()
+        while (iterator.hasNext()) {
+            val fragment = iterator.next().value
+            if (fragment.isDetached || fragment.host == null) {
+                iterator.remove()
+                continue
+            }
             syncDateToFragment(fragment, currentCalendar)
         }
     }
 
     private fun syncDateToFragment(fragment: Fragment, calendar: Calendar) {
+        if (fragment.view == null) return
+        val syncedCal = calendar.clone() as Calendar
         when (fragment) {
-            is FragmentMonthlyCalendar -> fragment.updateDate(calendar)
-            is FragmentPanchangam -> fragment.updateDate(calendar)
-            is FragmentGowriHorai -> fragment.updateDate(calendar)
+            is FragmentMonthlyCalendar -> fragment.updateDate(syncedCal)
+            is FragmentPanchangam -> fragment.updateDate(syncedCal)
+            is FragmentGowriHorai -> fragment.updateDate(syncedCal)
         }
     }
 }
