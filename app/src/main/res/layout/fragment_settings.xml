@@ -780,11 +780,11 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 4. OUTER BORDER TOGGLE ==================== -->
+        <!-- ==================== 4. OUTER BORDER & LIVE HORAI/GOWRI TOGGLES ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:id="@+id/tv_lbl_outer_border"
@@ -798,6 +798,30 @@
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switch_outer_border"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:checked="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tv_lbl_live_horai_gowri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="நேரலை ஹோரை &amp; கௌரி (Live Horai &amp; Gowri)"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switch_live_horai_gowri"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -861,7 +885,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 6. 4x2 ELEMENTS TABLE (EXACTLY 3) ==================== -->
+        <!-- ==================== 6. 4x2 ELEMENTS TABLE (UP TO 3) ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -901,7 +925,7 @@
             android:background="#22888888"
             android:layout_marginBottom="16dp" />
 
-        <!-- ==================== 7. 4x4 ELEMENTS TABLE (EXACTLY 5) ==================== -->
+        <!-- ==================== 7. 4x4 SINGLE-ROW OPTIONS TABLE (UP TO 3 OF 10) ==================== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -912,7 +936,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:text="4x4 விட்ஜெட் தகவல் கூறுகள்"
+                android:text="4x4 விட்ஜெட் வரிசைத் தேர்வு"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -921,7 +945,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:text="(5/5)"
+                android:text="(3/3)"
                 android:textColor="#FFDF00"
                 android:textSize="13sp"
                 android:textStyle="bold" />
