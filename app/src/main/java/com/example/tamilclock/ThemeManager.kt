@@ -203,7 +203,7 @@ object ThemeManager {
 
     fun isLiveHoraiGowriEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_LIVE_HORAI_GOWRI, false)
+        return prefs.getBoolean(KEY_LIVE_HORAI_GOWRI, true)
     }
 
     fun saveLiveHoraiGowriEnabled(context: Context, enabled: Boolean) {
@@ -361,13 +361,18 @@ object ThemeManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val raw = prefs.getString(KEY_OPTIONS_4X4_ORDERED, null)
         if (!raw.isNullOrBlank()) {
-            val parsed = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.take(3)
+            val parsed = raw.split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && it in ALL_OPTIONS_4X4 }
+                .distinct()
+                .take(3)
             if (parsed.isNotEmpty()) {
                 return parsed
             }
         }
         val fromSet = prefs.getStringSet(KEY_ELEMENTS_4X4, null)
             ?.filter { it in ALL_OPTIONS_4X4 }
+            ?.distinct()
             ?.take(3)
         return if (!fromSet.isNullOrEmpty()) fromSet else DEFAULT_SELECTED_OPTIONS_4X4
     }
