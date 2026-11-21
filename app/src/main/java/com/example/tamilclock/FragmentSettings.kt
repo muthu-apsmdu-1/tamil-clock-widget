@@ -3,6 +3,7 @@ package com.example.tamilclock
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -33,6 +34,9 @@ class FragmentSettings : Fragment() {
     private var tvLblClockStyle: TextView? = null
     private var tvLblOuterBorder: TextView? = null
     private var switchOuterBorder: SwitchCompat? = null
+
+    private var tvLblLiveHoraiGowri: TextView? = null
+    private var switchLiveHoraiGowri: SwitchCompat? = null
 
     private var cardSliderCapsule: LinearLayout? = null
     private var tvLblWidgetOpacity: TextView? = null
@@ -105,7 +109,7 @@ class FragmentSettings : Fragment() {
     private val debounceHandler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
-    // 12 Astrological Elements ordered strictly by priority
+    // 4x2 Astrological Elements (up to 3 selected)
     private val astrologicalOptions = listOf(
         Pair(ThemeManager.ELEM_PAKSHAM, "1. பக்ஷம் (Paksham)"),
         Pair(ThemeManager.ELEM_THITHI, "2. திதி நேரம் (Thithi & Timing)"),
@@ -119,6 +123,20 @@ class FragmentSettings : Fragment() {
         Pair(ThemeManager.ELEM_SUNRISE_SET, "10. சூரிய உதயம் / மறைவு (Sun Rise/Set)"),
         Pair(ThemeManager.ELEM_CHANDRASTAMA, "11. சந்திராஷ்டமம் (Chandrastama)"),
         Pair(ThemeManager.ELEM_FESTIVAL, "12. சிறப்பு / திருவிழா (Festival)")
+    )
+
+    // 4x4 Single-Row Options (10 choices, up to 3 active rows)
+    private val singleRow4x4Options = listOf(
+        Pair(ThemeManager.OPT_PAKSHAM_THITHI_NAKSHATRA, "1. பக்ஷம் • திதி • நட்சத்திரம்"),
+        Pair(ThemeManager.OPT_NALLA_NERAM, "2. நல்ல நேரம்"),
+        Pair(ThemeManager.OPT_GOWRI_NALLA_NERAM, "3. கௌரி நல்ல நேரம்"),
+        Pair(ThemeManager.OPT_AMIRTHATHI_NITHYA_YOGAM, "4. அமிர்தாதி • நித்ய யோகம்"),
+        Pair(ThemeManager.OPT_RAHU_YEMAKANDAM, "5. ராகு காலம் • எமகண்டம்"),
+        Pair(ThemeManager.OPT_KULIGAI_THYAJAM, "6. குளிகை • த்யாஜ்யம்"),
+        Pair(ThemeManager.OPT_KARNAM_SOOLAM_PARIKARAM, "7. கரணம் • சூலம் / பரிகாரம்"),
+        Pair(ThemeManager.OPT_SUN_TIMINGS, "8. சூரிய உதயம் / மறைவு"),
+        Pair(ThemeManager.OPT_CHANDRASTAMA, "9. சந்திராஷ்டமம்"),
+        Pair(ThemeManager.OPT_FESTIVAL, "10. சிறப்பு / திருவிழா")
     )
 
     override fun onCreateView(
@@ -136,9 +154,8 @@ class FragmentSettings : Fragment() {
         setupPresetBoxes(view)
         setupClockStyleSwitcher()
         setupBorderSwitch()
+        setupLiveHoraiGowriSwitch()
         setupOpacitySeekBar()
-        renderElementsTable4x2()
-        renderElementsTable4x4()
         applyDynamicTheming()
     }
 
@@ -149,8 +166,72 @@ class FragmentSettings : Fragment() {
 
     override fun onDestroyView() {
         updateRunnable?.let { debounceHandler.removeCallbacks(it) }
+        updateRunnable = null
+
+        switchOuterBorder?.setOnCheckedChangeListener(null)
+        switchLiveHoraiGowri?.setOnCheckedChangeListener(null)
+        seekBarOpacity?.setOnSeekBarChangeListener(null)
+
+        tableElements4x2?.removeAllViews()
+        tableElements4x4?.removeAllViews()
         appBoxes.clear()
         presetBoxes.clear()
+
+        rootScrollView = null
+        tvHeading = null
+        tvLblAppTheme = null
+        tvLblWidgetTheme = null
+        tvLblDateFormat = null
+        tvLblClockStyle = null
+        tvLblOuterBorder = null
+        switchOuterBorder = null
+        tvLblLiveHoraiGowri = null
+        switchLiveHoraiGowri = null
+        cardSliderCapsule = null
+        tvLblWidgetOpacity = null
+        tvWidgetOpacityVal = null
+        seekBarOpacity = null
+        boxDateFmtDash = null
+        tvDateFmtDash = null
+        boxDateFmtText = null
+        tvDateFmtText = null
+        boxDateFmtSlash = null
+        tvDateFmtSlash = null
+        boxClockDigital = null
+        tvClockDigital = null
+        tickClockDigital = null
+        boxClockAnalog = null
+        tvClockAnalog = null
+        tickClockAnalog = null
+        groupDigitalFaces = null
+        groupAnalogFaces = null
+        cardDigitalClassic = null
+        ivThumbDigitalClassic = null
+        tvLabelDigitalClassic = null
+        cardDigitalNeon = null
+        ivThumbDigitalNeon = null
+        tvLabelDigitalNeon = null
+        cardAnalogClassic = null
+        ivThumbAnalogClassic = null
+        tvLabelAnalogClassic = null
+        cardAnalogWhite = null
+        ivThumbAnalogWhite = null
+        tvLabelAnalogWhite = null
+        cardAnalogHybrid = null
+        ivThumbAnalogHybrid = null
+        tvLabelAnalogHybrid = null
+        tvLblElements4x2 = null
+        tvCountElements4x2 = null
+        tableElements4x2 = null
+        tvLblElements4x4 = null
+        tvCountElements4x4 = null
+        tableElements4x4 = null
+        tvLblWidgetPreview = null
+        framePreviewWrapper = null
+        ivPreviewWidgetBg = null
+        tvPreviewTitle = null
+        tvPreviewSub = null
+
         super.onDestroyView()
     }
 
@@ -164,6 +245,9 @@ class FragmentSettings : Fragment() {
         tvLblClockStyle = view.findViewById(R.id.tv_lbl_clock_style)
         tvLblOuterBorder = view.findViewById(R.id.tv_lbl_outer_border)
         switchOuterBorder = view.findViewById(R.id.switch_outer_border)
+
+        tvLblLiveHoraiGowri = view.findViewById(R.id.tv_lbl_live_horai_gowri)
+        switchLiveHoraiGowri = view.findViewById(R.id.switch_live_horai_gowri)
 
         cardSliderCapsule = view.findViewById(R.id.card_slider_capsule)
         tvLblWidgetOpacity = view.findViewById(R.id.tv_lbl_widget_opacity)
@@ -259,7 +343,8 @@ class FragmentSettings : Fragment() {
 
         appBoxes.forEach { (colorHex, triple) ->
             triple.first.setOnClickListener {
-                ThemeManager.saveAppBackgroundColor(requireContext(), colorHex)
+                val ctx = context ?: return@setOnClickListener
+                ThemeManager.saveAppBackgroundColor(ctx, colorHex)
                 applyDynamicTheming()
                 (activity as? MainActivity)?.loadDayData()
             }
@@ -334,8 +419,8 @@ class FragmentSettings : Fragment() {
 
         presetBoxes.forEach { (preset, triple) ->
             triple.first.setOnClickListener {
-                val context = requireContext()
-                ThemeManager.savePreset(context, preset)
+                val ctx = context ?: return@setOnClickListener
+                ThemeManager.savePreset(ctx, preset)
                 renderPresetBoxes()
                 updateLiveSliderBackground()
                 updateWidgetPreview()
@@ -379,9 +464,8 @@ class FragmentSettings : Fragment() {
     // 3. DATE FORMAT & CLOCK FACE SWITCHER (WITH THUMBNAIL SAMPLES)
     // -------------------------------------------------------------
     private fun setupClockStyleSwitcher() {
-        val ctx = requireContext()
+        val ctx = context ?: return
 
-        // Generate sample thumbnail previews onto all 5 clock face buttons
         ivThumbDigitalClassic?.setImageBitmap(
             ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_DIGITAL_CLASSIC)
         )
@@ -398,64 +482,70 @@ class FragmentSettings : Fragment() {
             ClockFaceRenderer.createSettingsButtonThumbnail(ctx, ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
         )
 
-        // Date Format Listeners (3 formats)
         boxDateFmtDash?.setOnClickListener {
-            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_DASH)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveWidgetDateFormat(c, ThemeManager.DATE_FORMAT_DASH)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
         boxDateFmtText?.setOnClickListener {
-            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_TEXT)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveWidgetDateFormat(c, ThemeManager.DATE_FORMAT_TEXT)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
         boxDateFmtSlash?.setOnClickListener {
-            ThemeManager.saveWidgetDateFormat(requireContext(), ThemeManager.DATE_FORMAT_SLASH)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveWidgetDateFormat(c, ThemeManager.DATE_FORMAT_SLASH)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
 
-        // Top Clock Type Switcher (Digital vs Analog)
         boxClockDigital?.setOnClickListener {
-            if (ThemeManager.isAnalogClockSelected(requireContext())) {
-                ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_CLASSIC)
+            val c = context ?: return@setOnClickListener
+            if (ThemeManager.isAnalogClockSelected(c)) {
+                ThemeManager.saveClockFace(c, ThemeManager.CLOCK_DIGITAL_CLASSIC)
                 renderClockStyleSwitcher()
                 debounceWidgetUpdate()
             }
         }
         boxClockAnalog?.setOnClickListener {
-            if (!ThemeManager.isAnalogClockSelected(requireContext())) {
-                ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+            val c = context ?: return@setOnClickListener
+            if (!ThemeManager.isAnalogClockSelected(c)) {
+                ThemeManager.saveClockFace(c, ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
                 renderClockStyleSwitcher()
                 debounceWidgetUpdate()
             }
         }
 
-        // Digital Sub-Style Buttons (2)
         cardDigitalClassic?.setOnClickListener {
-            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_CLASSIC)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveClockFace(c, ThemeManager.CLOCK_DIGITAL_CLASSIC)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
         cardDigitalNeon?.setOnClickListener {
-            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_DIGITAL_AMOLED_NEON)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveClockFace(c, ThemeManager.CLOCK_DIGITAL_AMOLED_NEON)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
 
-        // Analog Sub-Style Buttons (3)
         cardAnalogClassic?.setOnClickListener {
-            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_CLASSIC)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveClockFace(c, ThemeManager.CLOCK_ANALOG_CLASSIC)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
         cardAnalogWhite?.setOnClickListener {
-            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveClockFace(c, ThemeManager.CLOCK_ANALOG_AMOLED_WHITE)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
         cardAnalogHybrid?.setOnClickListener {
-            ThemeManager.saveClockFace(requireContext(), ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
+            val c = context ?: return@setOnClickListener
+            ThemeManager.saveClockFace(c, ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID)
             renderClockStyleSwitcher()
             debounceWidgetUpdate()
         }
@@ -472,7 +562,7 @@ class FragmentSettings : Fragment() {
         val density = context.resources.displayMetrics.density
         val currentBg = ThemeManager.getAppBackgroundColor(context)
         val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
-                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+                currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
 
         val borderCol = ContextCompat.getColor(context, R.color.settings_card_border)
         val goldCol = palette.accentGold
@@ -488,12 +578,10 @@ class FragmentSettings : Fragment() {
             tv?.setTextColor(if (selected) Color.BLACK else textCol)
         }
 
-        // Date Format Pills
         stylePill(boxDateFmtDash, tvDateFmtDash, dateFmt == ThemeManager.DATE_FORMAT_DASH)
         stylePill(boxDateFmtText, tvDateFmtText, dateFmt == ThemeManager.DATE_FORMAT_TEXT)
         stylePill(boxDateFmtSlash, tvDateFmtSlash, dateFmt == ThemeManager.DATE_FORMAT_SLASH)
 
-        // Digital vs Analog Type Switch
         stylePill(boxClockDigital, tvClockDigital, !isAnalog)
         tickClockDigital?.setTextColor(Color.BLACK)
         tickClockDigital?.visibility = if (!isAnalog) View.VISIBLE else View.GONE
@@ -502,11 +590,9 @@ class FragmentSettings : Fragment() {
         tickClockAnalog?.setTextColor(Color.BLACK)
         tickClockAnalog?.visibility = if (isAnalog) View.VISIBLE else View.GONE
 
-        // Toggle Sub-Style Button Groups
         groupDigitalFaces?.visibility = if (!isAnalog) View.VISIBLE else View.GONE
         groupAnalogFaces?.visibility = if (isAnalog) View.VISIBLE else View.GONE
 
-        // Style Thumbnail Buttons
         fun styleFaceCard(card: LinearLayout?, label: TextView?, selected: Boolean) {
             card?.background = GradientDrawable().apply {
                 cornerRadius = 14f * density
@@ -524,23 +610,34 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 4. OUTER BORDER SWITCH & LIVE OPACITY SLIDER
+    // 4. OUTER BORDER SWITCH, LIVE HORAI/GOWRI & OPACITY SLIDER
     // -------------------------------------------------------------
     private fun setupBorderSwitch() {
-        val context = context ?: return
-        val borderEnabled = ThemeManager.isBorderEnabled(context)
-        switchOuterBorder?.isChecked = borderEnabled
+        val ctx = context ?: return
+        switchOuterBorder?.isChecked = ThemeManager.isBorderEnabled(ctx)
 
         switchOuterBorder?.setOnCheckedChangeListener { _, isChecked ->
-            ThemeManager.saveBorderEnabled(requireContext(), isChecked)
+            val c = context ?: return@setOnCheckedChangeListener
+            ThemeManager.saveBorderEnabled(c, isChecked)
             updateWidgetPreview()
             debounceWidgetUpdate()
         }
     }
 
+    private fun setupLiveHoraiGowriSwitch() {
+        val ctx = context ?: return
+        switchLiveHoraiGowri?.isChecked = ThemeManager.isLiveHoraiGowriEnabled(ctx)
+
+        switchLiveHoraiGowri?.setOnCheckedChangeListener { _, isChecked ->
+            val c = context ?: return@setOnCheckedChangeListener
+            ThemeManager.saveLiveHoraiGowriEnabled(c, isChecked)
+            debounceWidgetUpdate(immediate = true)
+        }
+    }
+
     private fun setupOpacitySeekBar() {
-        val context = context ?: return
-        val currentOpacity = ThemeManager.getWidgetOpacity(context)
+        val ctx = context ?: return
+        val currentOpacity = ThemeManager.getWidgetOpacity(ctx)
 
         seekBarOpacity?.progress = currentOpacity
         tvWidgetOpacityVal?.text = "$currentOpacity%"
@@ -554,7 +651,8 @@ class FragmentSettings : Fragment() {
                 updateLiveSliderBackground()
 
                 if (fromUser) {
-                    ThemeManager.saveWidgetOpacity(requireContext(), clamped)
+                    val c = context ?: return
+                    ThemeManager.saveWidgetOpacity(c, clamped)
                     updateWidgetPreview()
                     debounceWidgetUpdate()
                 }
@@ -586,7 +684,7 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 5. TABLE FORMAT: 4x2 SELECTION LOGIC (EXACTLY 3)
+    // 5. TABLE FORMAT: 4x2 SELECTION LOGIC (UP TO 3)
     // -------------------------------------------------------------
     private fun renderElementsTable4x2() {
         val context = context ?: return
@@ -606,7 +704,7 @@ class FragmentSettings : Fragment() {
         val density = context.resources.displayMetrics.density
         val currentBg = ThemeManager.getAppBackgroundColor(context)
         val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
-                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+                currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
         val normalTextCol = if (isDark) Color.WHITE else palette.primaryHeader
 
         astrologicalOptions.forEachIndexed { index, (key, label) ->
@@ -655,62 +753,63 @@ class FragmentSettings : Fragment() {
     }
 
     // -------------------------------------------------------------
-    // 6. TABLE FORMAT: 4x4 SELECTION LOGIC (EXACTLY 5)
+    // 6. TABLE FORMAT: 4x4 SINGLE-ROW SELECTION LOGIC (UP TO 3 OF 10)
     // -------------------------------------------------------------
     private fun renderElementsTable4x4() {
         val context = context ?: return
         val container = tableElements4x4 ?: return
-        val currentSet = ThemeManager.getElements4x4(context).toMutableSet()
-        container.removeAllViews()
-
-        if (currentSet.size > 5) {
-            val trimmed = currentSet.take(5).toMutableSet()
-            currentSet.clear()
-            currentSet.addAll(trimmed)
-            ThemeManager.saveElements4x4(context, currentSet)
+        val rawSelected = ThemeManager.getSelectedOptions4x4(context).distinct()
+        val selectedList = if (rawSelected.size > 3) {
+            val trimmed = rawSelected.take(3)
+            ThemeManager.saveSelectedOptions4x4(context, trimmed)
+            trimmed.toMutableList()
+        } else {
+            rawSelected.toMutableList()
         }
 
-        tvCountElements4x4?.text = "(${currentSet.size}/5)"
+        container.removeAllViews()
+        tvCountElements4x4?.text = "(${selectedList.size}/3)"
+
         val palette = ThemeManager.getThemePalette(context)
         val density = context.resources.displayMetrics.density
         val currentBg = ThemeManager.getAppBackgroundColor(context)
         val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
-                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+                currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
         val normalTextCol = if (isDark) Color.WHITE else palette.primaryHeader
 
-        astrologicalOptions.forEachIndexed { index, (key, label) ->
-            val isSelected = currentSet.contains(key)
+        singleRow4x4Options.forEachIndexed { index, (key, label) ->
+            val isSelected = selectedList.contains(key)
             val row = createTableRow(context, label, isSelected, palette.accentGold, normalTextCol, density) {
                 if (!isSelected) {
-                    if (currentSet.size >= 5) {
+                    if (selectedList.size >= 3) {
                         Toast.makeText(
                             context,
-                            "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 5 கூறுகளை மட்டுமே தேர்வு செய்யலாம்",
+                            "4x4 விட்ஜெட்டுக்கு அதிகபட்சம் 3 வரிசைகளை மட்டுமே தேர்வு செய்யலாம்",
                             Toast.LENGTH_SHORT
                         ).show()
                         return@createTableRow
                     }
-                    currentSet.add(key)
+                    selectedList.add(key)
                 } else {
-                    if (currentSet.size <= 1) {
+                    if (selectedList.size <= 1) {
                         Toast.makeText(
                             context,
-                            "குறைந்தது ஒரு கூறு தேர்ந்தெடுக்கப்பட வேண்டும்",
+                            "குறைந்தது ஒரு வரிசை தேர்ந்தெடுக்கப்பட வேண்டும்",
                             Toast.LENGTH_SHORT
                         ).show()
                         return@createTableRow
                     }
-                    currentSet.remove(key)
+                    selectedList.remove(key)
                 }
 
-                tvCountElements4x4?.text = "(${currentSet.size}/5)"
-                ThemeManager.saveElements4x4(context, currentSet)
+                ThemeManager.saveSelectedOptions4x4(context, selectedList.toList())
+                tvCountElements4x4?.text = "(${selectedList.size}/3)"
                 renderElementsTable4x4()
                 debounceWidgetUpdate()
             }
             container.addView(row)
 
-            if (index < astrologicalOptions.size - 1) {
+            if (index < singleRow4x4Options.size - 1) {
                 val divider = View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -750,7 +849,7 @@ class FragmentSettings : Fragment() {
             text = label
             textSize = 13.5f
             setTextColor(if (isSelected) accentColor else normalTextColor)
-            if (isSelected) setTypeface(typeface, android.graphics.Typeface.BOLD)
+            if (isSelected) setTypeface(typeface, Typeface.BOLD)
         }
         rowLayout.addView(tvLabel)
 
@@ -762,7 +861,7 @@ class FragmentSettings : Fragment() {
             text = "✓"
             textSize = 15f
             setTextColor(accentColor)
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTypeface(typeface, Typeface.BOLD)
             visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
         }
         rowLayout.addView(tvTick)
@@ -774,7 +873,9 @@ class FragmentSettings : Fragment() {
         updateRunnable?.let { debounceHandler.removeCallbacks(it) }
         val action = Runnable {
             val ctx = context ?: return@Runnable
-            WidgetUpdateHelper.updateAllWidgets(ctx)
+            if (isAdded) {
+                WidgetUpdateHelper.updateAllWidgets(ctx)
+            }
         }
         updateRunnable = action
         if (immediate) {
@@ -792,7 +893,7 @@ class FragmentSettings : Fragment() {
         val palette = ThemeManager.getThemePalette(context)
         val currentBg = ThemeManager.getAppBackgroundColor(context)
         val isDark = currentBg == ThemeManager.APP_COLOR_AMOLED_BLACK ||
-                     currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
+                currentBg == ThemeManager.APP_COLOR_MIDNIGHT_VIOLET
 
         rootScrollView?.setBackgroundColor(palette.pageBackground)
         framePreviewWrapper?.setBackgroundColor(palette.cardBackground)
@@ -806,12 +907,17 @@ class FragmentSettings : Fragment() {
         tvLblDateFormat?.setTextColor(labelColor)
         tvLblClockStyle?.setTextColor(labelColor)
         tvLblOuterBorder?.setTextColor(labelColor)
+        tvLblLiveHoraiGowri?.setTextColor(labelColor)
         tvLblElements4x2?.setTextColor(labelColor)
         tvLblElements4x4?.setTextColor(labelColor)
         tvLblWidgetPreview?.setTextColor(labelColor)
 
         switchOuterBorder?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
         switchOuterBorder?.trackTintList = ColorStateList.valueOf(Color.parseColor("#80B26A00"))
+
+        switchLiveHoraiGowri?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
+        switchLiveHoraiGowri?.trackTintList = ColorStateList.valueOf(Color.parseColor("#80B26A00"))
+        switchLiveHoraiGowri?.isChecked = ThemeManager.isLiveHoraiGowriEnabled(context)
 
         seekBarOpacity?.thumbTintList = ColorStateList.valueOf(palette.accentGold)
         seekBarOpacity?.progressTintList = ColorStateList.valueOf(palette.accentGold)
