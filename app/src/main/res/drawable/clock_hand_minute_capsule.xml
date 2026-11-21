@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="240dp"
-    android:height="240dp"
-    android:viewportWidth="240"
-    android:viewportHeight="240">
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
 
-    <!-- Stem from center -->
+    <!-- Stem from Center (100, 100) -->
     <path
-        android:pathData="M120,120 L120,98"
+        android:pathData="M100,100 L100,82"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="3.2"
+        android:strokeWidth="2.6"
         android:strokeLineCap="round" />
 
-    <!-- Longer Hollow White Capsule Body -->
+    <!-- Hollow Capsule Minute Body (~82% of 84-unit dial radius) -->
     <path
-        android:pathData="M116.2,34 C116.2,31.8 117.9,30 120,30 C122.1,30 123.8,31.8 123.8,34 L123.8,95 C123.8,97.2 122.1,99 120,99 C117.9,99 116.2,97.2 116.2,95 Z"
+        android:pathData="M97.2,34 C97.2,32.2 98.5,31 100,31 C101.5,31 102.8,32.2 102.8,34 L102.8,79 C102.8,80.8 101.5,82 100,82 C98.5,82 97.2,80.8 97.2,79 Z"
         android:fillColor="#000000"
         android:strokeColor="#FFFFFF"
-        android:strokeWidth="2.6" />
+        android:strokeWidth="2.0" />
 </vector>
