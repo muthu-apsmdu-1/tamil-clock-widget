@@ -94,6 +94,15 @@ object WidgetUpdateHelper {
         if (id != 0) setImageViewBitmap(id, bitmap)
     }
 
+    private fun RemoteViews.safeSetImageResource(
+        context: Context,
+        idName: String,
+        resId: Int
+    ) {
+        val id = findId(context, idName)
+        if (id != 0) setImageViewResource(id, resId)
+    }
+
     private fun cleanDbString(raw: String?): String {
         val trimmed = raw?.trim().orEmpty()
         return if (trimmed.isEmpty() || trimmed == "---") "" else trimmed
@@ -275,12 +284,16 @@ object WidgetUpdateHelper {
         colors: WidgetColorPalette,
         cal: Calendar,
         clockBoxW: Int,
-        clockBoxH: Int
+        clockBoxH: Int,
+        widgetSize: String
     ) {
 
         val clockFace = ThemeManager.getClockFace(context)
         val is24Hr = DateFormat.is24HourFormat(context)
         val amPmVisibility = if (is24Hr) View.GONE else View.VISIBLE
+
+        val useArabicVector = widgetSize == "4x2" || widgetSize == "4x4"
+        val useHybridVector = widgetSize == "4x4"
 
         val analogId = views.findId(
             context,
@@ -318,36 +331,52 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(360)
-                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (useArabicVector && analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(dialBitmap))
+                    views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.clock_face_arabic))
                     views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
                     views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
                     views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
                 } else {
-                    views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+                    val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(280)
                     views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
                     views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
+                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
+                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
+                        views.setIcon(analogId, "setSecondHand", null)
+                    }
                 }
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
-                val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 380)
-                views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
-                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
-                views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
-                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.VISIBLE)
+                if (useHybridVector) {
+                    views.safeSetImageResource(context, "iv_hybrid_dial_bg", R.drawable.clock_face_hybrid)
+                    views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
 
-                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
+                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                        views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                    }
                 } else {
-                    views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+                    val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 280)
+                    views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
+                    views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
+                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
+                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
+                        views.setIcon(analogId, "setSecondHand", null)
+                    }
                 }
             }
 
@@ -659,6 +688,7 @@ object WidgetUpdateHelper {
         appWidgetIds: IntArray?,
         providerClass: Class<out AppWidgetProvider>,
         layoutName: String,
+        widgetSize: String,
         backgroundWidth: Int,
         backgroundHeight: Int,
         clockWidth: Int,
@@ -714,7 +744,8 @@ object WidgetUpdateHelper {
             colors,
             cal,
             clockWidth,
-            clockHeight
+            clockHeight,
+            widgetSize
         )
 
         val rootId = views.findId(context, "widget_root")
@@ -751,6 +782,7 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider2x1::class.java,
             layoutName = "widget_layout_2x1",
+            widgetSize = "2x1",
             backgroundWidth = 320,
             backgroundHeight = 160,
             clockWidth = 145,
@@ -789,6 +821,7 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x1::class.java,
             layoutName = "widget_layout_4x1",
+            widgetSize = "4x1",
             backgroundWidth = 580,
             backgroundHeight = 140,
             clockWidth = 130,
@@ -836,6 +869,7 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x2::class.java,
             layoutName = "widget_layout_4x2",
+            widgetSize = "4x2",
             backgroundWidth = 580,
             backgroundHeight = 280,
             clockWidth = 260,
@@ -878,7 +912,6 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // -------------------------------------------------------------
     // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
     // -------------------------------------------------------------
 
@@ -894,10 +927,11 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x4::class.java,
             layoutName = "widget_layout_4x4",
-            backgroundWidth = 580,
-            backgroundHeight = 580,
-            clockWidth = 320,
-            clockHeight = 320
+            widgetSize = "4x4",
+            backgroundWidth = 480,
+            backgroundHeight = 480,
+            clockWidth = 240,
+            clockHeight = 240
         ) { views, dbHelper, solarHelper, solarDate, data, cal, colors ->
 
             val liveEnabled = ThemeManager.isLiveHoraiGowriEnabled(context)
@@ -991,7 +1025,6 @@ object WidgetUpdateHelper {
             }
         }
     }
-
 
     // -------------------------------------------------------------
     // UPDATE ALL WIDGETS
