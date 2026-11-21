@@ -19,7 +19,7 @@ object ClockFaceRenderer {
     // -------------------------------------------------------------
     // 1. ANALOG STYLE B DIAL (AMOLED Black + Radial White Numerals + 60 Ticks)
     // -------------------------------------------------------------
-    fun createAmoledWhiteDialBitmap(sizePx: Int = 360): Bitmap {
+    fun createAmoledWhiteDialBitmap(sizePx: Int = 280): Bitmap {
         val safeSize = sizePx.coerceAtLeast(1)
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
@@ -102,7 +102,7 @@ object ClockFaceRenderer {
     fun createAmoledHybridDialBitmap(
         context: Context,
         cal: Calendar = Calendar.getInstance(),
-        sizePx: Int = 380
+        sizePx: Int = 280
     ): Bitmap {
         val safeSize = sizePx.coerceAtLeast(1)
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
@@ -328,7 +328,7 @@ object ClockFaceRenderer {
                 } finally {
                     dial.recycle()
                 }
-                drawSampleHands(canvas, cx, cy, safeSize * 0.45f, includeSecond = true)
+                drawSampleHands(canvas, cx, cy, safeSize * 0.42f, includeSecond = true)
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
@@ -338,7 +338,7 @@ object ClockFaceRenderer {
                 } finally {
                     dial.recycle()
                 }
-                drawSampleHands(canvas, cx, cy, safeSize * 0.45f, includeSecond = true)
+                drawSampleHands(canvas, cx, cy, safeSize * 0.42f, includeSecond = true)
             }
         }
         return bmp
@@ -353,20 +353,20 @@ object ClockFaceRenderer {
     ) {
         val handPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            strokeWidth = r * 0.09f
+            strokeWidth = r * 0.085f
             strokeCap = Paint.Cap.ROUND
         }
-        canvas.drawLine(cx, cy, cx - r * 0.45f, cy - r * 0.30f, handPaint)
-        canvas.drawLine(cx, cy, cx + r * 0.62f, cy - r * 0.35f, handPaint)
+        canvas.drawLine(cx, cy, cx - r * 0.38f, cy - r * 0.25f, handPaint)
+        canvas.drawLine(cx, cy, cx + r * 0.54f, cy - r * 0.30f, handPaint)
 
         if (includeSecond) {
             val secPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.parseColor("#FF1744")
-                strokeWidth = r * 0.045f
+                strokeWidth = r * 0.04f
                 strokeCap = Paint.Cap.ROUND
             }
-            canvas.drawLine(cx, cy + r * 0.2f, cx - r * 0.45f, cy + r * 0.55f, secPaint)
-            canvas.drawCircle(cx, cy, r * 0.08f, secPaint)
+            canvas.drawLine(cx, cy + r * 0.14f, cx - r * 0.38f, cy + r * 0.46f, secPaint)
+            canvas.drawCircle(cx, cy, r * 0.07f, secPaint)
         }
     }
 }
