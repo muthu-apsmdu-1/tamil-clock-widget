@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="240dp"
-    android:height="240dp"
-    android:viewportWidth="240"
-    android:viewportHeight="240">
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
 
-    <!-- Red Seconds Needle + Counterweight -->
+    <!-- Red Seconds Needle + Short Counterweight -->
     <path
-        android:pathData="M120,144 L120,22"
+        android:pathData="M100,116 L100,26"
         android:strokeColor="#FF1744"
-        android:strokeWidth="2.4"
+        android:strokeWidth="1.8"
         android:strokeLineCap="round" />
 
-    <!-- Center Red Pivot Ring -->
+    <!-- Center Pivot Ring -->
     <path
-        android:pathData="M120,114 A6,6 0 1,1 120,126 A6,6 0 1,1 120,114 Z"
+        android:pathData="M100,96 A4,4 0 1,1 100,104 A4,4 0 1,1 100,96 Z"
         android:fillColor="#000000"
         android:strokeColor="#FF1744"
-        android:strokeWidth="2.8" />
+        android:strokeWidth="2.2" />
 </vector>
