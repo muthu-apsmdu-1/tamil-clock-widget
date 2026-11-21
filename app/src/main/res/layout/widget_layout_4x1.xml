@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -31,7 +30,7 @@
             android:layout_margin="1dp">
 
             <!-- Shared square area for Hybrid dial and analog hands -->
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <FrameLayout
                 android:id="@+id/container_hybrid_clock_square"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -39,33 +38,25 @@
                 <!-- Hybrid / AMOLED White Dial -->
                 <ImageView
                     android:id="@+id/iv_hybrid_dial_bg"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     android:scaleType="fitCenter"
                     android:visibility="gone"
-                    android:contentDescription="Analog Dial"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    android:contentDescription="Analog Dial" />
 
                 <!-- Native Analog Clock Hands -->
                 <AnalogClock
                     android:id="@+id/analog_clock_view"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     android:dial="@drawable/classic_clock_dial"
                     android:hand_hour="@drawable/classic_clock_hour"
                     android:hand_minute="@drawable/classic_clock_minute"
-                    android:visibility="gone"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    android:visibility="gone" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </FrameLayout>
 
             <!-- Hybrid Digital Time -->
             <TextClock
@@ -73,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|top"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:format12Hour="h:mm"
                 android:format24Hour="HH:mm"
                 android:textColor="#00F5D4"
