@@ -878,7 +878,6 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // -------------------------------------------------------------
     // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
     // -------------------------------------------------------------
 
@@ -905,6 +904,7 @@ object WidgetUpdateHelper {
             if (liveEnabled) {
                 val live = solarHelper.resolveHoraiAndGowri(dbHelper, cal)
 
+                views.safeSetVisibility(context, "container_live_horai_gowri", View.VISIBLE)
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.VISIBLE)
                 views.safeSetText(
                     context,
@@ -929,6 +929,7 @@ object WidgetUpdateHelper {
                 )
                 views.safeSetTextColor(context, "tv_widget_horai_gowri_next", colors.primaryText)
             } else {
+                views.safeSetVisibility(context, "container_live_horai_gowri", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
