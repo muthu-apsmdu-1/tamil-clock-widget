@@ -3,7 +3,6 @@ package com.example.tamilclock
 import android.app.DatePickerDialog
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -18,7 +17,6 @@ import java.util.Calendar
 class MainActivity : AppCompatActivity() {
 
     private lateinit var pagerAdapter: MainPagerAdapter
-    private lateinit var dbHelper: TamilDatabaseHelper
     private lateinit var viewPager: ViewPager2
 
     val selectedCalendar: Calendar = Calendar.getInstance()
@@ -31,20 +29,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        dbHelper = TamilDatabaseHelper(this)
-
         setupTabsAndViewPager()
         setupTopNavigationToolbar()
         setupBackNavigation()
         applyToolbarTheme()
-        loadDayData()
-        updateWidgets()
     }
 
     override fun onResume() {
         super.onResume()
         applyToolbarTheme()
         loadDayData()
+        updateWidgets()
     }
 
     private fun applyToolbarTheme() {
@@ -53,23 +48,23 @@ class MainActivity : AppCompatActivity() {
         val dazzlingGold = Color.parseColor("#FFD700")
 
         // 1. Root Activity Background
-        findViewById<View?>(R.id.root_main_layout)?.setBackgroundColor(palette.pageBackground)
+        findViewById<View>(R.id.root_main_layout)?.setBackgroundColor(palette.pageBackground)
 
         // 2. Pinned Top Banner (Velvet Maroon + Dazzling Gold)
-        findViewById<CardView?>(R.id.card_top_banner)?.setCardBackgroundColor(velvetMaroon)
-        findViewById<TextView?>(R.id.tv_app_title_banner)?.setTextColor(dazzlingGold)
+        findViewById<CardView>(R.id.card_top_banner)?.setCardBackgroundColor(velvetMaroon)
+        findViewById<TextView>(R.id.tv_app_title_banner)?.setTextColor(dazzlingGold)
 
         // 3. 7-Tool Navigation Toolbar (Transparent strip so individual Teal boxes stand out)
-        findViewById<LinearLayout?>(R.id.layout_nav_toolbar)?.setBackgroundColor(Color.TRANSPARENT)
+        findViewById<LinearLayout>(R.id.layout_nav_toolbar)?.setBackgroundColor(Color.TRANSPARENT)
 
         val navButtons = listOf<TextView?>(
-            findViewById(R.id.btn_action_prev),
-            findViewById(R.id.btn_action_menu),
-            findViewById(R.id.btn_action_datepicker),
-            findViewById(R.id.btn_action_today),
-            findViewById(R.id.btn_action_horai),
-            findViewById(R.id.btn_action_settings),
-            findViewById(R.id.btn_action_next)
+            findViewById<TextView>(R.id.btn_action_prev),
+            findViewById<TextView>(R.id.btn_action_menu),
+            findViewById<TextView>(R.id.btn_action_datepicker),
+            findViewById<TextView>(R.id.btn_action_today),
+            findViewById<TextView>(R.id.btn_action_horai),
+            findViewById<TextView>(R.id.btn_action_settings),
+            findViewById<TextView>(R.id.btn_action_next)
         )
         for (btn in navButtons) {
             btn?.setTextColor(dazzlingGold)
@@ -90,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // Normal exit from Home
                     isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+                    finish()
                 }
             }
         })
@@ -124,13 +119,13 @@ class MainActivity : AppCompatActivity() {
         // 5. Gowri & Horai (☸) -> Index 3
         // 6. Settings (⚙) -> Index 4
         // 7. Next Page (>>)
-        val btnPrev = findViewById<TextView?>(R.id.btn_action_prev)
-        val btnMenu = findViewById<TextView?>(R.id.btn_action_menu)
-        val btnCalendar = findViewById<TextView?>(R.id.btn_action_datepicker)
-        val btnHome = findViewById<TextView?>(R.id.btn_action_today)
-        val btnGowriHorai = findViewById<TextView?>(R.id.btn_action_horai)
-        val btnSettings = findViewById<TextView?>(R.id.btn_action_settings)
-        val btnNext = findViewById<TextView?>(R.id.btn_action_next)
+        val btnPrev = findViewById<TextView>(R.id.btn_action_prev)
+        val btnMenu = findViewById<TextView>(R.id.btn_action_menu)
+        val btnCalendar = findViewById<TextView>(R.id.btn_action_datepicker)
+        val btnHome = findViewById<TextView>(R.id.btn_action_today)
+        val btnGowriHorai = findViewById<TextView>(R.id.btn_action_horai)
+        val btnSettings = findViewById<TextView>(R.id.btn_action_settings)
+        val btnNext = findViewById<TextView>(R.id.btn_action_next)
 
         // 1. Previous Page (<<)
         btnPrev?.setOnClickListener {
@@ -155,9 +150,9 @@ class MainActivity : AppCompatActivity() {
             val datePicker = DatePickerDialog(
                 this,
                 { _, year, month, dayOfMonth ->
-                    selectedCalendar.set(year, month, dayOfMonth)
+                    selectedCalendar.set(year, month, dayOfMonth, 12, 0, 0)
+                    selectedCalendar.set(Calendar.MILLISECOND, 0)
                     loadDayData()
-                    updateWidgets()
                 },
                 selectedCalendar.get(Calendar.YEAR),
                 selectedCalendar.get(Calendar.MONTH),
@@ -212,45 +207,24 @@ class MainActivity : AppCompatActivity() {
     private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
-        val c2x1 = ComponentName(this, WidgetProvider2x1::class.java)
-        val ids2x1 = appWidgetManager.getAppWidgetIds(c2x1)
+        val ids2x1 = appWidgetManager.getAppWidgetIds(ComponentName(this, WidgetProvider2x1::class.java))
         if (ids2x1.isNotEmpty()) {
             WidgetUpdateHelper.update2x1(this, appWidgetManager, ids2x1)
-            sendWidgetBroadcast(WidgetProvider2x1::class.java, ids2x1)
         }
 
-        val c4x1 = ComponentName(this, WidgetProvider4x1::class.java)
-        val ids4x1 = appWidgetManager.getAppWidgetIds(c4x1)
+        val ids4x1 = appWidgetManager.getAppWidgetIds(ComponentName(this, WidgetProvider4x1::class.java))
         if (ids4x1.isNotEmpty()) {
             WidgetUpdateHelper.update4x1(this, appWidgetManager, ids4x1)
-            sendWidgetBroadcast(WidgetProvider4x1::class.java, ids4x1)
         }
 
-        val c4x2 = ComponentName(this, WidgetProvider4x2::class.java)
-        val ids4x2 = appWidgetManager.getAppWidgetIds(c4x2)
+        val ids4x2 = appWidgetManager.getAppWidgetIds(ComponentName(this, WidgetProvider4x2::class.java))
         if (ids4x2.isNotEmpty()) {
             WidgetUpdateHelper.update4x2(this, appWidgetManager, ids4x2)
-            sendWidgetBroadcast(WidgetProvider4x2::class.java, ids4x2)
         }
 
-        val c4x4 = ComponentName(this, WidgetProvider4x4::class.java)
-        val ids4x4 = appWidgetManager.getAppWidgetIds(c4x4)
+        val ids4x4 = appWidgetManager.getAppWidgetIds(ComponentName(this, WidgetProvider4x4::class.java))
         if (ids4x4.isNotEmpty()) {
             WidgetUpdateHelper.update4x4(this, appWidgetManager, ids4x4)
-            sendWidgetBroadcast(WidgetProvider4x4::class.java, ids4x4)
         }
-    }
-
-    private fun sendWidgetBroadcast(providerClass: Class<*>, ids: IntArray) {
-        val intent = Intent(this, providerClass).apply {
-            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        }
-        sendBroadcast(intent)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dbHelper.close()
     }
 }
