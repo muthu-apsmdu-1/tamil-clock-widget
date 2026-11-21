@@ -7,6 +7,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.LinkedHashSet
 import java.util.Locale
 
 object ThemeManager {
@@ -47,13 +48,13 @@ object ThemeManager {
     const val CLOCK_TYPE_DIGITAL = 0
     const val CLOCK_TYPE_ANALOG = 1
 
-    const val CLOCK_DIGITAL_CLASSIC = 0       // Digital A: Transparent bg + White/Theme numerical
-    const val CLOCK_DIGITAL_AMOLED_NEON = 1   // Digital B: AMOLED Black bg + Neon numerical
-    const val CLOCK_ANALOG_CLASSIC = 2        // Analog A: Transparent classic dial + White numerical
-    const val CLOCK_ANALOG_AMOLED_WHITE = 3   // Analog B: AMOLED Black dial + White numerical + Seconds hand
-    const val CLOCK_ANALOG_AMOLED_HYBRID = 4  // Analog C: AMOLED Black dial + Teal triangles + Seconds + Complications
+    const val CLOCK_DIGITAL_CLASSIC = 0
+    const val CLOCK_DIGITAL_AMOLED_NEON = 1
+    const val CLOCK_ANALOG_CLASSIC = 2
+    const val CLOCK_ANALOG_AMOLED_WHITE = 3
+    const val CLOCK_ANALOG_AMOLED_HYBRID = 4
 
-    // Legacy Aliases
+    // Legacy aliases
     const val CLOCK_DIGITAL = CLOCK_DIGITAL_CLASSIC
     const val CLOCK_ANALOG = CLOCK_ANALOG_CLASSIC
     const val CLOCK_CLASSIC_VINTAGE = CLOCK_ANALOG_CLASSIC
@@ -61,13 +62,13 @@ object ThemeManager {
     // -------------------------------------------------------------
     // SELECTABLE DATE VIEW FORMATS
     // -------------------------------------------------------------
-    const val DATE_FORMAT_DASH = 0   // 14 - 11 - 2026 (dd - MM - yyyy)
-    const val DATE_FORMAT_TEXT = 1   // 14 Nov 2026    (dd MMM yyyy)
-    const val DATE_FORMAT_SLASH = 2  // 14/11/2026     (dd/MM/yyyy)
+    const val DATE_FORMAT_DASH = 0
+    const val DATE_FORMAT_TEXT = 1
+    const val DATE_FORMAT_SLASH = 2
     const val DATE_FORMAT_NUMERIC = DATE_FORMAT_DASH
 
     // -------------------------------------------------------------
-    // 4x2 ELEMENT KEYS (LEGACY / 4x2)
+    // 4x2 ELEMENT KEYS (12 SUPPORTED ELEMENTS)
     // -------------------------------------------------------------
     const val ELEM_PAKSHAM = "paksham"
     const val ELEM_THITHI = "thithi"
@@ -82,18 +83,46 @@ object ThemeManager {
     const val ELEM_CHANDRASTAMA = "chandrastama"
     const val ELEM_FESTIVAL = "festival"
 
-    val DEFAULT_ELEMENTS_4X2 = setOf(ELEM_PAKSHAM, ELEM_THITHI, ELEM_NAKSHATRA)
+    val ALL_ELEMENTS_4X2 = listOf(
+        ELEM_PAKSHAM,
+        ELEM_THITHI,
+        ELEM_NAKSHATRA,
+        ELEM_AMIRTHATHI_YOGA,
+        ELEM_NALLA_NERAM,
+        ELEM_GOWRI_NALLA_NERAM,
+        ELEM_RAHU_KALAM,
+        ELEM_YEMAKANDAM,
+        ELEM_KULIGAI,
+        ELEM_SUNRISE_SET,
+        ELEM_CHANDRASTAMA,
+        ELEM_FESTIVAL
+    )
+
+    val DEFAULT_ELEMENTS_4X2 = setOf(
+        ELEM_PAKSHAM,
+        ELEM_THITHI,
+        ELEM_NAKSHATRA
+    )
+
+    private val DEFAULT_ELEMENTS_4X2_ORDERED =
+        ALL_ELEMENTS_4X2.filter { it in DEFAULT_ELEMENTS_4X2 }
 
     // -------------------------------------------------------------
-    // 4x4 10 SINGLE-ROW OPTION SETS (USER PICKS ANY 3)
+    // 4x4 OPTIONS (10 SINGLE-ROW OPTION SETS)
     // -------------------------------------------------------------
-    const val OPT_PAKSHAM_THITHI_NAKSHATRA = "opt_paksham_thithi_nakshatra"
+    const val OPT_PAKSHAM_THITHI_NAKSHATRA =
+        "opt_paksham_thithi_nakshatra"
+
     const val OPT_NALLA_NERAM = "opt_nalla_neram"
     const val OPT_GOWRI_NALLA_NERAM = "opt_gowri_nalla_neram"
-    const val OPT_AMIRTHATHI_NITHYA_YOGAM = "opt_amirthathi_nithya_yogam"
+    const val OPT_AMIRTHATHI_NITHYA_YOGAM =
+        "opt_amirthathi_nithya_yogam"
+
     const val OPT_RAHU_YEMAKANDAM = "opt_rahu_yemakandam"
     const val OPT_KULIGAI_THYAJAM = "opt_kuligai_thyajam"
-    const val OPT_KARNAM_SOOLAM_PARIKARAM = "opt_karnam_soolam_parikaram"
+    const val OPT_KARNAM_SOOLAM_PARIKARAM =
+        "opt_karnam_soolam_parikaram"
+
     const val OPT_SUN_TIMINGS = "opt_sun_timings"
     const val OPT_CHANDRASTAMA = "opt_chandrastama"
     const val OPT_FESTIVAL = "opt_festival"
@@ -117,7 +146,8 @@ object ThemeManager {
         OPT_SUN_TIMINGS
     )
 
-    val DEFAULT_ELEMENTS_4X4 = DEFAULT_SELECTED_OPTIONS_4X4.toSet()
+    val DEFAULT_ELEMENTS_4X4 =
+        DEFAULT_SELECTED_OPTIONS_4X4.toSet()
 
     // -------------------------------------------------------------
     // PREFERENCE KEYS
@@ -126,38 +156,90 @@ object ThemeManager {
     private const val KEY_APP_BG_COLOR = "app_bg_color"
     private const val KEY_WIDGET_BG_COLOR = "widget_bg_color"
     private const val KEY_WIDGET_OPACITY = "widget_opacity"
+
     private const val KEY_CLOCK_STYLE = "clock_style"
     private const val KEY_CLOCK_FACE = "clock_face"
+
     private const val KEY_WIDGET_DATE_FORMAT = "widget_date_format"
     private const val KEY_DATE_FORMAT_4X2 = "date_format_4x2"
     private const val KEY_DATE_FORMAT_4X4 = "date_format_4x4"
+
     private const val KEY_ELEMENTS_4X2 = "elements_4x2"
+    private const val KEY_ELEMENTS_4X2_ORDERED = "elements_4x2_ordered"
+
     private const val KEY_ELEMENTS_4X4 = "elements_4x4"
     private const val KEY_OPTIONS_4X4_ORDERED = "options_4x4_ordered"
-    private const val KEY_LIVE_HORAI_GOWRI = "live_horai_gowri_enabled"
+
+    private const val KEY_LIVE_HORAI_GOWRI =
+        "live_horai_gowri_enabled"
 
     private const val KEY_PRESET_ID = "selected_preset_id"
     private const val KEY_BORDER_ENABLED = "outer_border_enabled"
+
     const val SHADOW_THRESHOLD_PERCENT = 30
 
+    // -------------------------------------------------------------
+    // WIDGET PRESETS
+    // -------------------------------------------------------------
     enum class Preset(
         val id: String,
         val displayName: String,
         @ColorRes val bgResId: Int,
         @ColorRes val accentResId: Int
     ) {
-        MIDNIGHT_GOLD("midnight_gold", "Midnight Gold", R.color.widget_canvas_black, R.color.widget_accent_gold),
-        HERITAGE_MAROON("heritage_maroon", "Heritage Maroon", R.color.widget_canvas_maroon, R.color.widget_accent_gold),
-        CLASSIC_MONO("classic_mono", "Classic Mono", R.color.widget_canvas_black, R.color.widget_accent_white),
-        NEON_NIGHT("neon_night", "Neon Night", R.color.widget_canvas_black, R.color.widget_accent_neon_green),
-        PORCELAIN_BLUE("porcelain_blue", "Porcelain Blue", R.color.widget_canvas_white, R.color.widget_accent_royal_blue),
-        PORCELAIN_RED("porcelain_red", "Porcelain Red", R.color.widget_canvas_white, R.color.widget_accent_crimson);
+        MIDNIGHT_GOLD(
+            "midnight_gold",
+            "Midnight Gold",
+            R.color.widget_canvas_black,
+            R.color.widget_accent_gold
+        ),
+
+        HERITAGE_MAROON(
+            "heritage_maroon",
+            "Heritage Maroon",
+            R.color.widget_canvas_maroon,
+            R.color.widget_accent_gold
+        ),
+
+        CLASSIC_MONO(
+            "classic_mono",
+            "Classic Mono",
+            R.color.widget_canvas_black,
+            R.color.widget_accent_white
+        ),
+
+        NEON_NIGHT(
+            "neon_night",
+            "Neon Night",
+            R.color.widget_canvas_black,
+            R.color.widget_accent_neon_green
+        ),
+
+        PORCELAIN_BLUE(
+            "porcelain_blue",
+            "Porcelain Blue",
+            R.color.widget_canvas_white,
+            R.color.widget_accent_royal_blue
+        ),
+
+        PORCELAIN_RED(
+            "porcelain_red",
+            "Porcelain Red",
+            R.color.widget_canvas_white,
+            R.color.widget_accent_crimson
+        );
 
         companion object {
-            fun fromId(id: String?): Preset = entries.firstOrNull { it.id == id } ?: MIDNIGHT_GOLD
+            fun fromId(id: String?): Preset {
+                return entries.firstOrNull { it.id == id }
+                    ?: MIDNIGHT_GOLD
+            }
         }
     }
 
+    // -------------------------------------------------------------
+    // DATA CLASSES
+    // -------------------------------------------------------------
     data class ThemeConfig(
         val preset: Preset,
         val baseBackgroundColor: Int,
@@ -181,45 +263,78 @@ object ThemeManager {
         val cardBorderColor: Int
     )
 
+    // -------------------------------------------------------------
+    // WIDGET PRESET
+    // -------------------------------------------------------------
     fun savePreset(context: Context, preset: Preset) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_PRESET_ID, preset.id).apply()
+            .edit()
+            .putString(KEY_PRESET_ID, preset.id)
+            .apply()
     }
 
     fun getSelectedPreset(context: Context): Preset {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return Preset.fromId(prefs.getString(KEY_PRESET_ID, Preset.MIDNIGHT_GOLD.id))
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        return Preset.fromId(
+            prefs.getString(KEY_PRESET_ID, Preset.MIDNIGHT_GOLD.id)
+        )
     }
 
+    // -------------------------------------------------------------
+    // WIDGET BORDER
+    // -------------------------------------------------------------
     fun isBorderEnabled(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_BORDER_ENABLED, true)
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_BORDER_ENABLED, true)
     }
 
     fun saveBorderEnabled(context: Context, enabled: Boolean) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_BORDER_ENABLED, enabled).apply()
+            .edit()
+            .putBoolean(KEY_BORDER_ENABLED, enabled)
+            .apply()
     }
 
+    // -------------------------------------------------------------
+    // LIVE HORAI / GOWRI
+    // -------------------------------------------------------------
     fun isLiveHoraiGowriEnabled(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_LIVE_HORAI_GOWRI, true)
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_LIVE_HORAI_GOWRI, true)
     }
 
-    fun saveLiveHoraiGowriEnabled(context: Context, enabled: Boolean) {
+    fun saveLiveHoraiGowriEnabled(
+        context: Context,
+        enabled: Boolean
+    ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(KEY_LIVE_HORAI_GOWRI, enabled).apply()
+            .edit()
+            .putBoolean(KEY_LIVE_HORAI_GOWRI, enabled)
+            .apply()
     }
 
+    // -------------------------------------------------------------
+    // ACTIVE WIDGET THEME
+    // -------------------------------------------------------------
     fun getActiveTheme(context: Context): ThemeConfig {
         val preset = getSelectedPreset(context)
         val opacity = getWidgetOpacity(context)
         val borderEnabled = isBorderEnabled(context)
 
-        val rawBgColor = ContextCompat.getColor(context, preset.bgResId)
-        val accentColor = ContextCompat.getColor(context, preset.accentResId)
+        val rawBgColor = ContextCompat.getColor(
+            context,
+            preset.bgResId
+        )
+
+        val accentColor = ContextCompat.getColor(
+            context,
+            preset.accentResId
+        )
 
         val alpha = (opacity * 255) / 100
+
         val resolvedBg = Color.argb(
             alpha,
             Color.red(rawBgColor),
@@ -234,10 +349,14 @@ object ThemeManager {
             accentColor = accentColor,
             opacityPercent = opacity,
             isBorderEnabled = borderEnabled,
-            requiresLegibilityShadow = opacity < SHADOW_THRESHOLD_PERCENT
+            requiresLegibilityShadow =
+                opacity < SHADOW_THRESHOLD_PERCENT
         )
     }
 
+    // -------------------------------------------------------------
+    // APP THEME
+    // -------------------------------------------------------------
     fun applyTheme(activity: Activity) {
         val styleRes = when (getSavedTheme(activity)) {
             THEME_WHITE -> R.style.Theme_TamilClock_White
@@ -246,12 +365,15 @@ object ThemeManager {
             THEME_CHARCOAL -> R.style.Theme_TamilClock_Charcoal
             else -> R.style.Theme_TamilClock_IvoryCream
         }
+
         activity.setTheme(styleRes)
     }
 
     fun saveTheme(context: Context, themeIndex: Int) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putInt(KEY_THEME, themeIndex).apply()
+            .edit()
+            .putInt(KEY_THEME, themeIndex)
+            .apply()
     }
 
     fun getSavedTheme(context: Context): Int {
@@ -259,45 +381,90 @@ object ThemeManager {
             .getInt(KEY_THEME, THEME_IVORY)
     }
 
+    // -------------------------------------------------------------
+    // APP BACKGROUND COLOR
+    // -------------------------------------------------------------
     fun getAppBackgroundColor(context: Context): String {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_APP_BG_COLOR, APP_COLOR_ANTIQUE_SANDAL) ?: APP_COLOR_ANTIQUE_SANDAL
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        return prefs.getString(
+            KEY_APP_BG_COLOR,
+            APP_COLOR_ANTIQUE_SANDAL
+        ) ?: APP_COLOR_ANTIQUE_SANDAL
     }
 
-    fun saveAppBackgroundColor(context: Context, colorHex: String) {
+    fun saveAppBackgroundColor(
+        context: Context,
+        colorHex: String
+    ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_APP_BG_COLOR, colorHex).apply()
+            .edit()
+            .putString(KEY_APP_BG_COLOR, colorHex)
+            .apply()
     }
 
+    // -------------------------------------------------------------
+    // LEGACY WIDGET BACKGROUND COLOR
+    // -------------------------------------------------------------
     fun getWidgetBackgroundColor(context: Context): String {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_WIDGET_BG_COLOR, WIDGET_COLOR_VELVET_MAROON) ?: WIDGET_COLOR_VELVET_MAROON
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        return prefs.getString(
+            KEY_WIDGET_BG_COLOR,
+            WIDGET_COLOR_VELVET_MAROON
+        ) ?: WIDGET_COLOR_VELVET_MAROON
     }
 
-    fun saveWidgetBackgroundColor(context: Context, colorHex: String) {
+    fun saveWidgetBackgroundColor(
+        context: Context,
+        colorHex: String
+    ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putString(KEY_WIDGET_BG_COLOR, colorHex).apply()
+            .edit()
+            .putString(KEY_WIDGET_BG_COLOR, colorHex)
+            .apply()
     }
 
+    // -------------------------------------------------------------
+    // WIDGET OPACITY
+    // -------------------------------------------------------------
     fun getWidgetOpacity(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_WIDGET_OPACITY, 90).coerceIn(0, 100)
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getInt(KEY_WIDGET_OPACITY, 90)
+            .coerceIn(0, 100)
     }
 
     fun saveWidgetOpacity(context: Context, opacity: Int) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putInt(KEY_WIDGET_OPACITY, opacity.coerceIn(0, 100)).apply()
+            .edit()
+            .putInt(KEY_WIDGET_OPACITY, opacity.coerceIn(0, 100))
+            .apply()
     }
 
     // -------------------------------------------------------------
     // CLOCK FACE GETTERS & SETTERS (5 STYLES)
     // -------------------------------------------------------------
     fun getClockFace(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_CLOCK_FACE, prefs.getInt(KEY_CLOCK_STYLE, CLOCK_DIGITAL_CLASSIC))
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        val stored = prefs.getInt(
+            KEY_CLOCK_FACE,
+            prefs.getInt(KEY_CLOCK_STYLE, CLOCK_DIGITAL_CLASSIC)
+        )
+
+        return stored.takeIf {
+            it in CLOCK_DIGITAL_CLASSIC..CLOCK_ANALOG_AMOLED_HYBRID
+        } ?: CLOCK_DIGITAL_CLASSIC
     }
 
     fun saveClockFace(context: Context, face: Int) {
+        if (face !in CLOCK_DIGITAL_CLASSIC..CLOCK_ANALOG_AMOLED_HYBRID) {
+            return
+        }
+
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putInt(KEY_CLOCK_FACE, face)
@@ -306,98 +473,279 @@ object ThemeManager {
     }
 
     fun isAnalogClockSelected(context: Context): Boolean {
-        val face = getClockFace(context)
-        return face == CLOCK_ANALOG_CLASSIC ||
-               face == CLOCK_ANALOG_AMOLED_WHITE ||
-               face == CLOCK_ANALOG_AMOLED_HYBRID
-    }
+        return when (getClockFace(context)) {
+            CLOCK_ANALOG_CLASSIC,
+            CLOCK_ANALOG_AMOLED_WHITE,
+            CLOCK_ANALOG_AMOLED_HYBRID -> true
 
-    fun getClockStyle(context: Context): Int = getClockFace(context)
-    fun saveClockStyle(context: Context, style: Int) = saveClockFace(context, style)
-
-    // -------------------------------------------------------------
-    // UNIFIED DATE FORMAT GETTERS & SETTERS (3 FORMATS)
-    // -------------------------------------------------------------
-    fun getWidgetDateFormat(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_WIDGET_DATE_FORMAT, prefs.getInt(KEY_DATE_FORMAT_4X2, DATE_FORMAT_DASH))
-    }
-
-    fun saveWidgetDateFormat(context: Context, format: Int) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putInt(KEY_WIDGET_DATE_FORMAT, format)
-            .putInt(KEY_DATE_FORMAT_4X2, format)
-            .putInt(KEY_DATE_FORMAT_4X4, format)
-            .apply()
-    }
-
-    fun formatDateByPattern(cal: Calendar, formatType: Int): String {
-        return when (formatType) {
-            DATE_FORMAT_TEXT -> SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH).format(cal.time)
-            DATE_FORMAT_SLASH -> SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).format(cal.time)
-            else -> SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH).format(cal.time)
+            else -> false
         }
     }
 
-    fun getDateFormat4x2(context: Context): Int = getWidgetDateFormat(context)
-    fun saveDateFormat4x2(context: Context, format: Int) = saveWidgetDateFormat(context, format)
-    fun getDateFormat4x4(context: Context): Int = getWidgetDateFormat(context)
-    fun saveDateFormat4x4(context: Context, format: Int) = saveWidgetDateFormat(context, format)
-
-    // 4x2 Custom elements
-    fun getElements4x2(context: Context): Set<String> {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getStringSet(KEY_ELEMENTS_4X2, DEFAULT_ELEMENTS_4X2) ?: DEFAULT_ELEMENTS_4X2
+    fun getClockStyle(context: Context): Int {
+        return getClockFace(context)
     }
 
-    fun saveElements4x2(context: Context, elements: Set<String>) {
+    fun saveClockStyle(context: Context, style: Int) {
+        saveClockFace(context, style)
+    }
+
+    // -------------------------------------------------------------
+    // UNIFIED DATE FORMAT GETTERS & SETTERS
+    // -------------------------------------------------------------
+    private fun normalizeDateFormat(format: Int): Int {
+        return format.coerceIn(DATE_FORMAT_DASH, DATE_FORMAT_SLASH)
+    }
+
+    fun getWidgetDateFormat(context: Context): Int {
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        val stored = prefs.getInt(
+            KEY_WIDGET_DATE_FORMAT,
+            prefs.getInt(KEY_DATE_FORMAT_4X2, DATE_FORMAT_DASH)
+        )
+
+        return normalizeDateFormat(stored)
+    }
+
+    fun saveWidgetDateFormat(context: Context, format: Int) {
+        val validFormat = normalizeDateFormat(format)
+
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit().putStringSet(KEY_ELEMENTS_4X2, elements).apply()
+            .edit()
+            .putInt(KEY_WIDGET_DATE_FORMAT, validFormat)
+            .putInt(KEY_DATE_FORMAT_4X2, validFormat)
+            .putInt(KEY_DATE_FORMAT_4X4, validFormat)
+            .apply()
     }
 
-    // 4x4 Ordered 3 Options (Row 2, Row 3, Row 4; Row 1 is constant Tamil month+date & weekday)
+    fun formatDateByPattern(
+        cal: Calendar,
+        formatType: Int
+    ): String {
+        return when (normalizeDateFormat(formatType)) {
+            DATE_FORMAT_TEXT ->
+                SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+                    .format(cal.time)
+
+            DATE_FORMAT_SLASH ->
+                SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+                    .format(cal.time)
+
+            else ->
+                SimpleDateFormat("dd - MM - yyyy", Locale.ENGLISH)
+                    .format(cal.time)
+        }
+    }
+
+    fun getDateFormat4x2(context: Context): Int {
+        return getWidgetDateFormat(context)
+    }
+
+    fun saveDateFormat4x2(context: Context, format: Int) {
+        saveWidgetDateFormat(context, format)
+    }
+
+    fun getDateFormat4x4(context: Context): Int {
+        return getWidgetDateFormat(context)
+    }
+
+    fun saveDateFormat4x4(context: Context, format: Int) {
+        saveWidgetDateFormat(context, format)
+    }
+
+    // -------------------------------------------------------------
+    // 4x2 CUSTOM ELEMENTS
+    // ORDERED CSV + LEGACY STRINGSET MIGRATION
+    // -------------------------------------------------------------
+    fun getElements4x2(context: Context): Set<String> {
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        val rawOrdered =
+            prefs.getString(KEY_ELEMENTS_4X2_ORDERED, null)
+
+        // First priority: ordered preference
+        if (!rawOrdered.isNullOrBlank()) {
+            val ordered = rawOrdered.split(",")
+                .map { it.trim() }
+                .filter { it in ALL_ELEMENTS_4X2 }
+                .distinct()
+                .take(3)
+
+            if (ordered.isNotEmpty()) {
+                return LinkedHashSet(ordered)
+            }
+        }
+
+        // Second priority: migrate legacy StringSet
+        val rawSet = prefs.getStringSet(
+            KEY_ELEMENTS_4X2,
+            null
+        )
+
+        val normalized = rawSet
+            ?.map { it.trim() }
+            ?.toSet()
+            ?: emptySet()
+
+        val migrated = ALL_ELEMENTS_4X2
+            .filter { it in normalized }
+            .take(3)
+
+        val finalList = if (migrated.isNotEmpty()) {
+            migrated
+        } else {
+            DEFAULT_ELEMENTS_4X2_ORDERED
+        }
+
+        // Persist migration for future reads
+        prefs.edit()
+            .putString(
+                KEY_ELEMENTS_4X2_ORDERED,
+                finalList.joinToString(",")
+            )
+            .putStringSet(
+                KEY_ELEMENTS_4X2,
+                finalList.toSet()
+            )
+            .apply()
+
+        return LinkedHashSet(finalList)
+    }
+
+    fun saveElements4x2(
+        context: Context,
+        elements: Set<String>
+    ) {
+        // Retain incoming iteration order.
+        // Pass a LinkedHashSet from settings when selection order matters.
+        val orderedList = elements
+            .map { it.trim() }
+            .filter { it in ALL_ELEMENTS_4X2 }
+            .distinct()
+            .take(3)
+            .ifEmpty { DEFAULT_ELEMENTS_4X2_ORDERED }
+
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(
+                KEY_ELEMENTS_4X2_ORDERED,
+                orderedList.joinToString(",")
+            )
+            .putStringSet(
+                KEY_ELEMENTS_4X2,
+                orderedList.toSet()
+            )
+            .apply()
+    }
+
+    // -------------------------------------------------------------
+    // 4x4 ORDERED OPTIONS
+    // ORDERED CSV + LEGACY STRINGSET MIGRATION
+    // -------------------------------------------------------------
     fun getSelectedOptions4x4(context: Context): List<String> {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val raw = prefs.getString(KEY_OPTIONS_4X4_ORDERED, null)
+        val prefs =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+        val raw =
+            prefs.getString(KEY_OPTIONS_4X4_ORDERED, null)
+
+        // First priority: ordered preference
         if (!raw.isNullOrBlank()) {
             val parsed = raw.split(",")
                 .map { it.trim() }
-                .filter { it.isNotEmpty() && it in ALL_OPTIONS_4X4 }
+                .filter { it in ALL_OPTIONS_4X4 }
                 .distinct()
                 .take(3)
+
             if (parsed.isNotEmpty()) {
                 return parsed
             }
         }
-        val fromSet = prefs.getStringSet(KEY_ELEMENTS_4X4, null)
-            ?.filter { it in ALL_OPTIONS_4X4 }
-            ?.distinct()
-            ?.take(3)
-        return if (!fromSet.isNullOrEmpty()) fromSet else DEFAULT_SELECTED_OPTIONS_4X4
+
+        // Second priority: migrate legacy StringSet
+        val legacySet = prefs.getStringSet(
+            KEY_ELEMENTS_4X4,
+            null
+        )
+
+        val migratedFromSet = legacySet
+            ?.map { it.trim() }
+            ?.toSet()
+            ?.let { saved ->
+                ALL_OPTIONS_4X4
+                    .filter { it in saved }
+                    .take(3)
+            }
+
+        if (!migratedFromSet.isNullOrEmpty()) {
+            prefs.edit()
+                .putString(
+                    KEY_OPTIONS_4X4_ORDERED,
+                    migratedFromSet.joinToString(",")
+                )
+                .apply()
+
+            return migratedFromSet
+        }
+
+        // No valid saved options: use defaults
+        return DEFAULT_SELECTED_OPTIONS_4X4
     }
 
-    fun saveSelectedOptions4x4(context: Context, options: List<String>) {
-        val trimmed = options.map { it.trim() }.filter { it in ALL_OPTIONS_4X4 }.distinct().take(3)
-        val finalList = if (trimmed.isNotEmpty()) trimmed else DEFAULT_SELECTED_OPTIONS_4X4
+    fun saveSelectedOptions4x4(
+        context: Context,
+        options: List<String>
+    ) {
+        val trimmed = options
+            .map { it.trim() }
+            .filter { it in ALL_OPTIONS_4X4 }
+            .distinct()
+            .take(3)
+
+        val finalList = if (trimmed.isNotEmpty()) {
+            trimmed
+        } else {
+            DEFAULT_SELECTED_OPTIONS_4X4
+        }
+
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
-            .putString(KEY_OPTIONS_4X4_ORDERED, finalList.joinToString(","))
-            .putStringSet(KEY_ELEMENTS_4X4, finalList.toSet())
+            .putString(
+                KEY_OPTIONS_4X4_ORDERED,
+                finalList.joinToString(",")
+            )
+            .putStringSet(
+                KEY_ELEMENTS_4X4,
+                finalList.toSet()
+            )
             .apply()
     }
 
     fun getElements4x4(context: Context): Set<String> {
-        return getSelectedOptions4x4(context).toSet()
+        return LinkedHashSet(getSelectedOptions4x4(context))
     }
 
-    fun saveElements4x4(context: Context, elements: Set<String>) {
-        saveSelectedOptions4x4(context, elements.toList())
+    fun saveElements4x4(
+        context: Context,
+        elements: Set<String>
+    ) {
+        saveSelectedOptions4x4(
+            context,
+            elements.toList()
+        )
     }
 
+    // -------------------------------------------------------------
+    // APP THEME PALETTE
+    // -------------------------------------------------------------
     fun getThemePalette(context: Context): AppThemePalette {
         val hex = getAppBackgroundColor(context)
+
         return when (hex) {
+
             APP_COLOR_BRIGHT_LEMON -> AppThemePalette(
                 pageBackground = Color.parseColor("#FFEF00"),
                 cardBackground = Color.parseColor("#FFFDE7"),
@@ -410,6 +758,7 @@ object ThemeManager {
                 sundayHighlight = Color.parseColor("#FFCDD2"),
                 cardBorderColor = Color.parseColor("#FBC02D")
             )
+
             APP_COLOR_MIDNIGHT_VIOLET -> AppThemePalette(
                 pageBackground = Color.parseColor("#24113D"),
                 cardBackground = Color.parseColor("#341E52"),
@@ -422,6 +771,7 @@ object ThemeManager {
                 sundayHighlight = Color.parseColor("#4A1525"),
                 cardBorderColor = Color.parseColor("#4A2875")
             )
+
             APP_COLOR_OFF_WHITE -> AppThemePalette(
                 pageBackground = Color.parseColor("#FAFAFA"),
                 cardBackground = Color.parseColor("#FFFFFF"),
@@ -434,6 +784,7 @@ object ThemeManager {
                 sundayHighlight = Color.parseColor("#FFEBEE"),
                 cardBorderColor = Color.parseColor("#E0E0E0")
             )
+
             APP_COLOR_AMOLED_BLACK -> AppThemePalette(
                 pageBackground = Color.parseColor("#000000"),
                 cardBackground = Color.parseColor("#121212"),
@@ -446,6 +797,7 @@ object ThemeManager {
                 sundayHighlight = Color.parseColor("#381418"),
                 cardBorderColor = Color.parseColor("#2C2C2C")
             )
+
             else -> AppThemePalette(
                 pageBackground = Color.parseColor("#E8D5B5"),
                 cardBackground = Color.parseColor("#F5EBE0"),
