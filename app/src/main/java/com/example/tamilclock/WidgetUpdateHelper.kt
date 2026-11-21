@@ -878,7 +878,8 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4x4 HERITAGE (LIVE HORAI/GOWRI + FIXED ROW 1 + 3 USER ROWS)
+    // -------------------------------------------------------------
+    // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
     // -------------------------------------------------------------
 
     @JvmOverloads
@@ -933,7 +934,7 @@ object WidgetUpdateHelper {
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
-            // Row 1 (Constant): Current Tamil Month + Date & Tamil Weekday
+            // Effective solar Tamil Month + Date & Tamil Weekday
             val tamilMonth = solarDate.tamilMonth.ifBlank { data.tamilMonth.ifBlank { "---" } }
             val tamilDay = if (solarDate.tamilDate > 0) {
                 solarDate.tamilDate.toString()
@@ -943,32 +944,44 @@ object WidgetUpdateHelper {
                 "---"
             }
             val weekday = solarDate.weekdayTa.ifBlank { data.weekdayTa.ifBlank { "---" } }
-            views.safeSetText(context, "tv_widget_row1_fixed", "$tamilMonth $tamilDay  •  $weekday")
-            views.safeSetTextColor(context, "tv_widget_row1_fixed", colors.accentColor)
+            val dateRowText = "$tamilMonth $tamilDay  •  $weekday"
 
-            // Rows 2, 3, 4: Any 3 of the 10 options chosen by user
+            // Up to 3 of the 10 single-row options chosen by user
             val chosen3 = ThemeManager.getSelectedOptions4x4(context)
-            val row2 = formatOptionRow(
-                chosen3.getOrElse(0) { ThemeManager.OPT_PAKSHAM_THITHI_NAKSHATRA },
-                data
-            )
-            val row3 = formatOptionRow(
-                chosen3.getOrElse(1) { ThemeManager.OPT_NALLA_NERAM },
-                data
-            )
-            val row4 = formatOptionRow(
-                chosen3.getOrElse(2) { ThemeManager.OPT_SUN_TIMINGS },
-                data
+                .distinct()
+                .take(3)
+
+            val optionLines = chosen3.map { key -> formatOptionRow(key, data) }
+
+            // Bottom-align [Tamil Month + Date] followed by [Selected Options] across the 4 rows
+            val bottomSequence = listOf(dateRowText) + optionLines
+            val totalRows = 4
+            val leadingEmptyCount = (totalRows - bottomSequence.size).coerceAtLeast(0)
+
+            val rowViewIds = listOf(
+                "tv_widget_row1_fixed",
+                "tv_widget_row2_opt1",
+                "tv_widget_row3_opt2",
+                "tv_widget_row4_opt3"
             )
 
-            views.safeSetText(context, "tv_widget_row2_opt1", row2)
-            views.safeSetTextColor(context, "tv_widget_row2_opt1", colors.primaryText)
-
-            views.safeSetText(context, "tv_widget_row3_opt2", row3)
-            views.safeSetTextColor(context, "tv_widget_row3_opt2", colors.primaryText)
-
-            views.safeSetText(context, "tv_widget_row4_opt3", row4)
-            views.safeSetTextColor(context, "tv_widget_row4_opt3", colors.primaryText)
+            rowViewIds.forEachIndexed { rowIdx, viewIdName ->
+                val seqIdx = rowIdx - leadingEmptyCount
+                if (seqIdx >= 0 && seqIdx < bottomSequence.size) {
+                    val textForRow = bottomSequence[seqIdx]
+                    val isDateRow = seqIdx == 0
+                    views.safeSetVisibility(context, viewIdName, View.VISIBLE)
+                    views.safeSetText(context, viewIdName, textForRow)
+                    views.safeSetTextColor(
+                        context,
+                        viewIdName,
+                        if (isDateRow) colors.accentColor else colors.primaryText
+                    )
+                } else {
+                    views.safeSetText(context, viewIdName, "")
+                    views.safeSetVisibility(context, viewIdName, View.GONE)
+                }
+            }
         }
     }
 
