@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 1. Dynamic Background Bitmap Layer -->
+    <!-- 1. Dynamic Background Bitmap -->
     <ImageView
         android:id="@+id/widget_bg_image"
         android:layout_width="match_parent"
@@ -12,69 +12,83 @@
         android:scaleType="fitXY"
         android:contentDescription="Widget Background" />
 
-    <!-- 2. Main Vertical Split: Clock (Top) + Live Horai/Gowri & Bottom Rows (Bottom) -->
+    <!-- 2. Main Vertical Layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="8dp"
+        android:paddingHorizontal="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp"
         android:gravity="center_horizontal">
 
-        <!-- TOP: Clock Container -->
+        <!-- ================================================= -->
+        <!-- TOP: CLOCK + V-SHAPED LIVE HORAI / GOWRI           -->
+        <!-- ================================================= -->
+
         <FrameLayout
             android:id="@+id/container_clock_top"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="5"
+            android:layout_weight="4"
             android:layout_gravity="center">
 
+            <!-- Hybrid Dial Background (Matched 240dp Square) -->
             <ImageView
                 android:id="@+id/iv_hybrid_dial_bg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="240dp"
+                android:layout_height="240dp"
+                android:layout_gravity="center"
+                android:padding="10dp"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
                 android:contentDescription="Analog Dial" />
 
+            <!-- Classic Analog Clock (Fixed 240dp Square) -->
             <AnalogClock
                 android:id="@+id/analog_clock_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="240dp"
+                android:layout_height="240dp"
                 android:layout_gravity="center"
+                android:padding="10dp"
                 android:dial="@drawable/classic_clock_dial"
                 android:hand_hour="@drawable/classic_clock_hour"
                 android:hand_minute="@drawable/classic_clock_minute"
                 android:visibility="gone" />
 
+            <!-- Hybrid Digital Clock -->
             <TextClock
                 android:id="@+id/tc_hybrid_top_digital"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="34dp"
                 android:format12Hour="h:mm"
                 android:format24Hour="HH:mm"
                 android:textColor="#00F5D4"
-                android:textSize="11sp"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:includeFontPadding="false"
                 android:visibility="gone" />
 
+            <!-- Neon Digital Clock Background -->
             <ImageView
                 android:id="@+id/iv_digital_clock_bg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:layout_marginHorizontal="24dp"
-                android:layout_marginVertical="12dp"
+                android:layout_marginVertical="16dp"
                 android:scaleType="fitXY"
                 android:visibility="gone"
                 android:contentDescription="Neon Digital Pill" />
 
+            <!-- Main Digital Clock -->
             <LinearLayout
                 android:id="@+id/container_digital_clock"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:visibility="visible">
@@ -99,11 +113,60 @@
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:includeFontPadding="false" />
+
+            </LinearLayout>
+
+            <!-- ============================================= -->
+            <!-- V-SHAPED LIVE HORAI / GOWRI (UPPER ARMS)      -->
+            <!-- ============================================= -->
+
+            <LinearLayout
+                android:id="@+id/container_live_horai_gowri"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="6dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="8dp">
+
+                <!-- Live Horai: Left Arm -->
+                <TextView
+                    android:id="@+id/tv_widget_live_horai_left"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start|center_vertical"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:lineSpacingExtra="1dp"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
+
+                <!-- Live Gowri: Right Arm -->
+                <TextView
+                    android:id="@+id/tv_widget_live_gowri_right"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end|center_vertical"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:lineSpacingExtra="1dp"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
         </FrameLayout>
 
-        <!-- BOTTOM: Live Horai/Gowri + 4 Bottom-Aligned Rows -->
+        <!-- ================================================= -->
+        <!-- BOTTOM: NEXT HORAI / GOWRI + INFORMATION ROWS     -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:id="@+id/container_elements_bottom"
             android:layout_width="match_parent"
@@ -112,46 +175,14 @@
             android:gravity="bottom|center_horizontal"
             android:paddingHorizontal="4dp">
 
-            <!-- Live Horai (Left) & Live Gowri (Right) -->
-            <LinearLayout
-                android:id="@+id/container_live_horai_gowri"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="2dp">
-
-                <TextView
-                    android:id="@+id/tv_widget_live_horai_left"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/tv_widget_live_gowri_right"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:maxLines="2"
-                    android:includeFontPadding="false"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <!-- Next Horai & Gowri Line -->
+            <!-- Next Horai / Gowri (V-Dip Center) -->
             <TextView
                 android:id="@+id/tv_widget_horai_gowri_next"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="6dp"
                 android:paddingVertical="1dp"
                 android:textSize="11sp"
                 android:textStyle="normal"
@@ -159,46 +190,58 @@
                 android:includeFontPadding="false"
                 android:visibility="gone" />
 
+            <!-- Horizontal Separator -->
+            <View
+                android:id="@+id/widget_info_separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="#80FFFFFF" />
+
+            <!-- Row 1: Tamil Month & Date / Weekday -->
             <TextView
                 android:id="@+id/tv_widget_row1_fixed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingVertical="2dp"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:maxLines="1"
                 android:includeFontPadding="false" />
 
+            <!-- Row 2: Option 1 -->
             <TextView
                 android:id="@+id/tv_widget_row2_opt1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingVertical="2dp"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="normal"
                 android:maxLines="1"
                 android:includeFontPadding="false" />
 
+            <!-- Row 3: Option 2 -->
             <TextView
                 android:id="@+id/tv_widget_row3_opt2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingVertical="2dp"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="normal"
                 android:maxLines="1"
                 android:includeFontPadding="false" />
 
+            <!-- Row 4: Option 3 -->
             <TextView
                 android:id="@+id/tv_widget_row4_opt3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingVertical="2dp"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="normal"
                 android:maxLines="1"
                 android:includeFontPadding="false" />
