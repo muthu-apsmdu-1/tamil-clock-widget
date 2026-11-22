@@ -927,8 +927,8 @@ object WidgetUpdateHelper {
             providerClass = WidgetProvider4x4::class.java,
             layoutName = "widget_layout_4x4",
             widgetSize = "4x4",
-            backgroundWidth = 480,
-            backgroundHeight = 480,
+            backgroundWidth = 320,
+            backgroundHeight = 320,
             clockWidth = 240,
             clockHeight = 240
         ) { views, dbHelper, solarHelper, solarDate, data, cal, colors ->
