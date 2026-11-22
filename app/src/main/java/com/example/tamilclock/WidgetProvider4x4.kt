@@ -1,4 +1,3 @@
-
 package com.example.tamilclock
 
 import android.appwidget.AppWidgetManager
