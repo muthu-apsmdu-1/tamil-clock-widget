@@ -43,7 +43,7 @@ class FragmentSettings : Fragment() {
     private var tvWidgetOpacityVal: TextView? = null
     private var seekBarOpacity: SeekBar? = null
 
-    // Date Format Selector Boxes
+    // N Date Format Selector Boxes
     private var boxDateFmtDash: FrameLayout? = null
     private var tvDateFmtDash: TextView? = null
     private var boxDateFmtText: FrameLayout? = null
