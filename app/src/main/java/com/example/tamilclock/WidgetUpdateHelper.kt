@@ -911,7 +911,9 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
+
+    // 4x4 HERITAGE
+    // XML-DEFINED PLACEMENT — FIXED DATE ROW + 3 OPTIONAL ROWS
     // -------------------------------------------------------------
 
     @JvmOverloads
@@ -933,97 +935,244 @@ object WidgetUpdateHelper {
             clockHeight = 240
         ) { views, dbHelper, solarHelper, solarDate, data, cal, colors ->
 
-            val liveEnabled = ThemeManager.isLiveHoraiGowriEnabled(context)
+            // -------------------------------------------------
+            // 1. LIVE HORAI / GOWRI
+            // -------------------------------------------------
+
+            val liveEnabled =
+                ThemeManager.isLiveHoraiGowriEnabled(context)
 
             if (liveEnabled) {
-                val live = solarHelper.resolveHoraiAndGowri(dbHelper, cal)
 
-                views.safeSetVisibility(context, "container_live_horai_gowri", View.VISIBLE)
-                views.safeSetVisibility(context, "tv_widget_live_horai_left", View.VISIBLE)
+                val live =
+                    solarHelper.resolveHoraiAndGowri(dbHelper, cal)
+
+                // LEFT PANEL — CURRENT HORAI
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_live_horai_left",
+                    View.VISIBLE
+                )
+
                 views.safeSetText(
                     context,
                     "tv_widget_live_horai_left",
                     "${live.horai.currentEnd}\n${live.horai.currentName}"
                 )
-                views.safeSetTextColor(context, "tv_widget_live_horai_left", colors.primaryText)
 
-                views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.VISIBLE)
+                views.safeSetTextColor(
+                    context,
+                    "tv_widget_live_horai_left",
+                    colors.primaryText
+                )
+
+                // RIGHT PANEL — CURRENT GOWRI
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_live_gowri_right",
+                    View.VISIBLE
+                )
+
                 views.safeSetText(
                     context,
                     "tv_widget_live_gowri_right",
                     "${live.gowri.currentEnd}\n${live.gowri.currentName}"
                 )
-                views.safeSetTextColor(context, "tv_widget_live_gowri_right", colors.accentColor)
 
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.VISIBLE)
+                views.safeSetTextColor(
+                    context,
+                    "tv_widget_live_gowri_right",
+                    colors.accentColor
+                )
+
+                // FULL-WIDTH BAND — NEXT HORAI / GOWRI
+                views.safeSetVisibility(
+                    context,
+                    "container_horai_gowri_band",
+                    View.VISIBLE
+                )
+
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_horai_gowri_next",
+                    View.VISIBLE
+                )
+
                 views.safeSetText(
                     context,
                     "tv_widget_horai_gowri_next",
-                    "${live.horai.nextEnd} ${live.horai.nextName} ← அடுத்தது → ${live.gowri.nextName} ${live.gowri.nextEnd}"
+                    "${live.horai.nextEnd} ${live.horai.nextName} " +
+                        "← அடுத்தது → " +
+                        "${live.gowri.nextName} ${live.gowri.nextEnd}"
                 )
-                views.safeSetTextColor(context, "tv_widget_horai_gowri_next", colors.primaryText)
+
+                views.safeSetTextColor(
+                    context,
+                    "tv_widget_horai_gowri_next",
+                    colors.primaryText
+                )
+
             } else {
-                views.safeSetVisibility(context, "container_live_horai_gowri", View.GONE)
-                views.safeSetVisibility(context, "tv_widget_live_horai_left", View.GONE)
-                views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.GONE)
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
+
+                // HIDE ONLY LIVE INFORMATION.
+                // DO NOT HIDE THE CLOCK TOP CONTAINER.
+
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_live_horai_left",
+                    View.GONE
+                )
+
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_live_gowri_right",
+                    View.GONE
+                )
+
+                views.safeSetVisibility(
+                    context,
+                    "container_horai_gowri_band",
+                    View.GONE
+                )
+
+                views.safeSetVisibility(
+                    context,
+                    "tv_widget_horai_gowri_next",
+                    View.GONE
+                )
             }
 
-            // Gregorian date formatted via Settings + Tamil Month & Date + Tamil Weekday
-            val dateFormat = ThemeManager.getWidgetDateFormat(context)
-            val gregDate = ThemeManager.formatDateByPattern(cal, dateFormat)
-            val tamilMonth = solarDate.tamilMonth.ifBlank { data.tamilMonth.ifBlank { "---" } }
-            val tamilDay = if (solarDate.tamilDate > 0) {
-                solarDate.tamilDate.toString()
-            } else if (data.tamilDate > 0) {
-                data.tamilDate.toString()
-            } else {
-                "---"
-            }
-            val weekday = solarDate.weekdayTa.ifBlank { data.weekdayTa.ifBlank { "---" } }
-            val dateRowText = listOf(gregDate, tamilMonth, tamilDay, weekday)
+
+            // -------------------------------------------------
+            // 2. FIXED DATE ROW
+            // XML: tv_widget_row1_fixed
+            // -------------------------------------------------
+
+            val dateFormat =
+                ThemeManager.getWidgetDateFormat(context)
+
+            val gregDate =
+                ThemeManager.formatDateByPattern(cal, dateFormat)
+
+            val tamilMonth =
+                solarDate.tamilMonth.ifBlank {
+                    data.tamilMonth.ifBlank { "---" }
+                }
+
+            val tamilDay =
+                if (solarDate.tamilDate > 0) {
+                    solarDate.tamilDate.toString()
+                } else if (data.tamilDate > 0) {
+                    data.tamilDate.toString()
+                } else {
+                    "---"
+                }
+
+            val weekday =
+                solarDate.weekdayTa.ifBlank {
+                    data.weekdayTa.ifBlank { "---" }
+                }
+
+            val dateRowText = listOf(
+                gregDate,
+                tamilMonth,
+                tamilDay,
+                weekday
+            )
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .joinToString(" ")
 
-            // Up to 3 of the 10 single-row options chosen by user
-            val chosen3 = ThemeManager.getSelectedOptions4x4(context)
-                .distinct()
-                .take(3)
 
-            val optionLines = chosen3.map { key -> formatOptionRow(key, data) }
-
-            // Bottom-align [Gregorian Date + Tamil Month/Day + Weekday] followed by [Selected Options] across the 4 rows
-            val bottomSequence = listOf(dateRowText) + optionLines
-            val totalRows = 4
-            val leadingEmptyCount = (totalRows - bottomSequence.size).coerceAtLeast(0)
-
-            val rowViewIds = listOf(
+            // DATE ALWAYS STAYS IN ITS XML-DEFINED ROW
+            views.safeSetVisibility(
+                context,
                 "tv_widget_row1_fixed",
+                View.VISIBLE
+            )
+
+            views.safeSetText(
+                context,
+                "tv_widget_row1_fixed",
+                dateRowText
+            )
+
+            views.safeSetTextColor(
+                context,
+                "tv_widget_row1_fixed",
+                colors.accentColor
+            )
+
+
+            // -------------------------------------------------
+            // 3. SELECTED OPTIONAL INFORMATION
+            // XML: THREE FIXED BOTTOM ROWS
+            // -------------------------------------------------
+
+            val chosen3 =
+                ThemeManager.getSelectedOptions4x4(context)
+                    .distinct()
+                    .take(3)
+
+            val optionLines =
+                chosen3.map { key ->
+                    formatOptionRow(key, data)
+                }
+
+
+            // XML ROW ORDER — DO NOT REPOSITION
+            val optionRowIds = listOf(
                 "tv_widget_row2_opt1",
                 "tv_widget_row3_opt2",
                 "tv_widget_row4_opt3"
             )
 
-            rowViewIds.forEachIndexed { rowIdx, viewIdName ->
-                val seqIdx = rowIdx - leadingEmptyCount
-                if (seqIdx >= 0 && seqIdx < bottomSequence.size) {
-                    val textForRow = bottomSequence[seqIdx]
-                    val isDateRow = seqIdx == 0
-                    views.safeSetVisibility(context, viewIdName, View.VISIBLE)
-                    views.safeSetText(context, viewIdName, textForRow)
+
+            // FILL EACH OPTION INTO ITS OWN XML ROW
+            optionRowIds.forEachIndexed { index, viewIdName ->
+
+                if (index < optionLines.size) {
+
+                    // POPULATE ROW
+                    views.safeSetText(
+                        context,
+                        viewIdName,
+                        optionLines[index]
+                    )
+
                     views.safeSetTextColor(
                         context,
                         viewIdName,
-                        if (isDateRow) colors.accentColor else colors.primaryText
+                        colors.primaryText
                     )
+
+                    // SHOW POPULATED ROW
+                    views.safeSetVisibility(
+                        context,
+                        viewIdName,
+                        View.VISIBLE
+                    )
+
                 } else {
-                    views.safeSetText(context, viewIdName, "")
-                    views.safeSetVisibility(context, viewIdName, View.GONE)
+
+                    // CLEAR UNUSED ROW
+                    views.safeSetText(
+                        context,
+                        viewIdName,
+                        ""
+                    )
+
+                    // HIDE UNUSED ROW
+                    views.safeSetVisibility(
+                        context,
+                        viewIdName,
+                        View.GONE
+                    )
                 }
             }
         }
     }
+
 
     // -------------------------------------------------------------
     // UPDATE ALL WIDGETS
