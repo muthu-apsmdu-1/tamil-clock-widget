@@ -26,6 +26,7 @@ object WidgetUpdateHelper {
     private const val TAG = "WidgetUpdateHelper"
 
     private val NEON_GREEN = Color.parseColor("#39FF14")
+    private val TEAL_NEON = Color.parseColor("#00F5D4")
 
     // -------------------------------------------------------------
     // COMMON HELPERS
@@ -91,15 +92,6 @@ object WidgetUpdateHelper {
     ) {
         val id = findId(context, idName)
         if (id != 0) setImageViewBitmap(id, bitmap)
-    }
-
-    private fun RemoteViews.safeSetImageResource(
-        context: Context,
-        idName: String,
-        resId: Int
-    ) {
-        val id = findId(context, idName)
-        if (id != 0) setImageViewResource(id, resId)
     }
 
     private fun cleanDbString(raw: String?): String {
@@ -281,24 +273,14 @@ object WidgetUpdateHelper {
         context: Context,
         views: RemoteViews,
         colors: WidgetColorPalette,
+        cal: Calendar,
         clockBoxW: Int,
-        clockBoxH: Int,
-        widgetSize: String
+        clockBoxH: Int
     ) {
 
         val clockFace = ThemeManager.getClockFace(context)
         val is24Hr = DateFormat.is24HourFormat(context)
         val amPmVisibility = if (is24Hr) View.GONE else View.VISIBLE
-
-        val is4x2Or4x4 = widgetSize == "4x2" || widgetSize == "4x4"
-        val is4x4 = widgetSize == "4x4"
-
-        // Hybrid is exclusive to 4x4; fall back to Classic analog on 2x1, 4x1, and 4x2
-        val effectiveClockFace = if (clockFace == ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID && !is4x4) {
-            ThemeManager.CLOCK_ANALOG_CLASSIC
-        } else {
-            clockFace
-        }
 
         val analogId = views.findId(
             context,
@@ -313,7 +295,7 @@ object WidgetUpdateHelper {
         views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
         views.safeSetVisibility(context, "tv_digital_clock_ampm", amPmVisibility)
 
-        when (effectiveClockFace) {
+        when (clockFace) {
 
             ThemeManager.CLOCK_DIGITAL_AMOLED_NEON -> {
                 val pill = createAmoledPillBitmap(clockBoxW, clockBoxH)
@@ -336,47 +318,36 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                if (is4x2Or4x4) {
-                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                        views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.clock_face_arabic))
-                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                        views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
-                    } else {
-                        views.safeSetImageResource(context, "iv_hybrid_dial_bg", R.drawable.clock_face_arabic)
-                        views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
-                        views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    }
+                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(360)
+                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(dialBitmap))
+                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
                 } else {
-                    val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(280)
+                    views.safeSetVisibility(context, "analog_clock_view", View.GONE)
                     views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
                     views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
-                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
-                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
-                        views.setIcon(analogId, "setSecondHand", null)
-                    }
                 }
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
-                // Exclusive to 4x4 only
-                if (is4x4) {
-                    views.safeSetImageResource(context, "iv_hybrid_dial_bg", R.drawable.clock_face_hybrid)
-                    views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
-                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 380)
+                views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
+                views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+                views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
+                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.VISIBLE)
 
-                    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-                        views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                        views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                        views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                        views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
-                    }
+                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                    views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
+                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
+                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
+                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
+                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                } else {
+                    views.safeSetVisibility(context, "analog_clock_view", View.GONE)
                 }
             }
 
@@ -688,7 +659,6 @@ object WidgetUpdateHelper {
         appWidgetIds: IntArray?,
         providerClass: Class<out AppWidgetProvider>,
         layoutName: String,
-        widgetSize: String,
         backgroundWidth: Int,
         backgroundHeight: Int,
         clockWidth: Int,
@@ -742,9 +712,9 @@ object WidgetUpdateHelper {
             context,
             views,
             colors,
+            cal,
             clockWidth,
-            clockHeight,
-            widgetSize
+            clockHeight
         )
 
         val rootId = views.findId(context, "widget_root")
@@ -781,7 +751,6 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider2x1::class.java,
             layoutName = "widget_layout_2x1",
-            widgetSize = "2x1",
             backgroundWidth = 320,
             backgroundHeight = 160,
             clockWidth = 145,
@@ -820,7 +789,6 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x1::class.java,
             layoutName = "widget_layout_4x1",
-            widgetSize = "4x1",
             backgroundWidth = 580,
             backgroundHeight = 140,
             clockWidth = 130,
@@ -868,7 +836,6 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x2::class.java,
             layoutName = "widget_layout_4x2",
-            widgetSize = "4x2",
             backgroundWidth = 580,
             backgroundHeight = 280,
             clockWidth = 260,
@@ -911,9 +878,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-
-    // 4x4 HERITAGE
-    // XML-DEFINED PLACEMENT — FIXED DATE ROW + 3 OPTIONAL ROWS
+    // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
     // -------------------------------------------------------------
 
     @JvmOverloads
@@ -928,251 +893,98 @@ object WidgetUpdateHelper {
             appWidgetIds = appWidgetIds,
             providerClass = WidgetProvider4x4::class.java,
             layoutName = "widget_layout_4x4",
-            widgetSize = "4x4",
             backgroundWidth = 580,
             backgroundHeight = 580,
-            clockWidth = 240,
-            clockHeight = 240
+            clockWidth = 320,
+            clockHeight = 320
         ) { views, dbHelper, solarHelper, solarDate, data, cal, colors ->
 
-            // -------------------------------------------------
-            // 1. LIVE HORAI / GOWRI
-            // -------------------------------------------------
-
-            val liveEnabled =
-                ThemeManager.isLiveHoraiGowriEnabled(context)
+            val liveEnabled = ThemeManager.isLiveHoraiGowriEnabled(context)
 
             if (liveEnabled) {
+                val live = solarHelper.resolveHoraiAndGowri(dbHelper, cal)
 
-                val live =
-                    solarHelper.resolveHoraiAndGowri(dbHelper, cal)
-
-                // LEFT PANEL — CURRENT HORAI
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_live_horai_left",
-                    View.VISIBLE
-                )
-
+                views.safeSetVisibility(context, "container_live_horai_gowri", View.VISIBLE)
+                views.safeSetVisibility(context, "tv_widget_live_horai_left", View.VISIBLE)
                 views.safeSetText(
                     context,
                     "tv_widget_live_horai_left",
                     "${live.horai.currentEnd}\n${live.horai.currentName}"
                 )
+                views.safeSetTextColor(context, "tv_widget_live_horai_left", colors.primaryText)
 
-                views.safeSetTextColor(
-                    context,
-                    "tv_widget_live_horai_left",
-                    colors.primaryText
-                )
-
-                // RIGHT PANEL — CURRENT GOWRI
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_live_gowri_right",
-                    View.VISIBLE
-                )
-
+                views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.VISIBLE)
                 views.safeSetText(
                     context,
                     "tv_widget_live_gowri_right",
                     "${live.gowri.currentEnd}\n${live.gowri.currentName}"
                 )
+                views.safeSetTextColor(context, "tv_widget_live_gowri_right", colors.accentColor)
 
-                views.safeSetTextColor(
-                    context,
-                    "tv_widget_live_gowri_right",
-                    colors.accentColor
-                )
-
-                // FULL-WIDTH BAND — NEXT HORAI / GOWRI
-                views.safeSetVisibility(
-                    context,
-                    "container_horai_gowri_band",
-                    View.VISIBLE
-                )
-
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_horai_gowri_next",
-                    View.VISIBLE
-                )
-
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.VISIBLE)
                 views.safeSetText(
                     context,
                     "tv_widget_horai_gowri_next",
-                    "${live.horai.nextEnd} ${live.horai.nextName} " +
-                        "← அடுத்தது → " +
-                        "${live.gowri.nextName} ${live.gowri.nextEnd}"
+                    "${live.horai.nextEnd} ${live.horai.nextName} ← அடுத்தது → ${live.gowri.nextName} ${live.gowri.nextEnd}"
                 )
-
-                views.safeSetTextColor(
-                    context,
-                    "tv_widget_horai_gowri_next",
-                    colors.primaryText
-                )
-
+                views.safeSetTextColor(context, "tv_widget_horai_gowri_next", colors.primaryText)
             } else {
-
-                // HIDE ONLY LIVE INFORMATION.
-                // DO NOT HIDE THE CLOCK TOP CONTAINER.
-
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_live_horai_left",
-                    View.GONE
-                )
-
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_live_gowri_right",
-                    View.GONE
-                )
-
-                views.safeSetVisibility(
-                    context,
-                    "container_horai_gowri_band",
-                    View.GONE
-                )
-
-                views.safeSetVisibility(
-                    context,
-                    "tv_widget_horai_gowri_next",
-                    View.GONE
-                )
+                views.safeSetVisibility(context, "container_live_horai_gowri", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_live_horai_left", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
+            // Effective solar Tamil Month + Date & Tamil Weekday
+            val tamilMonth = solarDate.tamilMonth.ifBlank { data.tamilMonth.ifBlank { "---" } }
+            val tamilDay = if (solarDate.tamilDate > 0) {
+                solarDate.tamilDate.toString()
+            } else if (data.tamilDate > 0) {
+                data.tamilDate.toString()
+            } else {
+                "---"
+            }
+            val weekday = solarDate.weekdayTa.ifBlank { data.weekdayTa.ifBlank { "---" } }
+            val dateRowText = "$tamilMonth $tamilDay  •  $weekday"
 
-            // -------------------------------------------------
-            // 2. FIXED DATE ROW
-            // XML: tv_widget_row1_fixed
-            // -------------------------------------------------
+            // Up to 3 of the 10 single-row options chosen by user
+            val chosen3 = ThemeManager.getSelectedOptions4x4(context)
+                .distinct()
+                .take(3)
 
-            val dateFormat =
-                ThemeManager.getWidgetDateFormat(context)
+            val optionLines = chosen3.map { key -> formatOptionRow(key, data) }
 
-            val gregDate =
-                ThemeManager.formatDateByPattern(cal, dateFormat)
+            // Bottom-align [Tamil Month + Date] followed by [Selected Options] across the 4 rows
+            val bottomSequence = listOf(dateRowText) + optionLines
+            val totalRows = 4
+            val leadingEmptyCount = (totalRows - bottomSequence.size).coerceAtLeast(0)
 
-            val tamilMonth =
-                solarDate.tamilMonth.ifBlank {
-                    data.tamilMonth.ifBlank { "---" }
-                }
-
-            val tamilDay =
-                if (solarDate.tamilDate > 0) {
-                    solarDate.tamilDate.toString()
-                } else if (data.tamilDate > 0) {
-                    data.tamilDate.toString()
-                } else {
-                    "---"
-                }
-
-            val weekday =
-                solarDate.weekdayTa.ifBlank {
-                    data.weekdayTa.ifBlank { "---" }
-                }
-
-            val dateRowText = listOf(
-                gregDate,
-                tamilMonth,
-                tamilDay,
-                weekday
-            )
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .joinToString(" ")
-
-
-            // DATE ALWAYS STAYS IN ITS XML-DEFINED ROW
-            views.safeSetVisibility(
-                context,
+            val rowViewIds = listOf(
                 "tv_widget_row1_fixed",
-                View.VISIBLE
-            )
-
-            views.safeSetText(
-                context,
-                "tv_widget_row1_fixed",
-                dateRowText
-            )
-
-            views.safeSetTextColor(
-                context,
-                "tv_widget_row1_fixed",
-                colors.accentColor
-            )
-
-
-            // -------------------------------------------------
-            // 3. SELECTED OPTIONAL INFORMATION
-            // XML: THREE FIXED BOTTOM ROWS
-            // -------------------------------------------------
-
-            val chosen3 =
-                ThemeManager.getSelectedOptions4x4(context)
-                    .distinct()
-                    .take(3)
-
-            val optionLines =
-                chosen3.map { key ->
-                    formatOptionRow(key, data)
-                }
-
-
-            // XML ROW ORDER — DO NOT REPOSITION
-            val optionRowIds = listOf(
                 "tv_widget_row2_opt1",
                 "tv_widget_row3_opt2",
                 "tv_widget_row4_opt3"
             )
 
-
-            // FILL EACH OPTION INTO ITS OWN XML ROW
-            optionRowIds.forEachIndexed { index, viewIdName ->
-
-                if (index < optionLines.size) {
-
-                    // POPULATE ROW
-                    views.safeSetText(
-                        context,
-                        viewIdName,
-                        optionLines[index]
-                    )
-
+            rowViewIds.forEachIndexed { rowIdx, viewIdName ->
+                val seqIdx = rowIdx - leadingEmptyCount
+                if (seqIdx >= 0 && seqIdx < bottomSequence.size) {
+                    val textForRow = bottomSequence[seqIdx]
+                    val isDateRow = seqIdx == 0
+                    views.safeSetVisibility(context, viewIdName, View.VISIBLE)
+                    views.safeSetText(context, viewIdName, textForRow)
                     views.safeSetTextColor(
                         context,
                         viewIdName,
-                        colors.primaryText
+                        if (isDateRow) colors.accentColor else colors.primaryText
                     )
-
-                    // SHOW POPULATED ROW
-                    views.safeSetVisibility(
-                        context,
-                        viewIdName,
-                        View.VISIBLE
-                    )
-
                 } else {
-
-                    // CLEAR UNUSED ROW
-                    views.safeSetText(
-                        context,
-                        viewIdName,
-                        ""
-                    )
-
-                    // HIDE UNUSED ROW
-                    views.safeSetVisibility(
-                        context,
-                        viewIdName,
-                        View.GONE
-                    )
+                    views.safeSetText(context, viewIdName, "")
+                    views.safeSetVisibility(context, viewIdName, View.GONE)
                 }
             }
         }
     }
-
 
     // -------------------------------------------------------------
     // UPDATE ALL WIDGETS
