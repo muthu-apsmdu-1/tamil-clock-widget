@@ -91,11 +91,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top|center_horizontal"
-                        android:layout_marginTop="42dp"
+                        android:layout_marginTop="62dp"
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
                         android:textColor="#00F5D4"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:includeFontPadding="false"
                         android:visibility="gone" />
@@ -224,7 +224,7 @@
             android:layout_height="0dp"
             android:layout_weight="4"
             android:orientation="vertical"
-            android:gravity="bottom|center_horizontal"
+            android:gravity="top|center_horizontal"
             android:paddingHorizontal="4dp">
 
             <TextView
