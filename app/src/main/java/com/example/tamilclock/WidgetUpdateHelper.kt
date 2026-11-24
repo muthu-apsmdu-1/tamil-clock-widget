@@ -878,7 +878,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4x4 HERITAGE (LIVE HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
+    // 4x4 HERITAGE (LIVE HORAI/GOWRI + 2-ROW HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
     // -------------------------------------------------------------
 
     @JvmOverloads
@@ -905,6 +905,8 @@ object WidgetUpdateHelper {
                 val live = solarHelper.resolveHoraiAndGowri(dbHelper, cal)
 
                 views.safeSetVisibility(context, "container_live_horai_gowri", View.VISIBLE)
+                views.safeSetVisibility(context, "container_horai_gowri_times", View.VISIBLE)
+
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.VISIBLE)
                 views.safeSetText(
                     context,
@@ -921,17 +923,36 @@ object WidgetUpdateHelper {
                 )
                 views.safeSetTextColor(context, "tv_widget_live_gowri_right", colors.accentColor)
 
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_left", View.VISIBLE)
+                views.safeSetText(
+                    context,
+                    "tv_widget_horai_gowri_time_left",
+                    live.horai.nextEnd
+                )
+                views.safeSetTextColor(context, "tv_widget_horai_gowri_time_left", colors.secondaryText)
+
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_right", View.VISIBLE)
+                views.safeSetText(
+                    context,
+                    "tv_widget_horai_gowri_time_right",
+                    live.gowri.nextEnd
+                )
+                views.safeSetTextColor(context, "tv_widget_horai_gowri_time_right", colors.secondaryText)
+
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.VISIBLE)
                 views.safeSetText(
                     context,
                     "tv_widget_horai_gowri_next",
-                    "${live.horai.nextEnd} ${live.horai.nextName} ← அடுத்தது → ${live.gowri.nextName} ${live.gowri.nextEnd}"
+                    "${live.horai.nextName} ☸️ ${live.gowri.nextName}"
                 )
                 views.safeSetTextColor(context, "tv_widget_horai_gowri_next", colors.primaryText)
             } else {
                 views.safeSetVisibility(context, "container_live_horai_gowri", View.GONE)
+                views.safeSetVisibility(context, "container_horai_gowri_times", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_left", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_right", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
