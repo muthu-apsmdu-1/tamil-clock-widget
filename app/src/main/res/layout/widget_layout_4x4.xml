@@ -12,7 +12,7 @@
         android:scaleType="fitXY"
         android:contentDescription="Widget Background" />
 
-    <!-- 2. Main Vertical Split: Top Band (6) + Bottom Stacked Rows (4) -->
+    <!-- 2. Main Vertical Split: Upper Zone (6) + Bottom Segment (4) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,7 +20,7 @@
         android:paddingHorizontal="10dp"
         android:paddingVertical="8dp">
 
-        <!-- TOP BAND (weight 6): Left (1) : Centre Clock + Bottom Horai/Gowri (2) : Right (1) -->
+        <!-- UPPER ZONE (weight 6): Left Horai (1) : Top-Centre Clock (2) : Right Gowri (1) -->
         <LinearLayout
             android:id="@+id/container_top_horizontal"
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:orientation="horizontal"
             android:gravity="bottom">
 
-            <!-- TOP LEFT (weight 1): Live Horai Time & Name (Bottom-Aligned) -->
+            <!-- LEFT FLANK (weight 1): Timing (Small) + Live Horai Name (Big), Left-Aligned -->
             <LinearLayout
                 android:id="@+id/container_top_left"
                 android:layout_width="0dp"
@@ -38,161 +38,115 @@
                 android:orientation="vertical"
                 android:gravity="bottom|start"
                 android:paddingEnd="4dp"
-                android:paddingBottom="2dp">
+                android:paddingBottom="4dp">
 
                 <TextView
-                    android:id="@+id/tv_widget_live_horai_left"
+                    android:id="@+id/tv_widget_live_horai_time_left"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="start|bottom"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:maxLines="3"
-                    android:includeFontPadding="false"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <!-- TOP MIDDLE (weight 2): Clock + Horai/Gowri Row at Bottom of Top Middle -->
-            <LinearLayout
-                android:id="@+id/container_top_middle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:orientation="vertical"
-                android:gravity="bottom|center_horizontal">
-
-                <FrameLayout
-                    android:id="@+id/container_clock_top"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_gravity="center">
-
-                    <ImageView
-                        android:id="@+id/iv_hybrid_dial_bg"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitCenter"
-                        android:visibility="gone"
-                        android:contentDescription="Analog Dial" />
-
-                    <AnalogClock
-                        android:id="@+id/analog_clock_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:dial="@drawable/classic_clock_dial"
-                        android:hand_hour="@drawable/classic_clock_hour"
-                        android:hand_minute="@drawable/classic_clock_minute"
-                        android:visibility="gone" />
-
-                    <TextClock
-                        android:id="@+id/tc_hybrid_top_digital"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|center_horizontal"
-                        android:layout_marginTop="62dp"
-                        android:format12Hour="h:mm"
-                        android:format24Hour="HH:mm"
-                        android:textColor="#00F5D4"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:includeFontPadding="false"
-                        android:visibility="gone" />
-
-                    <ImageView
-                        android:id="@+id/iv_digital_clock_bg"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginHorizontal="12dp"
-                        android:layout_marginVertical="12dp"
-                        android:scaleType="fitXY"
-                        android:visibility="gone"
-                        android:contentDescription="Neon Digital Pill" />
-
-                    <LinearLayout
-                        android:id="@+id/container_digital_clock"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:visibility="visible">
-
-                        <TextClock
-                            android:id="@+id/tv_digital_clock"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:format12Hour="h:mm"
-                            android:format24Hour="HH:mm"
-                            android:textSize="52sp"
-                            android:textStyle="bold"
-                            android:includeFontPadding="false" />
-
-                        <TextClock
-                            android:id="@+id/tv_digital_clock_ampm"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:format12Hour="a"
-                            android:format24Hour=""
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:includeFontPadding="false" />
-                    </LinearLayout>
-
-                </FrameLayout>
-
-                <!-- Horai/Gowri Row 1: Timings at Left & Right Ends inside Top Middle -->
-                <LinearLayout
-                    android:id="@+id/container_horai_gowri_times"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingTop="1dp">
-
-                    <TextView
-                        android:id="@+id/tv_widget_horai_gowri_time_left"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="start"
-                        android:textSize="9.5sp"
-                        android:textStyle="normal"
-                        android:maxLines="1"
-                        android:includeFontPadding="false"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/tv_widget_horai_gowri_time_right"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:textSize="9.5sp"
-                        android:textStyle="normal"
-                        android:maxLines="1"
-                        android:includeFontPadding="false"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <!-- Horai/Gowri Row 2: Next Horai Name ☸️ Next Gowri Name inside Top Middle -->
-                <TextView
-                    android:id="@+id/tv_widget_horai_gowri_next"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:paddingTop="1dp"
-                    android:paddingBottom="2dp"
-                    android:textSize="10sp"
+                    android:gravity="start"
+                    android:textSize="9sp"
                     android:textStyle="normal"
                     android:maxLines="1"
                     android:includeFontPadding="false"
                     android:visibility="gone" />
 
+                <TextView
+                    android:id="@+id/tv_widget_live_horai_left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:gravity="start"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <!-- TOP RIGHT (weight 1): Live Gowri Time & Name (Bottom-Aligned) -->
+            <!-- TOP CENTRE (weight 2): Clock -->
+            <FrameLayout
+                android:id="@+id/container_clock_top"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/iv_hybrid_dial_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    android:contentDescription="Analog Dial" />
+
+                <AnalogClock
+                    android:id="@+id/analog_clock_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:dial="@drawable/classic_clock_dial"
+                    android:hand_hour="@drawable/classic_clock_hour"
+                    android:hand_minute="@drawable/classic_clock_minute"
+                    android:visibility="gone" />
+
+                <TextClock
+                    android:id="@+id/tc_hybrid_top_digital"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|center_horizontal"
+                    android:layout_marginTop="56dp"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:textColor="#00F5D4"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/iv_digital_clock_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginVertical="12dp"
+                    android:scaleType="fitXY"
+                    android:visibility="gone"
+                    android:contentDescription="Neon Digital Pill" />
+
+                <LinearLayout
+                    android:id="@+id/container_digital_clock"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="visible">
+
+                    <TextClock
+                        android:id="@+id/tv_digital_clock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:format12Hour="h:mm"
+                        android:format24Hour="HH:mm"
+                        android:textSize="52sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false" />
+
+                    <TextClock
+                        android:id="@+id/tv_digital_clock_ampm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:format12Hour="a"
+                        android:format24Hour=""
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <!-- RIGHT FLANK (weight 1): Timing (Small) + Live Gowri Name (Big), Right-Aligned -->
             <LinearLayout
                 android:id="@+id/container_top_right"
                 android:layout_width="0dp"
@@ -201,23 +155,35 @@
                 android:orientation="vertical"
                 android:gravity="bottom|end"
                 android:paddingStart="4dp"
-                android:paddingBottom="2dp">
+                android:paddingBottom="4dp">
+
+                <TextView
+                    android:id="@+id/tv_widget_live_gowri_time_right"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textSize="9sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/tv_widget_live_gowri_right"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="end|bottom"
-                    android:textSize="11sp"
+                    android:layout_marginTop="1dp"
+                    android:gravity="end"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    android:maxLines="3"
+                    android:maxLines="2"
                     android:includeFontPadding="false"
                     android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>
 
-        <!-- BOTTOM CONTAINER (weight 4): All Other Text Rows Stacked -->
+        <!-- BOTTOM SEGMENT (weight 4): Next Horai/Gowri Top-Justified + Other Contents Stacked Bottom Centre -->
         <LinearLayout
             android:id="@+id/container_elements_bottom"
             android:layout_width="match_parent"
@@ -227,49 +193,74 @@
             android:gravity="top|center_horizontal"
             android:paddingHorizontal="4dp">
 
+            <!-- Top of Bottom Segment: Timings + Next Horai + Next Gowri + Timing (Top Justified) -->
             <TextView
-                android:id="@+id/tv_widget_row1_fixed"
+                android:id="@+id/tv_widget_horai_gowri_next"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingVertical="2dp"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:includeFontPadding="false" />
-
-            <TextView
-                android:id="@+id/tv_widget_row2_opt1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingVertical="2dp"
-                android:textSize="12sp"
+                android:gravity="top|fill_horizontal"
+                android:paddingTop="1dp"
+                android:paddingBottom="3dp"
+                android:textSize="10sp"
                 android:textStyle="normal"
                 android:maxLines="1"
-                android:includeFontPadding="false" />
+                android:includeFontPadding="false"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tv_widget_row3_opt2"
+            <!-- Stacked Bottom Centre Contents -->
+            <LinearLayout
+                android:id="@+id/container_bottom_stacked_centre"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingVertical="2dp"
-                android:textSize="12sp"
-                android:textStyle="normal"
-                android:maxLines="1"
-                android:includeFontPadding="false" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="bottom|center_horizontal">
 
-            <TextView
-                android:id="@+id/tv_widget_row4_opt3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingVertical="2dp"
-                android:textSize="12sp"
-                android:textStyle="normal"
-                android:maxLines="1"
-                android:includeFontPadding="false" />
+                <TextView
+                    android:id="@+id/tv_widget_row1_fixed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="2dp"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:id="@+id/tv_widget_row2_opt1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="2dp"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:id="@+id/tv_widget_row3_opt2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="2dp"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:id="@+id/tv_widget_row4_opt3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="2dp"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:maxLines="1"
+                    android:includeFontPadding="false" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
