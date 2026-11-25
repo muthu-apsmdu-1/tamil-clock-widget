@@ -333,7 +333,7 @@ object WidgetUpdateHelper {
 
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(targetDialPx)
+                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(context, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
                 views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
 
