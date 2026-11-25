@@ -13,7 +13,10 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.format.DateFormat
+import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -27,6 +30,11 @@ object WidgetUpdateHelper {
 
     private val NEON_GREEN = Color.parseColor("#39FF14")
     private val TEAL_NEON = Color.parseColor("#00F5D4")
+
+    private val SLOT_AUSPICIOUS_DARK = Color.parseColor("#69F0AE")
+    private val SLOT_AUSPICIOUS_LIGHT = Color.parseColor("#1B5E20")
+    private val SLOT_CAUTION_DARK = Color.parseColor("#FF5252")
+    private val SLOT_CAUTION_LIGHT = Color.parseColor("#B71C1C")
 
     // -------------------------------------------------------------
     // COMMON HELPERS
@@ -502,6 +510,126 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
+    // HORAI & GOWRI SLOT RESOLUTION (ALIGNED WITH FragmentGowriHorai)
+    // -------------------------------------------------------------
+
+    private data class ResolvedLiveSlot(
+        val currentTimeLabel: String,
+        val currentName: String,
+        val currentColor: Int,
+        val nextTimeLabel: String,
+        val nextName: String
+    )
+
+    private fun extractEndTimeLabel(timeRange: String): String {
+        val parts = timeRange
+            .split("-", "–", "—")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        return if (parts.size >= 2) parts.last() else timeRange.trim()
+    }
+
+    private fun resolveLiveSlotFromSlots(
+        daySlots: List<TamilDatabaseHelper.SolarSlotItem>,
+        nightSlots: List<TamilDatabaseHelper.SolarSlotItem>,
+        cal: Calendar,
+        isDark: Boolean,
+        fallbackColor: Int
+    ): ResolvedLiveSlot {
+        val allSlots = daySlots + nightSlots
+        if (allSlots.isEmpty()) {
+            return ResolvedLiveSlot("--:--", "---", fallbackColor, "--:--", "---")
+        }
+
+        val rawNow = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        val riseToday = daySlots.firstOrNull()?.startEpochMins ?: 360
+        val activeMinute = if (rawNow < riseToday) rawNow + 1440 else rawNow
+
+        val activeIdx = allSlots.indexOfFirst {
+            activeMinute in it.startEpochMins until it.endEpochMins
+        }.coerceAtLeast(0)
+
+        val currentSlot = allSlots[activeIdx]
+        val nextSlot = allSlots.getOrElse(activeIdx + 1) { allSlots.first() }
+
+        val slotColor = if (currentSlot.isAuspicious) {
+            if (isDark) SLOT_AUSPICIOUS_DARK else SLOT_AUSPICIOUS_LIGHT
+        } else {
+            if (isDark) SLOT_CAUTION_DARK else SLOT_CAUTION_LIGHT
+        }
+
+        return ResolvedLiveSlot(
+            currentTimeLabel = extractEndTimeLabel(currentSlot.timeRange),
+            currentName = currentSlot.valueName.trim().ifEmpty { "---" },
+            currentColor = slotColor,
+            nextTimeLabel = extractEndTimeLabel(nextSlot.timeRange),
+            nextName = nextSlot.valueName.trim().ifEmpty { "---" }
+        )
+    }
+
+    // Single-row format:
+    // Timing (small) + next Horai name (medium) + ☸️ + next gowri name (medium) + Timing (small)
+    private fun buildSingleRowNextHoraiGowri(
+        leftTime: String,
+        nextHoraiName: String,
+        nextGowriName: String,
+        rightTime: String
+    ): SpannableString {
+        val tLeft = leftTime.trim()
+        val hName = nextHoraiName.trim()
+        val symbol = "☸️"
+        val gName = nextGowriName.trim()
+        val tRight = rightTime.trim()
+
+        val fullText = "$tLeft  $hName  $symbol  $gName  $tRight"
+        val spannable = SpannableString(fullText)
+
+        if (tLeft.isNotEmpty()) {
+            spannable.setSpan(
+                RelativeSizeSpan(0.85f),
+                0,
+                tLeft.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+        if (tRight.isNotEmpty()) {
+            val rStart = fullText.lastIndexOf(tRight)
+            if (rStart >= 0) {
+                spannable.setSpan(
+                    RelativeSizeSpan(0.85f),
+                    rStart,
+                    rStart + tRight.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+        }
+        if (hName.isNotEmpty()) {
+            val hStart = fullText.indexOf(hName, tLeft.length)
+            if (hStart >= 0) {
+                spannable.setSpan(
+                    RelativeSizeSpan(1.15f),
+                    hStart,
+                    hStart + hName.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+        }
+        if (gName.isNotEmpty()) {
+            val gStart = fullText.indexOf(gName)
+            if (gStart >= 0) {
+                spannable.setSpan(
+                    RelativeSizeSpan(1.15f),
+                    gStart,
+                    gStart + gName.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+        }
+
+        return spannable
+    }
+
+    // -------------------------------------------------------------
     // FORMAT 10 SINGLE-ROW OPTIONS FOR 4x4 WIDGET
     // -------------------------------------------------------------
 
@@ -878,7 +1006,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // 4x4 HERITAGE (LIVE HORAI/GOWRI + 2-ROW HORAI/GOWRI + BOTTOM-ALIGNED ROWS)
+    // 4x4 HERITAGE (UPPER 60% FRAME + LOWER 40% FRAME)
     // -------------------------------------------------------------
 
     @JvmOverloads
@@ -895,64 +1023,76 @@ object WidgetUpdateHelper {
             layoutName = "widget_layout_4x4",
             backgroundWidth = 580,
             backgroundHeight = 580,
-            clockWidth = 320,
-            clockHeight = 320
-        ) { views, dbHelper, solarHelper, solarDate, data, cal, colors ->
+            clockWidth = 240,
+            clockHeight = 240
+        ) { views, dbHelper, _, solarDate, data, cal, colors ->
 
             val liveEnabled = ThemeManager.isLiveHoraiGowriEnabled(context)
 
             if (liveEnabled) {
-                val live = solarHelper.resolveHoraiAndGowri(dbHelper, cal)
+                val sdfDb = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                val todayKey = solarDate.effectiveGregorianDate.ifBlank { sdfDb.format(cal.time) }
+                val tomorrowCal = (cal.clone() as Calendar).apply { add(Calendar.DAY_OF_MONTH, 1) }
+                val tomorrowKey = sdfDb.format(tomorrowCal.time)
+                val weekdayTa = solarDate.weekdayTa.ifBlank {
+                    data.weekdayTa.ifBlank { getWeekdayFromDate(todayKey) }
+                }
 
-                views.safeSetVisibility(context, "container_live_horai_gowri", View.VISIBLE)
-                views.safeSetVisibility(context, "container_horai_gowri_times", View.VISIBLE)
+                val horaiSchedule = dbHelper.getDynamicHoraiData(todayKey, tomorrowKey, weekdayTa)
+                val gowriSchedule = dbHelper.getDynamicGowriData(todayKey, tomorrowKey, weekdayTa)
+                val isDark = !colors.isLightWidget
+
+                val horaiLive = resolveLiveSlotFromSlots(
+                    daySlots = horaiSchedule.daySlots,
+                    nightSlots = horaiSchedule.nightSlots,
+                    cal = cal,
+                    isDark = isDark,
+                    fallbackColor = colors.primaryText
+                )
+                val gowriLive = resolveLiveSlotFromSlots(
+                    daySlots = gowriSchedule.daySlots,
+                    nightSlots = gowriSchedule.nightSlots,
+                    cal = cal,
+                    isDark = isDark,
+                    fallbackColor = colors.accentColor
+                )
+
+                // Left side: small timing + big live Horai name (green/red by isAuspicious)
+                views.safeSetVisibility(context, "tv_widget_live_horai_time_left", View.VISIBLE)
+                views.safeSetText(context, "tv_widget_live_horai_time_left", horaiLive.currentTimeLabel)
+                views.safeSetTextColor(context, "tv_widget_live_horai_time_left", colors.secondaryText)
 
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.VISIBLE)
-                views.safeSetText(
-                    context,
-                    "tv_widget_live_horai_left",
-                    "${live.horai.currentEnd}\n${live.horai.currentName}"
-                )
-                views.safeSetTextColor(context, "tv_widget_live_horai_left", colors.primaryText)
+                views.safeSetText(context, "tv_widget_live_horai_left", horaiLive.currentName)
+                views.safeSetTextColor(context, "tv_widget_live_horai_left", horaiLive.currentColor)
+
+                // Right side: small timing + big live Gowri name (green/red by isAuspicious)
+                views.safeSetVisibility(context, "tv_widget_live_gowri_time_right", View.VISIBLE)
+                views.safeSetText(context, "tv_widget_live_gowri_time_right", gowriLive.currentTimeLabel)
+                views.safeSetTextColor(context, "tv_widget_live_gowri_time_right", colors.secondaryText)
 
                 views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.VISIBLE)
-                views.safeSetText(
-                    context,
-                    "tv_widget_live_gowri_right",
-                    "${live.gowri.currentEnd}\n${live.gowri.currentName}"
-                )
-                views.safeSetTextColor(context, "tv_widget_live_gowri_right", colors.accentColor)
+                views.safeSetText(context, "tv_widget_live_gowri_right", gowriLive.currentName)
+                views.safeSetTextColor(context, "tv_widget_live_gowri_right", gowriLive.currentColor)
 
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_left", View.VISIBLE)
-                views.safeSetText(
-                    context,
-                    "tv_widget_horai_gowri_time_left",
-                    live.horai.nextEnd
-                )
-                views.safeSetTextColor(context, "tv_widget_horai_gowri_time_left", colors.secondaryText)
-
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_right", View.VISIBLE)
-                views.safeSetText(
-                    context,
-                    "tv_widget_horai_gowri_time_right",
-                    live.gowri.nextEnd
-                )
-                views.safeSetTextColor(context, "tv_widget_horai_gowri_time_right", colors.secondaryText)
-
+                // Single row: Timing (small) + next Horai name (medium) + ☸️ + next Gowri name (medium) + Timing (small)
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.VISIBLE)
                 views.safeSetText(
                     context,
                     "tv_widget_horai_gowri_next",
-                    "${live.horai.nextName} ☸️ ${live.gowri.nextName}"
+                    buildSingleRowNextHoraiGowri(
+                        leftTime = horaiLive.nextTimeLabel,
+                        nextHoraiName = horaiLive.nextName,
+                        nextGowriName = gowriLive.nextName,
+                        rightTime = gowriLive.nextTimeLabel
+                    )
                 )
                 views.safeSetTextColor(context, "tv_widget_horai_gowri_next", colors.primaryText)
             } else {
-                views.safeSetVisibility(context, "container_live_horai_gowri", View.GONE)
-                views.safeSetVisibility(context, "container_horai_gowri_times", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_live_horai_time_left", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_horai_left", View.GONE)
+                views.safeSetVisibility(context, "tv_widget_live_gowri_time_right", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_live_gowri_right", View.GONE)
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_left", View.GONE)
-                views.safeSetVisibility(context, "tv_widget_horai_gowri_time_right", View.GONE)
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
