@@ -1106,7 +1106,9 @@ object WidgetUpdateHelper {
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
-            // Effective solar Tamil Month + Date & Tamil Weekday
+             // Gregorian date (formatted via settings) + Effective solar Tamil Month/Date + Tamil Weekday
+            val dateFormat = ThemeManager.getWidgetDateFormat(context)
+            val gregDateText = ThemeManager.formatDateByPattern(cal, dateFormat)
             val tamilMonth = solarDate.tamilMonth.ifBlank { data.tamilMonth.ifBlank { "---" } }
             val tamilDay = if (solarDate.tamilDate > 0) {
                 solarDate.tamilDate.toString()
@@ -1116,7 +1118,8 @@ object WidgetUpdateHelper {
                 "---"
             }
             val weekday = solarDate.weekdayTa.ifBlank { data.weekdayTa.ifBlank { "---" } }
-            val dateRowText = "$tamilMonth $tamilDay  •  $weekday"
+            val dateRowText = "$gregDateText  •  $tamilMonth $tamilDay  •  $weekday"
+
 
             // Up to 3 of the 10 single-row options chosen by user
             val chosen3 = ThemeManager.getSelectedOptions4x4(context)
