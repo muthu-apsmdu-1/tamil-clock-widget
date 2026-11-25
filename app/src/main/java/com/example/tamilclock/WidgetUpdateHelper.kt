@@ -1166,7 +1166,7 @@ object WidgetUpdateHelper {
                 }
             }
         }
-    }
+    
 
     // -------------------------------------------------------------
     // UPDATE ALL WIDGETS
