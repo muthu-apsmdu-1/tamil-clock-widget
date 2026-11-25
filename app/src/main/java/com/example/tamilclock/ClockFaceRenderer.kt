@@ -16,16 +16,20 @@ object ClockFaceRenderer {
     private val TEAL_NEON = Color.parseColor("#00F5D4")
     private val NEON_GREEN = Color.parseColor("#39FF14")
 
+    // Shared dial radius factor so AMOLED White and AMOLED Hybrid dials match evenly
+    private const val DIAL_RADIUS_RATIO = 0.465f
+    private const val MIN_DIAL_PX = 96
+
     // -------------------------------------------------------------
-    // 1. ANALOG STYLE B DIAL (AMOLED Black + Radial White Numerals + 60 Ticks)
+    // 1. ANALOG STYLE B DIAL (36405.png: AMOLED Black + Radial White Numerals + 60 Ticks)
     // -------------------------------------------------------------
     fun createAmoledWhiteDialBitmap(sizePx: Int = 280): Bitmap {
-        val safeSize = sizePx.coerceAtLeast(1)
+        val safeSize = sizePx.coerceAtLeast(MIN_DIAL_PX)
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = safeSize / 2f
         val cy = safeSize / 2f
-        val radius = safeSize * 0.48f
+        val radius = safeSize * DIAL_RADIUS_RATIO
 
         // Pure AMOLED Black Circle
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -35,29 +39,30 @@ object ClockFaceRenderer {
         canvas.drawCircle(cx, cy, radius, bgPaint)
 
         // Subtle outer border ring
+        val ringStroke = (safeSize * 0.008f).coerceAtLeast(1f)
         val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.parseColor("#33FFFFFF")
             style = Paint.Style.STROKE
-            strokeWidth = safeSize * 0.008f
+            strokeWidth = ringStroke
         }
-        canvas.drawCircle(cx, cy, radius - ringPaint.strokeWidth, ringPaint)
+        canvas.drawCircle(cx, cy, radius - (ringStroke * 0.5f), ringPaint)
 
         // 60 Perimeter Tick Marks
         val majorTickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            strokeWidth = safeSize * 0.011f
+            strokeWidth = (safeSize * 0.012f).coerceAtLeast(1.4f)
             strokeCap = Paint.Cap.ROUND
         }
         val minorTickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#888888")
-            strokeWidth = safeSize * 0.006f
+            color = Color.parseColor("#CCCCCC")
+            strokeWidth = (safeSize * 0.0065f).coerceAtLeast(1f)
             strokeCap = Paint.Cap.ROUND
         }
 
         for (i in 0 until 60) {
             val angleRad = Math.toRadians((i * 6.0) - 90.0)
             val isMajor = i % 5 == 0
-            val outerR = radius * 0.94f
+            val outerR = radius * 0.96f
             val innerR = if (isMajor) radius * 0.85f else radius * 0.89f
             canvas.drawLine(
                 cx + (outerR * cos(angleRad)).toFloat(),
@@ -68,15 +73,15 @@ object ClockFaceRenderer {
             )
         }
 
-        // Tall Condensed Radial Numerals (1..12)
+        // Tall Condensed Radial Numerals (1..12) rotated around center
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            textSize = safeSize * 0.125f
+            textSize = safeSize * 0.135f
             typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
             textAlign = Paint.Align.CENTER
             textScaleX = 0.78f
         }
-        val numRadius = radius * 0.68f
+        val numRadius = radius * 0.69f
         val fontMetrics = textPaint.fontMetrics
         val textOffsetY = -(fontMetrics.ascent + fontMetrics.descent) / 2f
 
@@ -87,8 +92,7 @@ object ClockFaceRenderer {
             val ny = cy + (numRadius * sin(rad)).toFloat()
 
             canvas.save()
-            val tiltDeg = if (hour in 4..8) deg - 180f else deg
-            canvas.rotate(tiltDeg, nx, ny)
+            canvas.rotate(deg, nx, ny)
             canvas.drawText(hour.toString(), nx, ny + textOffsetY, textPaint)
             canvas.restore()
         }
@@ -104,12 +108,12 @@ object ClockFaceRenderer {
         cal: Calendar = Calendar.getInstance(),
         sizePx: Int = 280
     ): Bitmap {
-        val safeSize = sizePx.coerceAtLeast(1)
+        val safeSize = sizePx.coerceAtLeast(MIN_DIAL_PX)
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = safeSize / 2f
         val cy = safeSize / 2f
-        val radius = safeSize * 0.48f
+        val radius = safeSize * DIAL_RADIUS_RATIO
 
         // Pure AMOLED Black Circle
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -150,7 +154,7 @@ object ClockFaceRenderer {
                 canvas.drawCircle(
                     cx + (dotR * cos(rad)).toFloat(),
                     cy + (dotR * sin(rad)).toFloat(),
-                    safeSize * 0.0055f,
+                    (safeSize * 0.0055f).coerceAtLeast(1f),
                     markerPaint
                 )
             }
@@ -211,7 +215,7 @@ object ClockFaceRenderer {
         val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = TEAL_NEON
             style = Paint.Style.STROKE
-            strokeWidth = sizePx * 0.006f
+            strokeWidth = (sizePx * 0.006f).coerceAtLeast(1f)
         }
         val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = TEAL_NEON
