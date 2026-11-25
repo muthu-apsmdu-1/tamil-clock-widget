@@ -350,12 +350,18 @@ object WidgetUpdateHelper {
             }
 
 
-            ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
+                        ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
                 val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
                 views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
+
+                val showHybridSubClock = minBoxPx >= 180
                 views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
-                views.safeSetVisibility(context, "tc_hybrid_top_digital", View.VISIBLE)
+                views.safeSetVisibility(
+                    context,
+                    "tc_hybrid_top_digital",
+                    if (showHybridSubClock) View.VISIBLE else View.GONE
+                )
 
                 if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
@@ -376,6 +382,8 @@ object WidgetUpdateHelper {
                 views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
             }
         }
+    }
+
     }
 
     // -------------------------------------------------------------
