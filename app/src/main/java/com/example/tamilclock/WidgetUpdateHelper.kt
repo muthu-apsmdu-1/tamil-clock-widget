@@ -274,7 +274,6 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
-    // -------------------------------------------------------------
     // CLOCK FACE
     // -------------------------------------------------------------
 
@@ -331,7 +330,6 @@ object WidgetUpdateHelper {
                 }
             }
 
-
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
                 val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(context, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
@@ -349,8 +347,7 @@ object WidgetUpdateHelper {
                 }
             }
 
-
-                        ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
+            ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
                 val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
                 views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
@@ -382,8 +379,6 @@ object WidgetUpdateHelper {
                 views.safeSetTextColor(context, "tv_digital_clock_ampm", colors.primaryText)
             }
         }
-    }
-
     }
 
     // -------------------------------------------------------------
@@ -1114,7 +1109,7 @@ object WidgetUpdateHelper {
                 views.safeSetVisibility(context, "tv_widget_horai_gowri_next", View.GONE)
             }
 
-             // Gregorian date (formatted via settings) + Effective solar Tamil Month/Date + Tamil Weekday
+            // Gregorian date (formatted via settings) + Effective solar Tamil Month/Date + Tamil Weekday
             val dateFormat = ThemeManager.getWidgetDateFormat(context)
             val gregDateText = ThemeManager.formatDateByPattern(cal, dateFormat)
             val tamilMonth = solarDate.tamilMonth.ifBlank { data.tamilMonth.ifBlank { "---" } }
@@ -1127,7 +1122,6 @@ object WidgetUpdateHelper {
             }
             val weekday = solarDate.weekdayTa.ifBlank { data.weekdayTa.ifBlank { "---" } }
             val dateRowText = "$gregDateText  •  $tamilMonth $tamilDay  •  $weekday"
-
 
             // Up to 3 of the 10 single-row options chosen by user
             val chosen3 = ThemeManager.getSelectedOptions4x4(context)
@@ -1166,7 +1160,7 @@ object WidgetUpdateHelper {
                 }
             }
         }
-    
+    }
 
     // -------------------------------------------------------------
     // UPDATE ALL WIDGETS
