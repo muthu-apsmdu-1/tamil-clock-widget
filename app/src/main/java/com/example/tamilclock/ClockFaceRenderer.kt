@@ -21,31 +21,24 @@ object ClockFaceRenderer {
     private const val MIN_DIAL_PX = 96
 
     // -------------------------------------------------------------
-    // 1. ANALOG STYLE B DIAL (36405.png: AMOLED Black + Radial White Numerals + 60 Ticks)
+    // 1. ANALOG STYLE B DIAL (36405.png: Transparent + Radial White Numerals + 60 Ticks)
     // -------------------------------------------------------------
-    fun createAmoledWhiteDialBitmap(sizePx: Int = 280): Bitmap {
+    fun createAmoledWhiteDialBitmap(context: Context, sizePx: Int = 280): Bitmap {
         val safeSize = sizePx.coerceAtLeast(MIN_DIAL_PX)
+        val density = context.resources.displayMetrics.density
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = safeSize / 2f
         val cy = safeSize / 2f
         val radius = safeSize * DIAL_RADIUS_RATIO
 
-        // Pure AMOLED Black Circle
-        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // Transparent center; thin black perimeter border (~0.25dp)
+        val blackPerimeterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
-            style = Paint.Style.FILL
-        }
-        canvas.drawCircle(cx, cy, radius, bgPaint)
-
-        // Subtle outer border ring
-        val ringStroke = (safeSize * 0.008f).coerceAtLeast(1f)
-        val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#33FFFFFF")
             style = Paint.Style.STROKE
-            strokeWidth = ringStroke
+            strokeWidth = (0.25f * density).coerceAtLeast(0.75f)
         }
-        canvas.drawCircle(cx, cy, radius - (ringStroke * 0.5f), ringPaint)
+        canvas.drawCircle(cx, cy, radius - (blackPerimeterPaint.strokeWidth * 0.5f), blackPerimeterPaint)
 
         // 60 Perimeter Tick Marks
         val majorTickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -73,7 +66,7 @@ object ClockFaceRenderer {
             )
         }
 
-        // Tall Condensed Radial Numerals (1..12) rotated around center
+        // Radial Numerals (1..12); 4..8 rotated 180°
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
             textSize = safeSize * 0.135f
@@ -92,7 +85,8 @@ object ClockFaceRenderer {
             val ny = cy + (numRadius * sin(rad)).toFloat()
 
             canvas.save()
-            canvas.rotate(deg, nx, ny)
+            val tiltDeg = if (hour in 4..8) deg + 180f else deg
+            canvas.rotate(tiltDeg, nx, ny)
             canvas.drawText(hour.toString(), nx, ny + textOffsetY, textPaint)
             canvas.restore()
         }
@@ -101,7 +95,7 @@ object ClockFaceRenderer {
     }
 
     // -------------------------------------------------------------
-    // 2. ANALOG STYLE C DIAL (AMOLED Black + Teal Triangle Bullets + Date/Day/Battery)
+    // 2. ANALOG STYLE C DIAL (Transparent + Teal Triangle Bullets + Date/Day/Battery)
     // -------------------------------------------------------------
     fun createAmoledHybridDialBitmap(
         context: Context,
@@ -109,18 +103,20 @@ object ClockFaceRenderer {
         sizePx: Int = 280
     ): Bitmap {
         val safeSize = sizePx.coerceAtLeast(MIN_DIAL_PX)
+        val density = context.resources.displayMetrics.density
         val bmp = Bitmap.createBitmap(safeSize, safeSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp)
         val cx = safeSize / 2f
         val cy = safeSize / 2f
         val radius = safeSize * DIAL_RADIUS_RATIO
 
-        // Pure AMOLED Black Circle
-        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        // Transparent center; thin black perimeter border (~0.25dp)
+        val blackPerimeterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK
-            style = Paint.Style.FILL
+            style = Paint.Style.STROKE
+            strokeWidth = (0.25f * density).coerceAtLeast(0.75f)
         }
-        canvas.drawCircle(cx, cy, radius, bgPaint)
+        canvas.drawCircle(cx, cy, radius - (blackPerimeterPaint.strokeWidth * 0.5f), blackPerimeterPaint)
 
         // Teal Perimeter Triangle Bullets (every 5 mins) + Small Dots (single mins)
         val markerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -326,7 +322,7 @@ object ClockFaceRenderer {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dial = createAmoledWhiteDialBitmap(safeSize)
+                val dial = createAmoledWhiteDialBitmap(context, safeSize)
                 try {
                     canvas.drawBitmap(dial, 0f, 0f, null)
                 } finally {
