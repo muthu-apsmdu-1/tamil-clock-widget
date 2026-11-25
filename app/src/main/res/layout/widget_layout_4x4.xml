@@ -20,12 +20,12 @@
         android:paddingHorizontal="10dp"
         android:paddingVertical="8dp">
 
-        <!-- UPPER 60% (weight 6): Clock Area + Live Horai + Live Gowri + Next Horai/Gowri Row -->
+        <!-- UPPER 70% (weight 6): Clock Area + Live Horai + Live Gowri + Next Horai/Gowri Row -->
         <FrameLayout
             android:id="@+id/container_upper_frame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="6">
+            android:layout_weight="7">
 
             <!-- Clock Area (Center) -->
             <!-- Clock Area (Center, Uniformly Bounded in Available Space) -->
@@ -98,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
-                        android:textSize="44sp"
+                        android:textSize="48sp"
                         android:textStyle="bold"
                         android:maxLines="1"
                         android:includeFontPadding="false" />
@@ -206,12 +206,12 @@
 
         </FrameLayout>
 
-        <!-- BOTTOM 40% (weight 4): All Other Contents Stacked -->
+        <!-- BOTTOM 30% (weight 4): All Other Contents Stacked -->
         <FrameLayout
             android:id="@+id/container_lower_frame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="4">
+            android:layout_weight="3">
 
             <LinearLayout
                 android:id="@+id/container_elements_bottom"
@@ -227,7 +227,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingVertical="2dp"
+                    android:paddingVertical="5dp"
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:maxLines="1"
@@ -238,7 +238,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingVertical="2dp"
+                    android:paddingVertical="5dp"
                     android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
@@ -249,7 +249,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingVertical="2dp"
+                    android:paddingVertical="5dp"
                     android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
@@ -260,7 +260,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:paddingVertical="2dp"
+                    android:paddingVertical="5dp"
                     android:textSize="12sp"
                     android:textStyle="normal"
                     android:maxLines="1"
