@@ -28,12 +28,15 @@
             android:layout_weight="6">
 
             <!-- Clock Area (Center) -->
+            <!-- Clock Area (Center, Uniformly Bounded in Available Space) -->
             <FrameLayout
                 android:id="@+id/container_clock_top"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_marginBottom="20dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="40dp"
+                android:layout_marginHorizontal="36dp">
 
                 <ImageView
                     android:id="@+id/iv_hybrid_dial_bg"
@@ -60,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|center_horizontal"
-                    android:layout_marginTop="46dp"
+                    android:layout_marginTop="36dp"
                     android:format12Hour="h:mm"
                     android:format24Hour="HH:mm"
                     android:textColor="#00F5D4"
@@ -74,8 +77,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="12dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="10dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
                     android:visibility="gone"
@@ -95,7 +98,7 @@
                         android:layout_height="wrap_content"
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
-                        android:textSize="48sp"
+                        android:textSize="44sp"
                         android:textStyle="bold"
                         android:maxLines="1"
                         android:includeFontPadding="false" />
@@ -107,7 +110,7 @@
                         android:layout_marginTop="2dp"
                         android:format12Hour="a"
                         android:format24Hour=""
-                        android:textSize="16sp"
+                        android:textSize="15sp"
                         android:textStyle="bold"
                         android:maxLines="1"
                         android:includeFontPadding="false" />
@@ -115,13 +118,15 @@
 
             </FrameLayout>
 
-            <!-- Live Horai (Left Flank: Small Timing + Big Name) -->
+           
+            <!-- Live Horai (Left Flank: Small Timing + Big Name, Anchored Above Next Horai/Gowri Row) -->
             <LinearLayout
                 android:id="@+id/container_top_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
-                android:layout_marginBottom="8dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginBottom="24dp"
+                android:paddingBottom="2dp"
                 android:orientation="vertical"
                 android:gravity="start">
 
@@ -149,13 +154,14 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Live Gowri (Right Flank: Small Timing + Big Name) -->
+            <!-- Live Gowri (Right Flank: Small Timing + Big Name, Anchored Above Next Horai/Gowri Row) -->
             <LinearLayout
                 android:id="@+id/container_top_right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_marginBottom="8dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="24dp"
+                android:paddingBottom="2dp"
                 android:orientation="vertical"
                 android:gravity="end">
 
@@ -182,6 +188,7 @@
                     android:includeFontPadding="false"
                     android:visibility="gone" />
             </LinearLayout>
+
 
             <!-- Next Horai/Gowri Row (Bottom of Upper Frame, Full Width) -->
             <TextView
