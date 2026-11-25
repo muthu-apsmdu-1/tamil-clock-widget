@@ -274,6 +274,7 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
+    // -------------------------------------------------------------
     // CLOCK FACE
     // -------------------------------------------------------------
 
@@ -289,6 +290,11 @@ object WidgetUpdateHelper {
         val clockFace = ThemeManager.getClockFace(context)
         val is24Hr = DateFormat.is24HourFormat(context)
         val amPmVisibility = if (is24Hr) View.GONE else View.VISIBLE
+
+        val density = context.resources.displayMetrics.density
+        val minBoxPx = minOf(clockBoxW, clockBoxH).coerceAtLeast(120)
+        val targetDialPx = ((150f * density).toInt())
+            .coerceIn(180, minBoxPx)
 
         val analogId = views.findId(
             context,
@@ -306,7 +312,7 @@ object WidgetUpdateHelper {
         when (clockFace) {
 
             ThemeManager.CLOCK_DIGITAL_AMOLED_NEON -> {
-                val pill = createAmoledPillBitmap(clockBoxW, clockBoxH)
+                val pill = createAmoledPillBitmap(targetDialPx, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_digital_clock_bg", pill)
                 views.safeSetVisibility(context, "iv_digital_clock_bg", View.VISIBLE)
                 views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
@@ -326,7 +332,7 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(360)
+                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(targetDialPx)
                 if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
                     views.setIcon(analogId, "setDial", Icon.createWithBitmap(dialBitmap))
@@ -341,7 +347,7 @@ object WidgetUpdateHelper {
             }
 
             ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
-                val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, 380)
+                val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, targetDialPx)
                 views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
                 views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
                 views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
