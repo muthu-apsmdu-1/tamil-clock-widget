@@ -10,7 +10,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.text.SpannableString
@@ -20,9 +22,11 @@ import android.text.style.RelativeSizeSpan
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.min
 
 object WidgetUpdateHelper {
 
@@ -274,6 +278,94 @@ object WidgetUpdateHelper {
     }
 
     // -------------------------------------------------------------
+    // CLOCK HAND & DIAL FITTING HELPERS
+    // -------------------------------------------------------------
+
+    /**
+     * Renders a hand drawable scaled relative to the available dial box so
+     * hour, minute, and second hands always stay comfortably inside the dial rim.
+     */
+    private fun createScaledHandBitmap(
+        context: Context,
+        drawableResId: Int,
+        dialBoxPx: Int,
+        reachFraction: Float
+    ): Bitmap? {
+        val drawable: Drawable = ContextCompat.getDrawable(context, drawableResId) ?: return null
+        val size = dialBoxPx.coerceAtLeast(48)
+        val outBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(outBitmap)
+
+        val half = size / 2f
+        // Drawable's upper half represents reach from center (half) to top (0)
+        val desiredTipY = (half * (1f - reachFraction.coerceIn(0.25f, 0.92f))).coerceAtLeast(2f)
+        val desiredReachPx = (half - desiredTipY).coerceAtLeast(4f)
+
+        val srcW = drawable.intrinsicWidth.takeIf { it > 0 } ?: 200
+        val srcH = drawable.intrinsicHeight.takeIf { it > 0 } ?: 200
+        val srcCenterY = srcH / 2f
+        val srcTopReach = (srcCenterY).coerceAtLeast(1f)
+
+        val scale = desiredReachPx / srcTopReach
+        val scaledW = srcW * scale
+        val scaledH = srcH * scale
+
+        val left = (half - scaledW / 2f).toInt()
+        val top = (half - scaledH / 2f).toInt()
+        val right = (half + scaledW / 2f).toInt()
+        val bottom = (half + scaledH / 2f).toInt()
+
+        canvas.save()
+        drawable.setBounds(left, top, right, bottom)
+        drawable.draw(canvas)
+        canvas.restore()
+
+        return outBitmap
+    }
+
+    private fun createScaledDrawableBitmap(
+        context: Context,
+        drawableResId: Int,
+        targetPx: Int
+    ): Bitmap? {
+        val drawable = ContextCompat.getDrawable(context, drawableResId) ?: return null
+        val size = targetPx.coerceAtLeast(48)
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, size, size)
+        drawable.draw(canvas)
+        return bitmap
+    }
+
+    private fun applyHandsToAnalogView(
+        context: Context,
+        views: RemoteViews,
+        analogId: Int,
+        dialBitmap: Bitmap?,
+        dialFitPx: Int,
+        hourRes: Int?,
+        minuteRes: Int?,
+        secondRes: Int?
+    ) {
+        if (analogId == 0 || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+
+        val effectiveDialBitmap = dialBitmap
+            ?: Bitmap.createBitmap(dialFitPx, dialFitPx, Bitmap.Config.ARGB_8888)
+
+        views.setIcon(analogId, "setDial", Icon.createWithBitmap(effectiveDialBitmap))
+
+        // Reach fractions relative to dial radius:
+        // Hour ~ 0.48, Minute ~ 0.70, Second ~ 0.80 so tips clear the dial border
+        val hourBmp = hourRes?.let { createScaledHandBitmap(context, it, dialFitPx, 0.48f) }
+        val minBmp = minuteRes?.let { createScaledHandBitmap(context, it, dialFitPx, 0.70f) }
+        val secBmp = secondRes?.let { createScaledHandBitmap(context, it, dialFitPx, 0.80f) }
+
+        views.setIcon(analogId, "setHourHand", hourBmp?.let { Icon.createWithBitmap(it) })
+        views.setIcon(analogId, "setMinuteHand", minBmp?.let { Icon.createWithBitmap(it) })
+        views.setIcon(analogId, "setSecondHand", secBmp?.let { Icon.createWithBitmap(it) })
+    }
+
+    // -------------------------------------------------------------
     // CLOCK FACE
     // -------------------------------------------------------------
 
@@ -291,9 +383,14 @@ object WidgetUpdateHelper {
         val amPmVisibility = if (is24Hr) View.GONE else View.VISIBLE
 
         val density = context.resources.displayMetrics.density
-        val minBoxPx = minOf(clockBoxW, clockBoxH).coerceAtLeast(96)
-        val targetDialPx = ((150f * density).toInt())
-            .coerceIn(96, minBoxPx)
+        val minBoxPx = minOf(clockBoxW, clockBoxH).coerceAtLeast(80)
+
+        // Leave breathing space inside available box (86% of smaller dimension)
+        // while respecting compact vs large widget boxes
+        val spaceInsetFactor = if (minBoxPx <= 150) 0.84f else 0.90f
+        val targetDialPx = ((minBoxPx * spaceInsetFactor).toInt())
+            .coerceIn((68f * density).toInt().coerceAtLeast(68), (240f * density).toInt())
+            .coerceAtMost(minBoxPx)
 
         val analogId = views.findId(
             context,
@@ -322,28 +419,287 @@ object WidgetUpdateHelper {
 
             ThemeManager.CLOCK_ANALOG_CLASSIC -> {
                 views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    views.setIcon(analogId, "setDial", Icon.createWithResource(context, R.drawable.classic_clock_dial))
-                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.classic_clock_hour))
-                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.classic_clock_minute))
-                    views.setIcon(analogId, "setSecondHand", null)
-                }
+                val classicDialBmp = createScaledDrawableBitmap(
+                    context,
+                    R.drawable.classic_clock_dial,
+                    targetDialPx
+                )
+                applyHandsToAnalogView(
+                    context = context,
+                    views = views,
+                    analogId = analogId,
+                    dialBitmap = classicDialBmp,
+                    dialFitPx = targetDialPx,
+                    hourRes = R.drawable.classic_clock_hour,
+                    minuteRes = R.drawable.classic_clock_minute,
+                    secondRes = null
+                )
             }
+ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
+    val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(
+        context,
+        targetDialPx
+    )
 
-            ThemeManager.CLOCK_ANALOG_AMOLED_WHITE -> {
-                val dialBitmap = ClockFaceRenderer.createAmoledWhiteDialBitmap(context, targetDialPx)
-                views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", dialBitmap)
+    views.safeSetImageBitmap(
+        context,
+        "iv_hybrid_dial_bg",
+        dialBitmap
+    )
+
+    views.safeSetVisibility(
+        context,
+        "iv_hybrid_dial_bg",
+        View.VISIBLE
+    )
+
+    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+        // Hide digital clock containers
+        views.safeSetVisibility(
+            context,
+            "container_digital_clock",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock_ampm",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tc_hybrid_top_digital",
+            View.GONE
+        )
+
+        // Show analog clock
+        views.safeSetVisibility(
+            context,
+            "analog_clock_view",
+            View.VISIBLE
+        )
+
+        applyHandsToAnalogView(
+            context = context,
+            views = views,
+            analogId = analogId,
+            dialBitmap = null,
+            dialFitPx = targetDialPx,
+            hourRes = R.drawable.clock_hand_hour_capsule,
+            minuteRes = R.drawable.clock_hand_minute_capsule,
+            secondRes = R.drawable.clock_hand_second_red
+        )
+
+    } else {
+
+        // Android 11 and below: digital fallback
+        views.safeSetVisibility(
+            context,
+            "analog_clock_view",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "container_digital_clock",
+            View.VISIBLE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock",
+            View.VISIBLE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock_ampm",
+            amPmVisibility
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tc_hybrid_top_digital",
+            View.GONE
+        )
+
+        views.safeSetTextColor(
+            context,
+            "tv_digital_clock",
+            colors.primaryText
+        )
+
+        views.safeSetTextColor(
+            context,
+            "tv_digital_clock_ampm",
+            colors.primaryText
+        )
+    }
+}
+
+ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
+    val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(
+        context,
+        cal,
+        targetDialPx
+    )
+
+    views.safeSetImageBitmap(
+        context,
+        "iv_hybrid_dial_bg",
+        hybridDialBitmap
+    )
+
+    views.safeSetVisibility(
+        context,
+        "iv_hybrid_dial_bg",
+        View.VISIBLE
+    )
+
+    if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+        // Show secondary digital clock only on sufficiently large dials
+        val showHybridSubClock = minBoxPx >= 180
+
+        views.safeSetVisibility(
+            context,
+            "container_digital_clock",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock_ampm",
+            View.GONE
+        )
+
+        views.safeSetTextColor(
+            context,
+            "tc_hybrid_top_digital",
+            TEAL_NEON
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tc_hybrid_top_digital",
+            if (showHybridSubClock) View.VISIBLE else View.GONE
+        )
+
+        // Show analog clock
+        views.safeSetVisibility(
+            context,
+            "analog_clock_view",
+            View.VISIBLE
+        )
+
+        applyHandsToAnalogView(
+            context = context,
+            views = views,
+            analogId = analogId,
+            dialBitmap = null,
+            dialFitPx = targetDialPx,
+            hourRes = R.drawable.clock_hand_hour_capsule,
+            minuteRes = R.drawable.clock_hand_minute_capsule,
+            secondRes = R.drawable.clock_hand_second_red
+        )
+
+    } else {
+
+        // Android 11 and below: single digital fallback
+        views.safeSetVisibility(
+            context,
+            "analog_clock_view",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tc_hybrid_top_digital",
+            View.GONE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "container_digital_clock",
+            View.VISIBLE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock",
+            View.VISIBLE
+        )
+
+        views.safeSetVisibility(
+            context,
+            "tv_digital_clock_ampm",
+            amPmVisibility
+        )
+
+        views.safeSetTextColor(
+            context,
+            "tv_digital_clock",
+            TEAL_NEON
+        )
+
+        views.safeSetTextColor(
+            context,
+            "tv_digital_clock_ampm",
+            TEAL_NEON
+        )
+    }
+}
+
+            ThemeManager.CLOCK_ANALOG_AMOLED_HYBRID -> {
+                val hybridDialBitmap = ClockFaceRenderer.createAmoledHybridDialBitmap(context, cal, targetDialPx)
+                views.safeSetImageBitmap(context, "iv_hybrid_dial_bg", hybridDialBitmap)
                 views.safeSetVisibility(context, "iv_hybrid_dial_bg", View.VISIBLE)
 
                 if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
+                    val showHybridSubClock = minBoxPx >= 180
+                    views.safeSetVisibility(context, "tv_digital_clock", View.GONE)
+                    views.safeSetVisibility(context, "tv_digital_clock_ampm", View.GONE)
+                    views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
+                    views.safeSetVisibility(
+                        context,
+                        "tc_hybrid_top_digital",
+                        if (showHybridSubClock) View.VISIBLE else View.GONE
+                    )
                     views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                    applyHandsToAnalogView(
+                        context = context,
+                        views = views,
+                        analogId = analogId,
+                        dialBitmap = null,
+                        dialFitPx = targetDialPx,
+                        hourRes = R.drawable.clock_hand_hour_capsule,
+                        minuteRes = R.drawable.clock_hand_minute_capsule,
+                        secondRes = R.drawable.clock_hand_second_red
+                    )
                 } else {
+                    // Android 11 and below fallback: show hybrid digital readout clearly without broken AnalogClock
                     views.safeSetVisibility(context, "analog_clock_view", View.GONE)
+                    views.safeSetTextColor(context, "tc_hybrid_top_digital", TEAL_NEON)
+                    views.safeSetVisibility(context, "tc_hybrid_top_digital", View.VISIBLE)
+                    views.safeSetVisibility(context, "container_digital_clock", View.VISIBLE)
+                    views.safeSetVisibility(context, "tv_digital_clock", View.VISIBLE)
+                    views.safeSetVisibility(context, "tv_digital_clock_ampm", amPmVisibility)
+                    views.safeSetTextColor(context, "tv_digital_clock", TEAL_NEON)
+                    views.safeSetTextColor(context, "tv_digital_clock_ampm", TEAL_NEON)
                 }
             }
 
@@ -361,12 +717,17 @@ object WidgetUpdateHelper {
                 )
 
                 if (analogId != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val transparentDial = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
                     views.safeSetVisibility(context, "analog_clock_view", View.VISIBLE)
-                    views.setIcon(analogId, "setDial", Icon.createWithBitmap(transparentDial))
-                    views.setIcon(analogId, "setHourHand", Icon.createWithResource(context, R.drawable.clock_hand_hour_capsule))
-                    views.setIcon(analogId, "setMinuteHand", Icon.createWithResource(context, R.drawable.clock_hand_minute_capsule))
-                    views.setIcon(analogId, "setSecondHand", Icon.createWithResource(context, R.drawable.clock_hand_second_red))
+                    applyHandsToAnalogView(
+                        context = context,
+                        views = views,
+                        analogId = analogId,
+                        dialBitmap = null,
+                        dialFitPx = targetDialPx,
+                        hourRes = R.drawable.clock_hand_hour_capsule,
+                        minuteRes = R.drawable.clock_hand_minute_capsule,
+                        secondRes = R.drawable.clock_hand_second_red
+                    )
                 } else {
                     views.safeSetVisibility(context, "analog_clock_view", View.GONE)
                 }
